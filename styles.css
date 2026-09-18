@@ -1,0 +1,72 @@
+/* Custom CSS rules for SENA SST COPASST HTML app */
+
+body {
+  font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-display {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-code {
+  font-family: 'Space Grotesk', monospace;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 1024px) {
+  body {
+    padding-bottom: 72px; /* Space for bottom nav bar on mobile */
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f2f3ff;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #becbb3;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #39a900;
+}
+
+/* Navigation active pill indicator */
+.nav-active {
+  background-color: #39a900 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(57, 169, 0, 0.3) !important;
+}
+
+.nav-active span.material-symbols-outlined {
+  color: #ffffff !important;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #eaedff;
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+

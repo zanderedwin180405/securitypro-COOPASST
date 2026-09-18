@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENA SST - COPASST Inspecciones Inteligentes</title>
+  <meta name="description" content="Plataforma de inspecciones de seguridad y salud en el trabajo para el SENA con matriz GTC 45, arbitraje Maker-Checker y reporte F-SST-012.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#faf8ff] text-[#131b2e] antialiased selection:bg-[#6cf8bb] selection:text-[#002113] min-h-screen relative overflow-x-hidden">
+
+  <!-- Ambient Radial Blobs -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-[#39a900]/10 blur-[130px]"></div>
+    <div class="absolute top-1/3 -right-28 w-[450px] h-[450px] rounded-full bg-[#359ade]/10 blur-[140px]"></div>
+    <div class="absolute bottom-0 left-1/3 w-[600px] h-[500px] rounded-full bg-[#6cf8bb]/15 blur-[150px]"></div>
+  </div>
+
+  <!-- Mobile Backdrop Overlay -->
+  <div id="mobileBackdrop" class="hidden fixed inset-0 bg-[#0f172a]/40 backdrop-blur-sm z-40 lg:hidden transition-opacity"></div>
+
+  <!-- Sidebar Component -->
+  <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-white/95 lg:bg-white/85 backdrop-blur-xl z-50 flex flex-col justify-between shadow-[0_4px_24px_rgba(15,23,42,0.06)] border-r border-[#eaedff] -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <div class="flex flex-col">
+      <!-- Brand Header -->
+      <div class="h-20 px-6 flex items-center justify-between border-b border-[#eaedff]/60">
+        <div onclick="navigateTo('dashboard-telemetria')" class="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">
+          <img alt="Logo SENA SST COPASST" class="h-9 w-auto object-contain" src="https://upload.wikimedia.org/wikipedia/commons/8/83/SENA_Colombia_logo.svg">
+          <div class="flex flex-col">
+            <span class="font-bold text-[16px] text-[#226d00] tracking-tight">SENA SST</span>
+            <span class="text-[12px] text-[#3f4a38] font-normal">COPASST Inteligente</span>
+          </div>
+        </div>
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-1.5 rounded-lg text-[#6f7b66] hover:bg-[#eaedff]">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Navigation Section Label -->
+      <div class="px-5 pt-5 pb-2">
+        <div class="px-2 py-1 text-[#6f7b66] uppercase tracking-wider font-semibold text-[11px]">
+          Módulos Operativos
+        </div>
+      </div>
+
+      <!-- Navigation Menu Items -->
+      <nav class="px-3 flex flex-col gap-1.5" aria-label="Navegación principal">
+        <button onclick="navigateTo('dashboard-telemetria')" id="nav-dashboard-telemetria" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left bg-[#39a900] text-white font-semibold shadow-[0_4px_14px_rgba(57,169,0,0.3)]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px]">monitoring</span>
+            <span class="text-[13px]">Dashboard & Telemetría</span>
+          </div>
+        </button>
+
+        <button onclick="navigateTo('nueva-inspeccion-campo')" id="nav-nueva-inspeccion-campo" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">assignment_add</span>
+            <span class="text-[13px]">Nueva Inspección en Campo</span>
+          </div>
+        </button>
+
+        <button onclick="navigateTo('analisis-ia-maker-checker')" id="nav-analisis-ia-maker-checker" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">verified_user</span>
+            <span class="text-[13px]">Análisis IA Maker-Checker</span>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236]">Dual MCP</span>
+        </button>
+
+        <button onclick="navigateTo('hallazgos-plan-de-accion')" id="nav-hallazgos-plan-de-accion" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">description</span>
+            <span class="text-[13px]">Informe Oficial (F-SST-012)</span>
+          </div>
+          <span id="badgePendingCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236]">1</span>
+        </button>
+
+        <button onclick="navigateTo('matriz-gtc-45-normativa')" id="nav-matriz-gtc-45-normativa" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">gavel</span>
+            <span class="text-[13px]">Matriz GTC 45 & Normativa</span>
+          </div>
+        </button>
+
+        <button onclick="navigateTo('configuracion-sedes')" id="nav-configuracion-sedes" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">domain</span>
+            <span class="text-[13px]">Configuración Sedes</span>
+          </div>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Sidebar Footer Banner -->
+    <div class="p-4 m-3 rounded-2xl bg-[#eaedff]/60 border border-[#becbb3]/40 backdrop-blur-md">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#39a900] animate-pulse"></span>
+        <span class="font-bold text-[11px] text-[#006c49] uppercase tracking-wide">Protocolo MCP Activo</span>
+      </div>
+      <p class="text-[#3f4a38] text-[12px] leading-tight">SENA SG-SST v3.0 • COPASST Nacional</p>
+      <div class="mt-2.5 pt-2 border-t border-[#becbb3]/30 flex items-center justify-between text-[11px] text-[#6f7b66]">
+        <span>GTC 45 / Res. 0312</span>
+        <span class="text-[#006398] font-semibold">Gemini 2.5</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="pl-0 lg:pl-72 relative z-10 transition-all duration-300">
+    <!-- Header Component -->
+    <header class="fixed top-0 left-0 lg:left-72 right-0 h-20 bg-[#ffffff]/85 backdrop-blur-xl shadow-[0_2px_16px_rgba(15,23,42,0.03)] z-30 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-6 border-b border-[#eaedff]">
+      <div class="flex items-center gap-3 flex-1 max-w-3xl">
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-[#131b2e] hover:bg-[#eaedff] shrink-0">
+          <span class="material-symbols-outlined text-[26px]">menu</span>
+        </button>
+
+        <div class="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-[#226d00]/10 border border-[#226d00]/25 rounded-xl text-[#006c49] shrink-0 shadow-sm">
+          <span class="material-symbols-outlined text-[20px] text-[#226d00]">calendar_today</span>
+          <div class="flex flex-col text-left">
+            <span class="text-[10px] uppercase font-extrabold text-[#006c49] tracking-wider leading-none">Fecha Inspección</span>
+            <span id="headerCurrentDate" class="text-[13px] font-bold text-[#131b2e] leading-tight mt-0.5">18/09/2026</span>
+          </div>
+        </div>
+
+        <div class="relative flex-1">
+          <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6f7b66] text-[20px]">search</span>
+          <input id="searchInput" oninput="handleSearch(this.value)" class="w-full pl-11 pr-4 py-2 bg-[#f2f3ff]/90 backdrop-blur-md rounded-xl text-[#131b2e] placeholder:text-[#6f7b66] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30 transition-all border border-transparent focus:border-[#226d00]/20" placeholder="Buscar inspecciones, factores de riesgo GTC-45..." type="text">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6cf8bb]/30 text-[#005236] text-[12px] border border-[#6cf8bb]/50">
+          <span class="w-2 h-2 rounded-full bg-[#226d00] animate-ping"></span>
+          <span class="material-symbols-outlined text-[16px] text-[#006c49]">cloud_done</span>
+          <span class="font-semibold">Sincronizado • PWA</span>
+        </div>
+
+        <div class="relative">
+          <button onclick="toggleNotifications()" class="relative p-2.5 rounded-xl text-[#3f4a38] hover:bg-[#eaedff]">
+            <span class="material-symbols-outlined text-[22px]">notifications</span>
+            <span class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#ba1a1a] text-white text-[10px] flex items-center justify-center font-bold">3</span>
+          </button>
+
+          <!-- Notifications Menu -->
+          <div id="notifMenu" class="hidden absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-[#eaedff] p-3 z-50">
+            <div class="flex items-center justify-between pb-2 px-2 border-b border-[#eaedff]">
+              <span class="text-[13px] text-[#131b2e] font-bold">Notificaciones COPASST</span>
+              <span onclick="toggleNotifications()" class="text-[11px] text-[#226d00] font-semibold cursor-pointer">Marcar leídas</span>
+            </div>
+            <div class="flex flex-col gap-2 mt-2">
+              <div class="p-2.5 rounded-xl bg-[#f2f3ff]/70 hover:bg-[#eaedff] cursor-pointer">
+                <div class="flex items-center justify-between"><span class="text-[12px] font-semibold">Validación requerida Taller 3</span><span class="text-[10px] text-[#6f7b66]">Hace 5 min</span></div>
+                <p class="text-[11px] text-[#3f4a38]">Inferencia Maker-Checker lista para firma</p>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#f2f3ff]/70 hover:bg-[#eaedff] cursor-pointer">
+                <div class="flex items-center justify-between"><span class="text-[12px] font-semibold">Plazo LOTO por vencer</span><span class="text-[10px] text-[#6f7b66]">Hace 1 hr</span></div>
+                <p class="text-[11px] text-[#3f4a38]">Torno T-04 requiere verificación de guarda</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="hidden fixed top-24 right-4 sm:right-8 z-50 max-w-md p-4 rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl border border-[#eaedff] flex items-start gap-3 animate-bounce">
+      <span id="toastIcon" class="material-symbols-outlined text-[24px] text-[#226d00] shrink-0">check_circle</span>
+      <div class="flex flex-col flex-1">
+        <span id="toastTitle" class="text-[13px] font-bold text-[#131b2e]">Notificación</span>
+        <p id="toastMessage" class="text-[12px] text-[#3f4a38]">Operación realizada con éxito.</p>
+      </div>
+      <button onclick="closeToast()" class="text-[#6f7b66] hover:text-[#131b2e]">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <!-- Main Views Root Container -->
+    <main class="w-full pt-24 sm:pt-28 px-4 sm:px-6 lg:px-8 pb-16 min-h-screen" id="main-content">
+      
+      <!-- VIEW 1: DASHBOARD TELEMETRÍA -->
+      <section id="view-dashboard-telemetria" class="view-section flex flex-col gap-6">
+        <!-- Sub-Header & Executive Actions -->
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-sm border border-[#eaedff]">
+          <div class="flex flex-col gap-1 max-w-3xl">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#39a900]"></span>
+              <span class="text-[12px] text-[#006c49] font-bold tracking-wide uppercase">Consolidado Regional SG-SST</span>
+            </div>
+            <h1 class="text-3xl font-bold text-[#131b2e] tracking-tight">Dashboard de Inspecciones COPASST</h1>
+            <p id="dashboardCurrentSedeText" class="text-[#3f4a38] text-[14px]">Complejo Sur - Centro de Metalmecánica</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="navigateTo('nueva-inspeccion-campo')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow-md transition-all">
+              <span class="material-symbols-outlined text-[18px]">add_circle</span>
+              <span>+ Nueva Inspección</span>
+            </button>
+            <button onclick="toggleFilterQuickBar()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] text-[13px] border border-[#becbb3]/40">
+              <span class="material-symbols-outlined text-[18px] text-[#6f7b66]">filter_list</span>
+              <span>Filtrar</span>
+            </button>
+            <button onclick="exportReportPDF()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] text-[13px] border border-[#becbb3]/40">
+              <span class="material-symbols-outlined text-[18px] text-[#6f7b66]">download</span>
+              <span>Exportar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Quick Bar -->
+        <div id="filterQuickBar" class="hidden p-3 bg-white rounded-xl shadow-md border border-[#eaedff] flex items-center gap-2 flex-wrap">
+          <span class="text-[12px] font-bold text-[#6f7b66] mr-2">Nivel de Riesgo:</span>
+          <button onclick="setRiskFilter('todos')" class="filter-pill px-3 py-1 rounded-lg text-[12px] font-semibold bg-[#39a900] text-white">Todos</button>
+          <button onclick="setRiskFilter('alto')" class="filter-pill px-3 py-1 rounded-lg text-[12px] font-semibold bg-[#f2f3ff] text-[#3f4a38]">Riesgo Alto (I y II)</button>
+          <button onclick="setRiskFilter('medio')" class="filter-pill px-3 py-1 rounded-lg text-[12px] font-semibold bg-[#f2f3ff] text-[#3f4a38]">Riesgo Medio (III)</button>
+          <button onclick="setRiskFilter('bajo')" class="filter-pill px-3 py-1 rounded-lg text-[12px] font-semibold bg-[#f2f3ff] text-[#3f4a38]">Riesgo Bajo (IV)</button>
+        </div>
+
+        <!-- 3 KPI Cards Grid (SIN Asistente IA GTC 45) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="p-6 rounded-2xl bg-white/85 backdrop-blur-md shadow-sm border border-[#eaedff] flex flex-col justify-between">
+            <div class="flex items-center justify-between text-[#3f4a38]">
+              <span class="text-[13px] font-medium">Tiempo Promedio</span>
+              <span class="material-symbols-outlined text-[22px] text-[#6f7b66]">schedule</span>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-[40px] text-[#131b2e] font-bold">12.5</span>
+                <span class="text-[14px] text-[#3f4a38]">min</span>
+              </div>
+              <span class="text-[12px] text-[#006c49] font-semibold mt-1 inline-block bg-[#6cf8bb]/30 px-2 py-0.5 rounded-md">Eficiencia PWA Móvil</span>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-white/85 backdrop-blur-md shadow-sm border border-[#eaedff] flex flex-col justify-between">
+            <div class="flex items-center justify-between text-[#3f4a38]">
+              <span class="text-[13px] font-medium">Medidas de Control</span>
+              <span class="material-symbols-outlined text-[22px] text-[#6f7b66]">check_circle</span>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-baseline gap-1.5">
+                <span id="kpiControlRate" class="text-[40px] text-[#131b2e] font-bold">85%</span>
+              </div>
+              <span class="text-[12px] text-[#3f4a38] mt-1 inline-block">1 en seguimiento • 2 cerradas</span>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-white/85 backdrop-blur-md shadow-sm border border-[#eaedff] flex flex-col justify-between">
+            <div class="flex items-center justify-between text-[#3f4a38]">
+              <span class="text-[13px] font-medium">Inspecciones Realizadas</span>
+              <span class="material-symbols-outlined text-[22px] text-[#226d00]">assignment</span>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-baseline gap-1.5">
+                <span id="kpiTotalCount" class="text-[40px] text-[#131b2e] font-bold">3</span>
+                <span class="text-[14px] text-[#3f4a38]">registradas</span>
+              </div>
+              <span class="text-[12px] text-[#3f4a38] mt-1 inline-block">Sincronizado con Supabase</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 flex flex-col gap-6">
+            <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-sm border border-[#eaedff] flex flex-col gap-4">
+              <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                  <span class="text-[16px] font-bold text-[#131b2e]">Distribución de Peligros Identificados (GTC 45)</span>
+                  <span class="text-[12px] text-[#3f4a38]">Taxonomía normativa consolidada periodo 2026</span>
+                </div>
+                <span id="kpiTotalBadge" class="px-3 py-1 rounded-full bg-[#eaedff] text-[#131b2e] text-[11px] font-bold">n = 3 hallazgos</span>
+              </div>
+
+              <div class="w-full h-4 rounded-full overflow-hidden flex bg-[#eaedff]">
+                <div class="w-[66%] bg-[#39a900]" title="Peligro Mecánico 66%"></div>
+                <div class="w-[34%] bg-[#ba1a1a]" title="Peligro Eléctrico 34%"></div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="p-3.5 rounded-xl bg-[#f2f3ff] flex items-center justify-between border border-[#eaedff]/60">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-[#39a900]"></span>
+                    <span class="text-[13px] text-[#131b2e]">Peligro Mecánico</span>
+                  </div>
+                  <span class="text-[15px] font-bold">66%</span>
+                </div>
+                <div class="p-3.5 rounded-xl bg-[#f2f3ff] flex items-center justify-between border border-[#eaedff]/60">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-3.5 h-3.5 rounded-full bg-[#ba1a1a]"></span>
+                    <span class="text-[13px] text-[#131b2e]">Peligro Eléctrico</span>
+                  </div>
+                  <span class="text-[15px] font-bold">34%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 flex flex-col gap-6">
+            <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-sm border border-[#eaedff] flex flex-col gap-4 h-full">
+              <div class="flex items-center justify-between">
+                <span class="text-[16px] font-bold text-[#131b2e]">Inspecciones Recientes</span>
+                <span class="text-[11px] text-[#006c49] font-bold uppercase bg-[#6cf8bb]/40 px-2.5 py-0.5 rounded-full">En Tiempo Real</span>
+              </div>
+
+              <div id="inspectionsListContainer" class="flex flex-col gap-3">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: NUEVA INSPECCIÓN EN CAMPO -->
+      <section id="view-nueva-inspeccion-campo" class="view-section hidden flex flex-col gap-6">
+        <div class="flex flex-col gap-1">
+          <h1 class="text-2xl font-bold text-[#131b2e]">Captura de Inspección en Campo</h1>
+          <p class="text-[13px] text-[#3f4a38]">Detección de peligros y registro fotográfico multicanal</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 flex flex-col gap-6">
+            <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-[#eaedff] shadow-sm flex flex-col gap-5">
+              
+              <!-- Sede Selection -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[#226d00] text-[18px]">location_city</span>
+                  Centro de Formación / Regional SENA
+                </label>
+                <select id="selectSede" class="w-full bg-[#f2f3ff] py-2.5 px-3.5 rounded-xl text-[13px] border border-[#eaedff]">
+                  <option value="Complejo Sur - Centro de Metalmecánica">Complejo Sur - Centro de Metalmecánica</option>
+                  <option value="Centro de Tecnologías del Transporte (Cazucá)">Centro de Tecnologías del Transporte (Cazucá)</option>
+                  <option value="Centro de Electricidad, Electrónica y Telecomunicaciones (CEET)">CEET - Distrito Capital</option>
+                </select>
+              </div>
+
+              <!-- Area / Taller -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[#226d00] text-[18px]">factory</span>
+                  Área / Taller Específico
+                </label>
+                <select id="selectTaller" class="w-full bg-[#f2f3ff] py-2.5 px-3.5 rounded-xl text-[13px] border border-[#eaedff]">
+                  <option value="Taller de Maquinado y Tornos">Taller de Maquinado y Tornos</option>
+                  <option value="Taller de Soldadura y Fundición">Taller de Soldadura y Fundición</option>
+                  <option value="Laboratorio Electrónico">Laboratorio Electrónico</option>
+                </select>
+              </div>
+
+              <!-- GPS Geolocation Card -->
+              <div class="flex flex-col gap-2 p-3.5 rounded-2xl bg-[#f2f3ff]/90 border border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#006c49] text-[18px]">location_on</span>
+                    Geolocalización GPS en Tiempo Real
+                  </label>
+                  <button onclick="getGpsLocation()" id="btnGetGps" type="button" class="px-3 py-1.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-[11px] font-bold flex items-center gap-1.5 shadow">
+                    <span class="material-symbols-outlined text-[14px]">my_location</span>
+                    <span id="txtGpsBtn">Obtener Ubicación GPS</span>
+                  </button>
+                </div>
+                <div id="gpsResultBox" class="hidden p-2.5 rounded-xl bg-[#6cf8bb]/30 border border-[#006c49]/30 text-[#005236] text-[12px]">
+                  <span id="gpsResultText" class="font-semibold">Latitud: 4.58219 • Longitud: -74.14821 (Precisión ±8m)</span>
+                </div>
+              </div>
+
+              <!-- Inspectors COPASST Checklist with Trash Delete Buttons -->
+              <div class="flex flex-col gap-2 pt-2 border-t border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#226d00] text-[18px]">badge</span>
+                    Inspectores del COPASST Presentes
+                  </label>
+                  <button onclick="openAddInspectorModal()" type="button" class="text-[11px] text-[#226d00] font-bold flex items-center gap-1 hover:underline">
+                    <span class="material-symbols-outlined text-[14px]">person_add</span>
+                    + Agregar Inspector
+                  </button>
+                </div>
+                <p class="text-[11px] text-[#6f7b66]">Selecciona los inspectores presentes o elimina con 🗑️ a quienes no asistan:</p>
+
+                <div id="copasstMembersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Camera Capture Column -->
+          <div class="lg:col-span-5 flex flex-col gap-6">
+            <div class="p-6 rounded-2xl bg-white/90 border border-[#eaedff] shadow-sm flex flex-col gap-4">
+              <span class="text-[14px] font-bold text-[#131b2e]">Fotografía de Evidencia</span>
+              
+              <div class="relative w-full h-56 rounded-2xl bg-slate-900 overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-[#eaedff]">
+                <img id="capturedPreviewImage" class="hidden absolute inset-0 w-full h-full object-cover z-10" alt="Evidencia en campo">
+                <div id="cameraPlaceholder" class="flex flex-col items-center justify-center gap-2 text-slate-400">
+                  <span class="material-symbols-outlined text-[48px]">photo_camera</span>
+                  <span class="text-[12px]">Sin fotografía capturada</span>
+                </div>
+              </div>
+
+              <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+              
+              <div class="flex gap-3">
+                <button onclick="triggerCameraInput()" class="flex-1 py-3 bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] rounded-xl flex items-center justify-center gap-2 shadow">
+                  <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                  <span>Tomar Foto</span>
+                </button>
+                <button onclick="triggerFileInput()" class="py-3 px-4 bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] font-bold text-[13px] rounded-xl flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[18px]">upload</span>
+                  <span>Galería</span>
+                </button>
+              </div>
+
+              <button onclick="proceedToAnalysis()" class="w-full mt-2 py-3.5 bg-[#39a900] hover:bg-[#226d00] text-white font-extrabold text-[14px] rounded-xl flex items-center justify-center gap-2 shadow-lg">
+                <span>Continuar a Análisis IA Maker-Checker</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: ANÁLISIS IA MAKER-CHECKER -->
+      <section id="view-analisis-ia-maker-checker" class="view-section hidden flex flex-col gap-6">
+        <h1 class="text-2xl font-bold text-[#131b2e]">Arbitraje IA Maker-Checker (F-SST-012)</h1>
+        <div class="p-6 rounded-2xl bg-white/90 border border-[#eaedff] flex flex-col gap-4">
+          <p class="text-[13px] text-[#3f4a38]">El modelo Gemini 2.5 Flash analizó la evidencia fotográfica e infirió el riesgo GTC 45 con 94% de precisión.</p>
+          <button onclick="approveFinding()" class="px-6 py-3 bg-[#226d00] text-white font-bold rounded-xl shadow w-fit">
+            Aprobar y Firmar Informe Oficial
+          </button>
+        </div>
+      </section>
+
+      <!-- VIEW 4: INFORME OFICIAL F-SST-012 -->
+      <section id="view-hallazgos-plan-de-accion" class="view-section hidden flex flex-col gap-6">
+        <h1 class="text-2xl font-bold text-[#131b2e]">Informe Oficial de Hallazgos (F-SST-012)</h1>
+        <div id="findingReportContainer" class="p-6 rounded-2xl bg-white border border-[#eaedff] shadow-sm">
+          <!-- Rendered by JS -->
+        </div>
+      </section>
+
+      <!-- VIEW 5: MATRIZ GTC 45 NORMATIVA -->
+      <section id="view-matriz-gtc-45-normativa" class="view-section hidden flex flex-col gap-6">
+        <h1 class="text-2xl font-bold text-[#131b2e]">Matriz GTC 45 & Normativa SST SENA</h1>
+        <div class="p-6 bg-white rounded-2xl border border-[#eaedff]">
+          <p class="text-[13px] text-[#3f4a38]">Clasificación normativa de peligros según la Guía Técnica Colombiana GTC 45:2012 y la Resolución 0312 de 2019.</p>
+        </div>
+      </section>
+
+      <!-- VIEW 6: CONFIGURACIÓN SEDES -->
+      <section id="view-configuracion-sedes" class="view-section hidden flex flex-col gap-6">
+        <h1 class="text-2xl font-bold text-[#131b2e]">Configuración de Sedes SENA</h1>
+        <div class="p-6 bg-white rounded-2xl border border-[#eaedff]">
+          <p class="text-[13px] text-[#3f4a38]">Administración de regionales, centros de formación y talleres críticos.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal: Agregar Inspector COPASST -->
+  <div id="modalAddInspector" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <h3 class="text-lg font-bold text-[#131b2e]">Agregar Nuevo Miembro COPASST</h3>
+      <form onsubmit="saveNewInspector(event)" class="flex flex-col gap-3">
+        <input type="text" id="newInspectorName" required placeholder="Nombre Completo (ej: Ing. Mario Silva)" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px]">
+        <input type="text" id="newInspectorRole" required placeholder="Cargo o Rol (ej: Representante COPASST)" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px]">
+        <input type="text" id="newInspectorCc" required placeholder="Número de C.C." class="p-2.5 border border-[#eaedff] rounded-xl text-[13px]">
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" onclick="closeAddInspectorModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold">Guardar Inspector</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
