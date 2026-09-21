@@ -455,7 +455,7 @@
                     + Agregar Rep. SST
                   </button>
                 </div>
-                <p class="text-[11px] text-[#6f7b66]">Selecciona uno o varios representantes de Seguridad y Salud en el Trabajo:</p>
+                <p class="text-[11px] text-[#6f7b66]">Selección mediante botón de opción (Radio Button) asignada por centro:</p>
                 <div id="repSstMembersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto">
                   <!-- Rendered by JS -->
                 </div>
@@ -791,17 +791,17 @@
     </div>
   </div>
 
-  <!-- Modal: Previsualización de PDF (F-SST-012) -->
-  <div id="modalPdfPreview" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#eaedff]">
+  <!-- Modal: Previsualización de Documento PDF F-SST-012 -->
+  <div id="modalPdfPreview" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-6 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#eaedff]">
       
       <!-- Previsualización Header -->
-      <div class="px-6 py-4 bg-[#002113] text-white flex items-center justify-between border-b border-[#39a900]/30 shrink-0">
-        <div class="flex items-center gap-3">
-          <span class="material-symbols-outlined text-[#6cf8bb] text-[24px]">visibility</span>
+      <div class="px-4 py-3 bg-[#002113] text-white flex items-center justify-between border-b border-[#39a900]/30 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-[#6cf8bb] text-[22px]">visibility</span>
           <div>
-            <h3 class="text-base font-bold leading-tight">Previsualización de Documento PDF</h3>
-            <p class="text-[11px] text-[#6cf8bb] font-mono">Formato Oficial F-SST-012 • SENA SG-SST</p>
+            <h3 class="text-sm sm:text-base font-bold leading-tight">Previsualización de Documento PDF</h3>
+            <p class="text-[10px] sm:text-[11px] text-[#6cf8bb] font-mono">Formato Oficial F-SST-012 • SENA SG-SST</p>
           </div>
         </div>
         <button type="button" onclick="closePdfPreviewModal()" class="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/10">
@@ -809,29 +809,32 @@
         </button>
       </div>
 
-      <!-- Previsualización Body (Paper view style) -->
-      <div class="p-6 overflow-y-auto flex-1 bg-slate-50 flex justify-center">
-        <div id="pdfPreviewContent" class="w-full max-w-2xl bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col gap-5 text-[#131b2e]">
+      <!-- Previsualización Body (Paper view style responsive) -->
+      <div class="p-2 sm:p-6 overflow-y-auto flex-1 bg-slate-50 flex justify-center w-full">
+        <div id="pdfPreviewContent" class="w-full max-w-2xl bg-white p-3.5 sm:p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col gap-4 text-[#131b2e] text-[12px] min-w-0">
           <!-- Dynamic PDF Card HTML rendered by JS -->
         </div>
       </div>
 
       <!-- Previsualización Footer Actions -->
-      <div id="pdfModalFooterActions" class="px-6 py-4 bg-white border-t border-[#eaedff] flex items-center justify-between gap-3 shrink-0">
-        <span class="text-[12px] text-[#6f7b66] italic flex items-center gap-1">
+      <div id="pdfModalFooterActions" class="px-4 py-3 bg-white border-t border-[#eaedff] flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+        <span class="text-[11px] sm:text-[12px] text-[#6f7b66] italic flex items-center gap-1">
           <span class="material-symbols-outlined text-[16px] text-[#226d00]">verified</span>
           Documento verificado y listo para descarga
         </span>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="closePdfPreviewModal()" class="px-4 py-2.5 rounded-xl bg-[#eaedff] hover:bg-[#becbb3]/40 text-[#131b2e] font-semibold text-[13px]">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button type="button" onclick="closePdfPreviewModal()" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#eaedff] hover:bg-[#becbb3]/40 text-[#131b2e] font-semibold text-[12px] sm:text-[13px]">
             Cerrar
           </button>
-          <button type="button" onclick="confirmAndDownloadPdf()" class="px-5 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow flex items-center gap-2">
+          <button type="button" onclick="confirmAndDownloadPdf()" class="flex-1 sm:flex-none px-5 py-2 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[12px] sm:text-[13px] shadow flex items-center justify-center gap-1.5">
             <span class="material-symbols-outlined text-[18px]">download</span>
-            <span>Confirmar y Descargar PDF</span>
+            <span>Descargar PDF</span>
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
   <!-- Modal: Matriz Normativa GTC 45 (SG-SST SENA) -->
   <div id="modalGtc45Matrix" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col gap-4 border border-[#eaedff]">

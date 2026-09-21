@@ -123,6 +123,9 @@ function autoSelectHseForSede(sedeName) {
     selectedSstMembers = [matched.id];
     renderRepSstMembers();
     showToast('SST Encargado Asignado', `Prof. HSE: ${matched.name} (${matched.role})`, 'success');
+  } else {
+    selectedSstMembers = [];
+    renderRepSstMembers();
   }
 }
 
@@ -156,13 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSedeOptions();
   renderTallerOptions();
 
-  // Fetch Sedes, Talleres & Inspectors catalog from Supabase / Storage
+  // Fetch Sedes, Talleres, Inspections history & Inspectors catalog from Supabase / Storage
   loadSavedSignaturesFromStorage();
+  loadInspectionsFromLocalStorage();
   loadSedesFromSupabase();
   loadTalleresFromSupabase();
   loadInspectorsFromSupabase();
   loadHseDirectoryFromSupabase();
-  // Dashboard starts clean at zero. Past Supabase records can be loaded manually if desired.
+  loadInspectionsFromSupabase();
 
   // Initial UI Render
   renderInspectionsList();
@@ -249,6 +253,13 @@ function closeMobileMenu() {
 
 // Current Search Query state
 let currentSearchQuery = '';
+let activeCategoryFilter = null;
+
+function filterInspectionsByCategory(catName) {
+  activeCategoryFilter = activeCategoryFilter === catName ? null : catName;
+  renderInspectionsList();
+  updateKpis();
+}
 
 // Render Recent Inspections List in Dashboard
 function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearchQuery) {
@@ -272,6 +283,11 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
       if (!matchSearch) return false;
     }
 
+    if (activeCategoryFilter) {
+      const cat = insp.riskCategory || 'Condiciones de Seguridad';
+      if (cat.toLowerCase() !== activeCategoryFilter.toLowerCase()) return false;
+    }
+
     if (filterRisk === 'todos') return true;
     if (filterRisk === 'alto') return insp.riskLevel === 'I' || insp.riskLevel === 'II';
     if (filterRisk === 'medio') return insp.riskLevel === 'III';
@@ -282,9 +298,14 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="p-6 rounded-xl bg-[#f2f3ff] text-center border border-dashed border-[#c0c9b4] flex flex-col items-center justify-center gap-2">
-        <span class="material-symbols-outlined text-[32px] text-[#226d00]">${q ? 'search_off' : 'playlist_add_check'}</span>
-        <p class="text-[13px] font-bold text-[#131b2e]">${q ? 'No se encontraron resultados' : 'Dashboard en Cero'}</p>
-        <p class="text-[12px] text-[#6f7b66]">${q ? `No hay hallazgos que coincidan con "${searchQuery}".` : 'Listo para iniciar la inspección en la sede del SENA.'}</p>
+        <span class="material-symbols-outlined text-[32px] text-[#226d00]">${q || activeCategoryFilter ? 'search_off' : 'playlist_add_check'}</span>
+        <p class="text-[13px] font-bold text-[#131b2e]">${q || activeCategoryFilter ? 'No se encontraron hallazgos' : 'Sin inspecciones registradas'}</p>
+        <p class="text-[12px] text-[#6f7b66]">${q ? `No hay hallazgos que coincidan con "${searchQuery}".` : activeCategoryFilter ? `No hay hallazgos para la categoría "${activeCategoryFilter}".` : 'Inicia una nueva inspección en la sede del SENA.'}</p>
+        ${activeCategoryFilter ? `
+          <button type="button" onclick="filterInspectionsByCategory(null)" class="mt-1 px-3 py-1 bg-[#226d00] text-white text-[11px] font-bold rounded-lg shadow">
+            Mostrar Todos los Peligros GTC 45
+          </button>
+        ` : ''}
       </div>
     `;
     return;
@@ -305,9 +326,7 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
         <p class="text-[12px] text-[#3f4a38] line-clamp-2 italic">"${insp.description}"</p>
         <div class="flex items-center justify-between pt-2 border-t border-[#eaedff]/70 text-[11px]">
           <span class="text-[#226d00] font-bold">Inspector: ${insp.inspectorName}</span>
-          <button type="button" onclick="event.stopPropagation(); syncInspectionToSupabaseCloud('${insp.id}')" class="text-[11px] font-bold text-[#006c49] bg-[#6cf8bb]/30 hover:bg-[#6cf8bb]/50 px-2.5 py-1 rounded-lg">
-            Sincronizar Supabase
-          </button>
+          <span class="px-2 py-0.5 rounded bg-[#39a900]/10 text-[#226d00] font-bold text-[10px]">${insp.riskCategory || 'GTC 45'}</span>
         </div>
       </div>
     `;
@@ -329,7 +348,15 @@ function updateKpis() {
   const rate = total > 0 ? Math.round(((closed + inProg) / total) * 100) : 0;
 
   if (totalEl) totalEl.textContent = total;
-  if (badgeEl) badgeEl.textContent = `n = ${total} hallazgos`;
+  if (badgeEl) {
+    if (activeCategoryFilter) {
+      badgeEl.innerHTML = `Filtro: ${activeCategoryFilter} <button onclick="filterInspectionsByCategory(null)" class="ml-1 text-white font-bold font-mono">✕</button>`;
+      badgeEl.className = 'px-3 py-1 rounded-full bg-[#226d00] text-white text-[11px] font-bold flex items-center shadow-sm';
+    } else {
+      badgeEl.textContent = `n = ${total} hallazgos`;
+      badgeEl.className = 'px-3 py-1 rounded-full bg-[#eaedff] text-[#131b2e] text-[11px] font-bold';
+    }
+  }
   if (controlEl) controlEl.textContent = `${rate}%`;
   if (badgePending) badgePending.textContent = inProg > 0 ? `${inProg}` : '0';
 
@@ -342,25 +369,29 @@ function updateKpis() {
         counts[cat] = (counts[cat] || 0) + 1;
       });
 
-      const colors = ['bg-[#39a900]', 'bg-[#ba1a1a]', 'bg-[#006398]', 'bg-[#701a75]', 'bg-[#b78103]'];
+      const colors = ['bg-[#39a900]', 'bg-[#ba1a1a]', 'bg-[#006398]', 'bg-[#701a75]', 'bg-[#b78103]', 'bg-[#4edea3]'];
       const entries = Object.entries(counts);
 
       taxonomyBar.innerHTML = entries.map(([cat, count], idx) => {
         const pct = Math.round((count / total) * 100);
         const color = colors[idx % colors.length];
-        return `<div class="${color} h-full" style="width: ${pct}%" title="${cat}: ${pct}% (${count})"></div>`;
+        return `<div onclick="filterInspectionsByCategory('${cat}')" class="${color} h-full cursor-pointer hover:opacity-80 transition-all" style="width: ${pct}%" title="Filtrar por ${cat}: ${pct}% (${count})"></div>`;
       }).join('');
 
       taxonomyCards.innerHTML = entries.map(([cat, count], idx) => {
         const pct = Math.round((count / total) * 100);
         const color = colors[idx % colors.length];
+        const isSelected = activeCategoryFilter === cat;
         return `
-          <div class="p-3.5 rounded-xl bg-[#f2f3ff] flex items-center justify-between border border-[#eaedff]/60">
+          <div onclick="filterInspectionsByCategory('${cat}')" class="p-3.5 rounded-xl cursor-pointer transition-all flex items-center justify-between border ${isSelected ? 'bg-[#39a900]/15 border-[#226d00] shadow-sm font-bold ring-2 ring-[#226d00]/30' : 'bg-[#f2f3ff] border-[#eaedff]/60 hover:bg-[#eaedff]'}">
             <div class="flex items-center gap-2.5 min-w-0">
               <span class="w-3.5 h-3.5 rounded-full ${color} shrink-0"></span>
               <span class="text-[12px] text-[#131b2e] font-semibold truncate">${cat}</span>
             </div>
-            <span class="text-[14px] font-bold shrink-0 ml-2">${pct}%</span>
+            <div class="flex items-baseline gap-1 shrink-0 ml-2">
+              <span class="text-[14px] font-bold text-[#131b2e]">${pct}%</span>
+              <span class="text-[10px] text-[#6f7b66]">(${count})</span>
+            </div>
           </div>
         `;
       }).join('');
@@ -420,7 +451,7 @@ function removeCopasstInspector(id, event) {
   showToast('Inspector Removido', 'Se quitó el miembro del COPASST de la inspección de hoy.', 'info');
 }
 
-// Render Representantes SST Checklist
+// Render Representantes SST con Botones de Opción (Radio Buttons - Selección Única)
 function renderRepSstMembers() {
   const container = document.getElementById('repSstMembersContainer');
   if (!container) return;
@@ -428,9 +459,9 @@ function renderRepSstMembers() {
   container.innerHTML = repSstMembers.map(member => {
     const isSelected = selectedSstMembers.includes(member.id);
     return `
-      <div onclick="toggleRoleMember('Representante SST', '${member.id}')" class="p-3 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-2 ${isSelected ? 'bg-[#39a900]/10 border-[#226d00] shadow-sm' : 'bg-[#f2f3ff]/70 border-[#eaedff] hover:bg-[#eaedff]'}">
+      <div onclick="selectSingleRepSstMember('${member.id}')" class="p-3 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-2 ${isSelected ? 'bg-[#39a900]/10 border-[#226d00] shadow-sm ring-1 ring-[#226d00]' : 'bg-[#f2f3ff]/70 border-[#eaedff] hover:bg-[#eaedff]'}">
         <div class="flex items-start gap-2.5 min-w-0">
-          <input type="checkbox" ${isSelected ? 'checked' : ''} class="w-4 h-4 mt-1 accent-[#226d00] rounded shrink-0">
+          <input type="radio" name="repSstRadio" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectSingleRepSstMember('${member.id}')" class="w-4 h-4 mt-1 accent-[#226d00] shrink-0">
           <div class="flex flex-col min-w-0">
             <span class="text-[13px] font-bold text-[#131b2e] truncate">${member.name}</span>
             <span class="text-[11px] text-[#226d00] font-semibold truncate">${member.role}</span>
@@ -443,6 +474,11 @@ function renderRepSstMembers() {
       </div>
     `;
   }).join('');
+}
+
+function selectSingleRepSstMember(id) {
+  selectedSstMembers = [id];
+  renderRepSstMembers();
 }
 
 // Render Representantes Ambientales Checklist
@@ -1158,6 +1194,85 @@ function loadSavedSignaturesFromStorage() {
   }
 }
 
+function loadInspectionsFromLocalStorage() {
+  try {
+    const saved = localStorage.getItem('copasst_inspections_history');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        inspections = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Notice reading inspections from storage:', e);
+  }
+}
+
+function saveInspectionsToLocalStorage() {
+  try {
+    localStorage.setItem('copasst_inspections_history', JSON.stringify(inspections));
+  } catch (e) {
+    console.warn('Notice saving inspections to storage:', e);
+  }
+}
+
+async function loadInspectionsFromSupabase() {
+  if (!supabaseClient) return;
+  try {
+    const { data } = await supabaseClient.from('hallazgos_sst').select(`
+      id, codigo_hallazgo, titulo, descripcion_detallada, nivel_riesgo_homologado, peligro_gtc45, estado, creado_en,
+      inspecciones (
+        sedes_sena (centro_formacion),
+        talleres_criticos (nombre),
+        inspectores_copasst (nombres, apellidos)
+      ),
+      evidencias_multimedia (public_url),
+      planes_accion (responsable_subsanacion, fecha_limite)
+    `);
+
+    if (data && Array.isArray(data) && data.length > 0) {
+      const fetched = data.map(item => {
+        const insp = Array.isArray(item.inspecciones) ? item.inspecciones[0] : item.inspecciones;
+        const sede = insp?.sedes_sena?.centro_formacion || 'Centro SENA';
+        const taller = insp?.talleres_criticos?.nombre || 'Taller de Formación';
+        const inspectorObj = insp?.inspectores_copasst;
+        const inspectorName = inspectorObj ? `${inspectorObj.nombres} ${inspectorObj.apellidos}` : 'Laura Noguera';
+        const evidence = Array.isArray(item.evidencias_multimedia) ? item.evidencias_multimedia[0] : item.evidencias_multimedia;
+        const plan = Array.isArray(item.planes_accion) ? item.planes_accion[0] : item.planes_accion;
+
+        return {
+          id: item.id,
+          code: item.codigo_hallazgo,
+          title: item.titulo,
+          sede: sede,
+          area: taller,
+          date: item.creado_en ? new Date(item.creado_en).toLocaleDateString('es-CO') : 'Hoy',
+          inspectorName: inspectorName,
+          riskLevel: item.nivel_riesgo_homologado || 'II',
+          riskCategory: item.peligro_gtc45 || 'Condiciones de Seguridad',
+          status: item.estado || 'en_proceso',
+          description: item.descripcion_detallada,
+          imageUrl: evidence?.public_url || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
+          assignedTo: plan?.responsable_subsanacion || 'Diana Marcela'
+        };
+      });
+
+      const existingCodes = new Set(inspections.map(i => i.code));
+      fetched.forEach(item => {
+        if (!existingCodes.has(item.code)) {
+          inspections.push(item);
+        }
+      });
+
+      saveInspectionsToLocalStorage();
+      renderInspectionsList();
+      updateKpis();
+    }
+  } catch (e) {
+    console.warn('Notice loading hallazgos_sst from Supabase:', e);
+  }
+}
+
 async function saveCapturedCanvasSignature() {
   const canvas = document.getElementById('signatureCanvas');
   if (!canvas) return;
@@ -1354,7 +1469,13 @@ function renderFindingReport() {
           <!-- Tarjeta Firma 1: Encargado del Informe COPASST -->
           <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3">
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">1. Encargado de Elaborar el Informe COPASST:</label>
+              <div class="flex items-center justify-between gap-1 flex-wrap">
+                <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">1. Encargado de Elaborar el Informe COPASST:</label>
+                <button onclick="openDrawSignatureModal('report')" type="button" class="px-2 py-0.5 rounded-lg bg-[#226d00]/10 hover:bg-[#226d00]/20 text-[#226d00] text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                  <span class="material-symbols-outlined text-[13px]">draw</span>
+                  <span>✍️ Firmar / Cambiar</span>
+                </button>
+              </div>
               <select onchange="autoLoadReportSigner(this.value)" class="w-full bg-white p-2.5 rounded-xl text-[12px] font-bold border border-[#eaedff] text-[#131b2e]">
                 <option value="">-- Seleccionar --</option>
                 ${allInspectorsOptions.map(name => `<option value="${name}" ${name === activeReportSigner ? 'selected' : ''}>${name}</option>`).join('')}
@@ -1374,7 +1495,13 @@ function renderFindingReport() {
           <!-- Tarjeta Firma 2: Líder / Responsable Asignado de Área -->
           <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3">
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-bold text-[#006c49] uppercase tracking-wider">2. Responsable Asignado / Líder de Subsanación:</label>
+              <div class="flex items-center justify-between gap-1 flex-wrap">
+                <label class="text-[11px] font-bold text-[#006c49] uppercase tracking-wider">2. Responsable Asignado / Líder de Subsanación:</label>
+                <button onclick="openDrawSignatureModal('responsible')" type="button" class="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                  <span class="material-symbols-outlined text-[13px]">draw</span>
+                  <span>✍️ Firmar / Cambiar</span>
+                </button>
+              </div>
               <select onchange="autoLoadResponsibleSigner(this.value)" class="w-full bg-white p-2.5 rounded-xl text-[12px] font-bold border border-[#eaedff] text-[#131b2e]">
                 <option value="">-- Seleccionar --</option>
                 ${responsablesList.map(name => `<option value="${name}" ${name === activeResponsibleSigner ? 'selected' : ''}>${name}</option>`).join('')}
@@ -1595,7 +1722,11 @@ function proceedToAnalysis() {
   analyzeSstImageWithAi(capturedImageData);
   // Manual selection is primary default option upon proceeding
   isManualCatalogMode = true;
-  updateManualProposal();
+  manualFindingDescription = '';
+  if (currentProposal) {
+    currentProposal.recommendation = '';
+    currentProposal.gtc45Description = '';
+  }
   renderMakerCheckerProposal();
   navigateTo('analisis-ia-maker-checker');
 }
@@ -1774,7 +1905,7 @@ function handleDetailChange(detail) {
   updateManualProposal();
 }
 
-let manualFindingDescription = 'Condición de riesgo identificada manualmente durante inspección técnica en campo.';
+let manualFindingDescription = '';
 
 function handleManualDescriptionChange(text) {
   manualFindingDescription = text;
@@ -1785,12 +1916,15 @@ function handleManualDescriptionChange(text) {
   }
 }
 
-// Dual-Mode Selection for Plan de Acción / Medida Sugerida en Móvil: 'manual' vs 'google_ai'
-let actionPlanModeMobile = 'google_ai';
+// Dual-Mode Selection for Plan de Acción / Medida Sugerida en Móvil: 'manual' vs 'google_ai' (Manual es la opción principal por defecto)
+let actionPlanModeMobile = 'manual';
 let googleSearchQueryMobile = '';
 
 function setActionPlanModeMobile(mode) {
   actionPlanModeMobile = mode;
+  if (mode === 'manual' && currentProposal) {
+    currentProposal.recommendation = '';
+  }
   renderMakerCheckerProposal();
 }
 
@@ -1915,6 +2049,18 @@ function selectGoogleRecommendationMobile(text) {
 function handleManualRecommendationChangeMobile(text) {
   if (currentProposal) {
     currentProposal.recommendation = text;
+  }
+}
+
+function handleResponsibleChangeMobile(val) {
+  if (currentProposal) {
+    currentProposal.assignedTo = val;
+  }
+}
+
+function handleDeadlineChangeMobile(val) {
+  if (currentProposal) {
+    currentProposal.deadline = val;
   }
 }
 
@@ -2262,6 +2408,58 @@ function renderMakerCheckerProposal() {
           placeholder="${actionPlanModeMobile === 'manual' ? 'Escribe libremente la medida o plan de acción sugerido...' : 'Medida seleccionada o generada desde Google SST / Normativa...'}"
           class="w-full p-3 bg-[#f2f3ff] rounded-xl text-[13px] text-[#131b2e] focus:outline-none focus:bg-white border border-[#eaedff] focus:ring-2 focus:ring-[#226d00]/30 resize-none shadow-inner"
         >${currentProposal.recommendation || ''}</textarea>
+      </div>
+
+      <!-- 2. Responsable Asignado / Líder de Subsanación & 3. Plazo Límite Subsanación -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="flex flex-col gap-2 p-4 bg-white rounded-xl border border-[#eaedff] shadow-sm">
+          <label class="text-[12px] text-[#131b2e] font-extrabold flex items-center gap-1.5 uppercase tracking-wide">
+            <span class="material-symbols-outlined text-[#006c49] text-[18px]">person_check</span>
+            2. Responsable Asignado / Líder de Subsanación
+          </label>
+          <div class="flex items-center gap-2 p-2.5 bg-[#f2f3ff] rounded-xl border border-[#eaedff]">
+            <span class="material-symbols-outlined text-[#006c49] text-[18px]">person_check</span>
+            <select
+              onchange="handleResponsibleChangeMobile(this.value)"
+              class="bg-transparent text-[12px] text-[#131b2e] font-bold w-full focus:outline-none cursor-pointer"
+            >
+              <option value="Diana Marcela">Diana Marcela (Inspector COPASST SENA)</option>
+              <option value="Elizabet Rúa">Elizabet Rúa (Profesional HSE Industrial y Aviación)</option>
+              <option value="Sandro Alvarado">Sandro Alvarado (Profesional HSE Comercio y Servicios)</option>
+              <option value="Laura Martínez">Laura Martínez (Profesional HSE Colombo Alemán)</option>
+              <option value="Lorenis de la Hoz">Lorenis de la Hoz (Profesional HSE CEDAGRO)</option>
+              <option value="Óscar Sierra">Óscar Sierra (Profesional HSE Logística)</option>
+              <option value="Isis Delgado">Isis Delgado (Profesional HSE TIC / Energía)</option>
+              <option value="Ing. Roberto Peña">Ing. Roberto Peña (Líder Infraestructura SENA)</option>
+              <option value="Lic. Marcela Durán">Lic. Marcela Durán (Representante SIGA / Ambiental)</option>
+              <option value="Téc. Fernando Ruiz">Téc. Fernando Ruiz (Encargado Mantenimiento SENA)</option>
+            </select>
+          </div>
+          <input
+            type="text"
+            value="${currentProposal?.assignedTo || ''}"
+            oninput="handleResponsibleChangeMobile(this.value)"
+            placeholder="O escribe el nombre manual del responsable..."
+            class="w-full px-3 py-1.5 bg-[#f2f3ff] text-[12px] rounded-xl border border-[#eaedff] text-[#131b2e] font-bold focus:outline-none focus:bg-white"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2 p-4 bg-white rounded-xl border border-[#eaedff] shadow-sm">
+          <label class="text-[12px] text-[#131b2e] font-extrabold flex items-center gap-1.5 uppercase tracking-wide">
+            <span class="material-symbols-outlined text-[#ba1a1a] text-[18px]">timer</span>
+            3. Plazo Límite Subsanación
+          </label>
+          <div class="flex items-center gap-2 p-2.5 bg-[#f2f3ff] rounded-xl border border-[#eaedff]">
+            <span class="material-symbols-outlined text-[#ba1a1a] text-[18px]">timer</span>
+            <input
+              type="text"
+              value="${currentProposal?.deadline || '48 horas (Prioridad Alta)'}"
+              oninput="handleDeadlineChangeMobile(this.value)"
+              placeholder="Ej: 48 horas (Prioridad Alta)..."
+              class="bg-transparent text-[12px] text-[#131b2e] font-bold w-full focus:outline-none"
+            />
+          </div>
+        </div>
       </div>
 
     </div>
@@ -2772,6 +2970,7 @@ async function approveFinding() {
   }
 
   selectedFinding = newInsp;
+  saveInspectionsToLocalStorage();
   renderInspectionsList();
   updateKpis();
   renderFindingReport();
@@ -3375,68 +3574,68 @@ function exportReportPDF() {
 
   container.innerHTML = `
     <!-- Encabezado Institucional SENA -->
-    <div class="flex items-center justify-between border-b-2 border-[#226d00] pb-4">
-      <div class="flex items-center gap-3">
-        <img src="sena-logo.png" alt="SENA Logo" class="h-12 w-auto object-contain">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b-2 border-[#226d00] pb-3 gap-2">
+      <div class="flex items-center gap-2.5">
+        <img src="sena-logo.png" alt="SENA Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0">
         <div class="flex flex-col">
-          <span class="font-extrabold text-[15px] text-[#226d00] tracking-tight">SERVICIO NACIONAL DE APRENDIZAJE - SENA</span>
-          <span class="text-[12px] text-[#3f4a38] font-bold">SISTEMA DE GESTIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO (SG-SST)</span>
-          <span class="text-[11px] text-[#6f7b66] font-semibold">FORMATO F-SST-012 • REPORTE OFICIAL DE INSPECCIÓN COPASST</span>
+          <span class="font-extrabold text-[13px] sm:text-[15px] text-[#226d00] tracking-tight">SERVICIO NACIONAL DE APRENDIZAJE - SENA</span>
+          <span class="text-[11px] text-[#3f4a38] font-bold">SISTEMA DE GESTIÓN SG-SST</span>
+          <span class="text-[10px] text-[#6f7b66] font-semibold">FORMATO F-SST-012 • REPORTE OFICIAL DE INSPECCIÓN COPASST</span>
         </div>
       </div>
-      <div class="text-right">
-        <span class="text-[11px] font-mono block text-slate-600 font-bold">CÓDIGO: ${selectedFinding.code}</span>
-        <span class="text-[11px] font-mono block text-slate-500">FECHA: ${selectedFinding.date}</span>
+      <div class="text-left sm:text-right shrink-0 text-[10px] sm:text-[11px]">
+        <span class="font-mono block text-slate-600 font-bold">CÓDIGO: ${selectedFinding.code}</span>
+        <span class="font-mono block text-slate-500">FECHA: ${selectedFinding.date}</span>
       </div>
     </div>
 
     <!-- Nivel de Riesgo y Título -->
-    <div class="flex items-start justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 gap-2">
       <div>
-        <span class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider block">Inspección COPASST</span>
-        <h2 class="text-base font-bold text-[#131b2e] leading-snug">${selectedFinding.title}</h2>
+        <span class="text-[10px] font-bold text-[#226d00] uppercase tracking-wider block">Inspección COPASST</span>
+        <h2 class="text-sm sm:text-base font-bold text-[#131b2e] leading-snug">${selectedFinding.title}</h2>
       </div>
-      <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${badgeColor}">Riesgo Global ${selectedFinding.riskLevel}</span>
+      <span class="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border ${badgeColor} shrink-0">Riesgo Global ${selectedFinding.riskLevel}</span>
     </div>
 
     <!-- Ubicación e Inspectores -->
-    <div class="grid grid-cols-2 gap-3 text-[12px]">
-      <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-        <span class="font-bold text-slate-500 block text-[10px] uppercase">Centro de Formación / Regional</span>
-        <span class="font-semibold text-slate-800">${selectedFinding.sede}</span>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] sm:text-[12px]">
+      <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+        <span class="font-bold text-slate-500 block text-[9px] sm:text-[10px] uppercase">Centro de Formación / Regional</span>
+        <span class="font-semibold text-slate-800 leading-tight block">${selectedFinding.sede}</span>
       </div>
-      <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-        <span class="font-bold text-slate-500 block text-[10px] uppercase">Área / Taller Específico</span>
-        <span class="font-semibold text-slate-800">${selectedFinding.area}</span>
+      <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+        <span class="font-bold text-slate-500 block text-[9px] sm:text-[10px] uppercase">Área / Taller Específico</span>
+        <span class="font-semibold text-slate-800 leading-tight block">${selectedFinding.area}</span>
       </div>
-      <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-        <span class="font-bold text-slate-500 block text-[10px] uppercase">Inspector COPASST</span>
-        <span class="font-semibold text-slate-800">${reportSignerProfile.name}</span>
+      <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+        <span class="font-bold text-slate-500 block text-[9px] sm:text-[10px] uppercase">Inspector COPASST</span>
+        <span class="font-semibold text-slate-800 leading-tight block">${reportSignerProfile.name}</span>
       </div>
-      <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-        <span class="font-bold text-slate-500 block text-[10px] uppercase">Geolocalización GPS</span>
-        <span class="font-semibold text-slate-800">${currentGpsData ? `Lat ${currentGpsData.lat}, Lng ${currentGpsData.lng}` : '4.58219, -74.14821 (Complejo Sur)'}</span>
+      <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+        <span class="font-bold text-slate-500 block text-[9px] sm:text-[10px] uppercase">Geolocalización GPS</span>
+        <span class="font-semibold text-slate-800 leading-tight block truncate">${currentGpsData ? `Lat ${currentGpsData.lat}, Lng ${currentGpsData.lng}` : '4.58219, -74.14821 (Complejo Sur)'}</span>
       </div>
     </div>
 
     <!-- Clasificación GTC 45 y Registro Fotográfico Multihallazgo -->
-    <div class="flex flex-col gap-4 text-[12px]">
-      <span class="font-bold text-[#131b2e] text-[13px] border-b border-slate-200 pb-1">Evidencias Fotográficas y Peligros Registrados (${pdfFindingsList.length}):</span>
+    <div class="flex flex-col gap-3 text-[11px] sm:text-[12px]">
+      <span class="font-bold text-[#131b2e] text-[12px] sm:text-[13px] border-b border-slate-200 pb-1">Evidencias Fotográficas y Peligros Registrados (${pdfFindingsList.length}):</span>
       ${pdfFindingsList.map((f, idx) => `
-        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-2.5 print-avoid-break">
-          <div class="flex items-center justify-between flex-wrap gap-2">
-            <span class="font-bold text-[#226d00] text-[12px]">Hallazgo #${idx + 1}: ${f.title}</span>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${f.riskLevel === 'I' || f.riskLevel === 'II' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}">
+        <div class="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-2 print-avoid-break">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
+            <span class="font-bold text-[#226d00] text-[11px] sm:text-[12px]">Hallazgo #${idx + 1}: ${f.title}</span>
+            <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold ${f.riskLevel === 'I' || f.riskLevel === 'II' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}">
               Nivel Riesgo ${f.riskLevel} • ${f.riskCategory || 'GTC 45'}
             </span>
           </div>
-          <div class="w-full h-52 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex items-center justify-center">
+          <div class="w-full h-36 sm:h-52 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex items-center justify-center">
             <img src="${f.imageUrl}" alt="Evidencia #${idx + 1}" class="w-full h-full object-cover">
           </div>
-          <p class="text-[11px] text-slate-700 leading-relaxed bg-white p-2.5 rounded-lg border border-slate-200">
-            <strong>Descripción GTC 45:</strong> ${f.description}
+          <p class="text-[10px] sm:text-[11px] text-slate-700 leading-relaxed bg-white p-2 sm:p-2.5 rounded-lg border border-slate-200">
+            <strong>Descripción GTC 45:</strong> ${f.description || 'Intervención visual registrada.'}
           </p>
-          <p class="text-[11px] text-[#005236] leading-relaxed bg-[#6cf8bb]/20 p-2.5 rounded-lg border border-[#6cf8bb]/40">
+          <p class="text-[10px] sm:text-[11px] text-[#005236] leading-relaxed bg-[#6cf8bb]/20 p-2 sm:p-2.5 rounded-lg border border-[#6cf8bb]/40">
             <strong>Medida Recomendada / Plan de Acción:</strong> ${f.recommendation || 'Aplicar control técnico de seguridad en el taller.'}
           </p>
         </div>
@@ -3444,40 +3643,40 @@ function exportReportPDF() {
     </div>
 
     <!-- Responsables Asignados -->
-    <div class="p-3.5 bg-[#226d00]/10 rounded-xl border border-[#226d00]/30 text-[12px] flex items-center justify-between print-avoid-break">
+    <div class="p-3 bg-[#226d00]/10 rounded-xl border border-[#226d00]/30 text-[11px] sm:text-[12px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 print-avoid-break">
       <div>
-        <span class="font-bold text-[#006c49] block text-[11px] uppercase">Responsable Asignado de Subsanación:</span>
-        <span class="font-bold text-[#131b2e] text-[13px]">${assigned}</span>
+        <span class="font-bold text-[#006c49] block text-[10px] uppercase">Responsable Asignado de Subsanación:</span>
+        <span class="font-bold text-[#131b2e] text-[12px] sm:text-[13px]">${assigned}</span>
       </div>
-      <span class="text-[11px] bg-white px-2.5 py-1 rounded-lg font-semibold text-[#006c49] border border-[#226d00]/20">Seguimiento SG-SST</span>
+      <span class="text-[10px] sm:text-[11px] bg-white px-2.5 py-1 rounded-lg font-semibold text-[#006c49] border border-[#226d00]/20 shrink-0">Seguimiento SG-SST</span>
     </div>
 
     <!-- Firmas de Aceptación Digital Acreditadas al Final del Informe (F-SST-012) -->
-    <div class="flex flex-col gap-2 pt-4 border-t-2 border-[#226d00]/40 mt-2 print-avoid-break">
-      <span class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">Firmas de Aceptación y Conformidad Oficial (F-SST-012):</span>
-      <div class="grid grid-cols-2 gap-4 text-[11px] text-slate-700">
+    <div class="flex flex-col gap-2 pt-3 border-t-2 border-[#226d00]/40 mt-1 print-avoid-break">
+      <span class="text-[10px] sm:text-[11px] font-bold text-[#226d00] uppercase tracking-wider">Firmas de Aceptación y Conformidad Oficial (F-SST-012):</span>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[10px] sm:text-[11px] text-slate-700">
         <!-- Firma 1 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center">
-          <div class="w-full h-16 flex items-center justify-center">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center">
+          <div class="w-full h-14 flex items-center justify-center">
             ${reportSignerProfile.svgSignature}
           </div>
           <div class="w-full border-t border-dashed border-slate-300 my-1"></div>
-          <span class="font-bold text-slate-900 text-[12px]">${reportSignerProfile.name}</span>
+          <span class="font-bold text-slate-900 text-[11px] sm:text-[12px]">${reportSignerProfile.name}</span>
           <span class="text-[10px] text-[#226d00] font-semibold">${reportSignerProfile.role}</span>
           <span class="text-[9px] text-slate-500">${reportSignerProfile.cc} • ${reportSignerProfile.license}</span>
-          <span class="text-[8px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1.5 py-0.5 rounded">${reportSignerProfile.hash}</span>
+          <span class="text-[8px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1.5 py-0.5 rounded truncate max-w-full">${reportSignerProfile.hash}</span>
         </div>
 
         <!-- Firma 2 -->
-        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center">
-          <div class="w-full h-16 flex items-center justify-center">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center">
+          <div class="w-full h-14 flex items-center justify-center">
             ${respSignerProfile.svgSignature}
           </div>
           <div class="w-full border-t border-dashed border-slate-300 my-1"></div>
-          <span class="font-bold text-slate-900 text-[12px]">${respSignerProfile.name}</span>
+          <span class="font-bold text-slate-900 text-[11px] sm:text-[12px]">${respSignerProfile.name}</span>
           <span class="text-[10px] text-[#006c49] font-semibold">${respSignerProfile.role}</span>
           <span class="text-[9px] text-slate-500">${respSignerProfile.cc} • Aceptación Subsanación</span>
-          <span class="text-[8px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1.5 py-0.5 rounded">${respSignerProfile.hash}</span>
+          <span class="text-[8px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1.5 py-0.5 rounded truncate max-w-full">${respSignerProfile.hash}</span>
         </div>
       </div>
     </div>
