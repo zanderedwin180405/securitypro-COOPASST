@@ -310,9 +310,15 @@
 
           <div class="lg:col-span-5 flex flex-col gap-6">
             <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-sm border border-[#eaedff] flex flex-col gap-4 h-full">
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between flex-wrap gap-2">
                 <span class="text-[16px] font-bold text-[#131b2e]">Inspecciones Recientes</span>
-                <span class="text-[11px] text-[#006c49] font-bold uppercase bg-[#6cf8bb]/40 px-2.5 py-0.5 rounded-full">En Tiempo Real</span>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="loadInspectionsFromSupabase(true)" class="text-[11px] text-[#006398] hover:bg-[#eaedff] px-2.5 py-1 rounded-lg border border-[#006398]/30 font-bold flex items-center gap-1 shadow-sm transition-all" title="Consultar hallazgos guardados previamente en Supabase">
+                    <span class="material-symbols-outlined text-[14px]">cloud_download</span>
+                    <span>Cargar Nube</span>
+                  </button>
+                  <span class="text-[11px] text-[#006c49] font-bold uppercase bg-[#6cf8bb]/40 px-2.5 py-1 rounded-full">En Tiempo Real</span>
+                </div>
               </div>
 
               <div id="inspectionsListContainer" class="flex flex-col gap-3">
@@ -435,7 +441,7 @@
 
       <!-- VIEW 3: ANÁLISIS IA MAKER-CHECKER -->
       <section id="view-analisis-ia-maker-checker" class="view-section hidden flex flex-col gap-6">
-        <h1 class="text-2xl font-bold text-[#131b2e]">Arbitraje IA Maker-Checker (F-SST-012)</h1>
+        <h1 class="text-2xl font-bold text-[#131b2e]">Análisis IA Maker-Checker</h1>
         <div class="p-6 rounded-2xl bg-white/90 border border-[#eaedff] flex flex-col gap-4">
           <p class="text-[13px] text-[#3f4a38]">El modelo Gemini 2.5 Flash analizó la evidencia fotográfica e infirió el riesgo GTC 45 con 94% de precisión.</p>
           <button onclick="approveFinding()" class="px-6 py-3 bg-[#226d00] text-white font-bold rounded-xl shadow w-fit">

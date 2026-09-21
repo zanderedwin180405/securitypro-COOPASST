@@ -38,7 +38,7 @@
       <!-- Brand Header -->
       <div class="h-20 px-6 flex items-center justify-between border-b border-[#eaedff]/60">
         <div onclick="navigateTo('dashboard-telemetria')" class="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">
-          <img alt="Logo SENA SST COPASST" class="h-9 w-auto object-contain" src="https://upload.wikimedia.org/wikipedia/commons/8/83/SENA_Colombia_logo.svg">
+          <img alt="Logo SENA SST COPASST" class="h-10 w-auto object-contain" src="sena-logo.png">
           <div class="flex flex-col">
             <span class="font-bold text-[16px] text-[#226d00] tracking-tight">SENA SST</span>
             <span class="text-[12px] text-[#3f4a38] font-normal">COPASST Inteligente</span>
@@ -65,7 +65,7 @@
           </div>
         </button>
 
-        <button onclick="navigateTo('nueva-inspeccion-campo')" id="nav-nueva-inspeccion-campo" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+        <button onclick="startNewInspectionSession()" id="nav-nueva-inspeccion-campo" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
           <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">assignment_add</span>
             <span class="text-[13px]">Nueva Inspección en Campo</span>
@@ -88,19 +88,14 @@
           <span id="badgePendingCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236]">1</span>
         </button>
 
-        <button onclick="navigateTo('matriz-gtc-45-normativa')" id="nav-matriz-gtc-45-normativa" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+        <button onclick="navigateTo('directorio-profesionales-hse')" id="nav-directorio-profesionales-hse" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
           <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">gavel</span>
-            <span class="text-[13px]">Matriz GTC 45 & Normativa</span>
+            <span class="material-symbols-outlined text-[20px] text-[#226d00]">contact_phone</span>
+            <span class="text-[13px]">Directorio HSE por Sedes</span>
           </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#39a900]/20 text-[#226d00]">12 HSE</span>
         </button>
 
-        <button onclick="navigateTo('configuracion-sedes')" id="nav-configuracion-sedes" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">domain</span>
-            <span class="text-[13px]">Configuración Sedes</span>
-          </div>
-        </button>
       </nav>
     </div>
 
@@ -125,7 +120,7 @@
       <div class="flex items-center gap-3 flex-1 max-w-3xl">
         <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-[#131b2e] hover:bg-[#eaedff] shrink-0 flex items-center gap-2">
           <span class="material-symbols-outlined text-[26px]">menu</span>
-          <img alt="Logo SENA Colombia" class="h-8 w-auto object-contain lg:hidden" src="https://upload.wikimedia.org/wikipedia/commons/8/83/SENA_Colombia_logo.svg">
+          <img alt="Logo SENA Colombia" class="h-8 w-auto object-contain lg:hidden" src="sena-logo.png">
         </button>
 
         <div class="hidden sm:flex items-center gap-2 px-3.5 py-2 bg-[#226d00]/10 border border-[#226d00]/25 rounded-xl text-[#006c49] shrink-0 shadow-sm">
@@ -173,11 +168,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Logotipo Institucional SENA - Parte Superior Derecha -->
-        <div class="flex items-center gap-2 pl-2 border-l border-[#eaedff]">
-          <img alt="Logotipo SENA" class="h-10 w-auto object-contain" src="https://upload.wikimedia.org/wikipedia/commons/8/83/SENA_Colombia_logo.svg">
-        </div>
       </div>
     </header>
 
@@ -210,7 +200,7 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
-            <button onclick="navigateTo('nueva-inspeccion-campo')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow-md transition-all">
+            <button onclick="startNewInspectionSession()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow-md transition-all">
               <span class="material-symbols-outlined text-[18px]">add_circle</span>
               <span>+ Nueva Inspección</span>
             </button>
@@ -222,6 +212,16 @@
               <span class="material-symbols-outlined text-[18px] text-[#6f7b66]">download</span>
               <span>Exportar</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Banner Hero SST Generado por IA -->
+        <div class="relative w-full h-44 sm:h-64 rounded-2xl overflow-hidden shadow-lg border border-[#eaedff]">
+          <img src="sst_dashboard_hero.jpg" alt="Comité Paritario de Seguridad y Salud en el Trabajo SENA - El COPASST eres tú" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-r from-[#002113]/90 via-[#002113]/55 to-transparent flex flex-col justify-end p-5 sm:p-7 text-white">
+            <span class="px-3 py-1 rounded-lg bg-[#39a900] text-white text-[11px] font-extrabold uppercase w-fit tracking-wider shadow">SENA SG-SST</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1.5 drop-shadow-lg tracking-tight">El COPASST eres tú</h2>
+            <p class="text-[13px] sm:text-[14px] text-[#6cf8bb] font-bold drop-shadow mt-1">Comité Paritario de Seguridad y Salud en el Trabajo</p>
           </div>
         </div>
 
@@ -290,35 +290,29 @@
                 <span id="kpiTotalBadge" class="px-3 py-1 rounded-full bg-[#eaedff] text-[#131b2e] text-[11px] font-bold">n = 3 hallazgos</span>
               </div>
 
-              <div class="w-full h-4 rounded-full overflow-hidden flex bg-[#eaedff]">
-                <div class="w-[66%] bg-[#39a900]" title="Peligro Mecánico 66%"></div>
-                <div class="w-[34%] bg-[#ba1a1a]" title="Peligro Eléctrico 34%"></div>
+              <div id="kpiTaxonomyBar" class="w-full h-4 rounded-full overflow-hidden flex bg-[#eaedff]">
+                <div class="w-[50%] bg-[#39a900]" title="Peligro Mecánico 50%"></div>
+                <div class="w-[30%] bg-[#ba1a1a]" title="Peligro Eléctrico 30%"></div>
+                <div class="w-[20%] bg-[#006398]" title="Peligro Locativo 20%"></div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div class="p-3.5 rounded-xl bg-[#f2f3ff] flex items-center justify-between border border-[#eaedff]/60">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-3.5 h-3.5 rounded-full bg-[#39a900]"></span>
-                    <span class="text-[13px] text-[#131b2e]">Peligro Mecánico</span>
-                  </div>
-                  <span class="text-[15px] font-bold">66%</span>
-                </div>
-                <div class="p-3.5 rounded-xl bg-[#f2f3ff] flex items-center justify-between border border-[#eaedff]/60">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-3.5 h-3.5 rounded-full bg-[#ba1a1a]"></span>
-                    <span class="text-[13px] text-[#131b2e]">Peligro Eléctrico</span>
-                  </div>
-                  <span class="text-[15px] font-bold">34%</span>
-                </div>
+              <div id="kpiTaxonomyCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <!-- Rendered dynamically by JS -->
               </div>
             </div>
           </div>
 
           <div class="lg:col-span-5 flex flex-col gap-6">
             <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-sm border border-[#eaedff] flex flex-col gap-4 h-full">
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between flex-wrap gap-2">
                 <span class="text-[16px] font-bold text-[#131b2e]">Inspecciones Recientes</span>
-                <span class="text-[11px] text-[#006c49] font-bold uppercase bg-[#6cf8bb]/40 px-2.5 py-0.5 rounded-full">En Tiempo Real</span>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="loadInspectionsFromSupabase(true)" class="text-[11px] text-[#006398] hover:bg-[#eaedff] px-2.5 py-1 rounded-lg border border-[#006398]/30 font-bold flex items-center gap-1 shadow-sm transition-all" title="Consultar hallazgos guardados previamente en Supabase">
+                    <span class="material-symbols-outlined text-[14px]">cloud_download</span>
+                    <span>Cargar Nube</span>
+                  </button>
+                  <span class="text-[11px] text-[#006c49] font-bold uppercase bg-[#6cf8bb]/40 px-2.5 py-1 rounded-full">En Tiempo Real</span>
+                </div>
               </div>
 
               <div id="inspectionsListContainer" class="flex flex-col gap-3">
@@ -331,59 +325,106 @@
 
       <!-- VIEW 2: NUEVA INSPECCIÓN EN CAMPO -->
       <section id="view-nueva-inspeccion-campo" class="view-section hidden flex flex-col gap-6">
-        <div class="flex flex-col gap-1">
-          <h1 class="text-2xl font-bold text-[#131b2e]">Captura de Inspección en Campo</h1>
-          <p class="text-[13px] text-[#3f4a38]">Detección de peligros y registro fotográfico multicanal</p>
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div class="flex flex-col gap-1">
+            <h1 class="text-2xl font-bold text-[#131b2e]">Captura de Inspección en Campo</h1>
+            <p class="text-[13px] text-[#3f4a38]">Detección de peligros y registro fotográfico multicanal</p>
+          </div>
+          <button type="button" onclick="resetInspectionForm()" class="px-3.5 py-2 rounded-xl bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] font-bold text-[12px] flex items-center gap-1.5 shadow-sm border border-[#eaedff]" title="Limpiar todos los campos para una nueva inspección">
+            <span class="material-symbols-outlined text-[16px] text-[#226d00]">restart_alt</span>
+            <span>🧹 Reiniciar / Limpiar Campos</span>
+          </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div class="lg:col-span-7 flex flex-col gap-6">
             <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-[#eaedff] shadow-sm flex flex-col gap-5">
               
-              <!-- Sede Selection -->
+              <!-- Sede Selection with Add/Delete Buttons -->
               <div class="flex flex-col gap-1.5">
-                <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-[#226d00] text-[18px]">location_city</span>
-                  Centro de Formación / Regional SENA
-                </label>
-                <select id="selectSede" class="w-full bg-[#f2f3ff] py-2.5 px-3.5 rounded-xl text-[13px] border border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#226d00] text-[18px]">location_city</span>
+                    Centro de Formación / Regional SENA
+                  </label>
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="openAddSedeModal()" class="px-2 py-1 rounded-lg bg-[#226d00]/10 text-[#226d00] hover:bg-[#226d00]/20 text-[11px] font-bold flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">add</span>
+                      <span>Agregar</span>
+                    </button>
+                    <button type="button" onclick="deleteCurrentSede()" class="px-2 py-1 rounded-lg bg-[#ba1a1a]/10 text-[#ba1a1a] hover:bg-[#ba1a1a]/20 text-[11px] font-bold flex items-center gap-1" title="Eliminar centro seleccionado">
+                      <span class="material-symbols-outlined text-[14px]">delete</span>
+                      <span>Eliminar</span>
+                    </button>
+                  </div>
+                </div>
+                <select id="selectSede" onchange="autoSelectHseForSede(this.value)" class="w-full bg-[#f2f3ff] py-2.5 px-3.5 rounded-xl text-[13px] border border-[#eaedff]">
+                  <option value="">-- Seleccionar --</option>
                   <option value="Complejo Sur - Centro de Metalmecánica">Complejo Sur - Centro de Metalmecánica</option>
                   <option value="Centro de Tecnologías del Transporte (Cazucá)">Centro de Tecnologías del Transporte (Cazucá)</option>
                   <option value="Centro de Electricidad, Electrónica y Telecomunicaciones (CEET)">CEET - Distrito Capital</option>
                 </select>
               </div>
 
-              <!-- Area / Taller -->
+              <!-- Area / Taller Selection with Add/Delete Buttons -->
               <div class="flex flex-col gap-1.5">
-                <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-[#226d00] text-[18px]">factory</span>
-                  Área / Taller Específico
-                </label>
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#226d00] text-[18px]">factory</span>
+                    Centro de Tecnologías del Transporte / Área o Taller
+                  </label>
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="openAddTallerModal()" class="px-2 py-1 rounded-lg bg-[#226d00]/10 text-[#226d00] hover:bg-[#226d00]/20 text-[11px] font-bold flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">add</span>
+                      <span>Agregar</span>
+                    </button>
+                    <button type="button" onclick="deleteCurrentTaller()" class="px-2 py-1 rounded-lg bg-[#ba1a1a]/10 text-[#ba1a1a] hover:bg-[#ba1a1a]/20 text-[11px] font-bold flex items-center gap-1" title="Eliminar taller seleccionado">
+                      <span class="material-symbols-outlined text-[14px]">delete</span>
+                      <span>Eliminar</span>
+                    </button>
+                  </div>
+                </div>
                 <select id="selectTaller" class="w-full bg-[#f2f3ff] py-2.5 px-3.5 rounded-xl text-[13px] border border-[#eaedff]">
+                  <option value="">-- Seleccionar --</option>
                   <option value="Taller de Maquinado y Tornos">Taller de Maquinado y Tornos</option>
                   <option value="Taller de Soldadura y Fundición">Taller de Soldadura y Fundición</option>
                   <option value="Laboratorio Electrónico">Laboratorio Electrónico</option>
                 </select>
               </div>
 
-              <!-- GPS Geolocation Card -->
+              <!-- GPS Geolocation Card (Campo Opcional - Activado / Desactivado) -->
               <div class="flex flex-col gap-2 p-3.5 rounded-2xl bg-[#f2f3ff]/90 border border-[#eaedff]">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-wrap gap-2">
                   <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-[#006c49] text-[18px]">location_on</span>
-                    Geolocalización GPS en Tiempo Real
+                    Geolocalización GPS
+                    <span class="text-[10px] bg-[#eaedff] text-[#6f7b66] px-2 py-0.5 rounded-full font-extrabold uppercase">Opcional</span>
                   </label>
-                  <button onclick="getGpsLocation()" id="btnGetGps" type="button" class="px-3 py-1.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-[11px] font-bold flex items-center gap-1.5 shadow">
-                    <span class="material-symbols-outlined text-[14px]">my_location</span>
-                    <span id="txtGpsBtn">Obtener Ubicación GPS</span>
-                  </button>
+
+                  <div class="flex items-center gap-2.5">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="chkEnableGps" onchange="toggleGpsOption(this.checked)" class="sr-only peer">
+                      <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#226d00]"></div>
+                    </label>
+                    <span id="txtGpsStatus" class="text-[11px] font-bold text-[#6f7b66]">GPS Desactivado</span>
+
+                    <button onclick="getGpsLocation()" id="btnGetGps" type="button" class="hidden px-3 py-1.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-[11px] font-bold flex items-center gap-1.5 shadow">
+                      <span class="material-symbols-outlined text-[14px]">my_location</span>
+                      <span id="txtGpsBtn">Obtener Ubicación GPS</span>
+                    </button>
+                  </div>
                 </div>
+
                 <div id="gpsResultBox" class="hidden p-2.5 rounded-xl bg-[#6cf8bb]/30 border border-[#006c49]/30 text-[#005236] text-[12px]">
                   <span id="gpsResultText" class="font-semibold">Latitud: 4.58219 • Longitud: -74.14821 (Precisión ±8m)</span>
                 </div>
+                <div id="gpsOffNotice" class="p-2 rounded-xl bg-white/60 border border-[#eaedff] text-[11px] text-[#6f7b66] flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[16px] text-[#6f7b66]">location_off</span>
+                  <span>Geolocalización GPS desactivada por el usuario (Campo opcional).</span>
+                </div>
               </div>
 
-              <!-- Inspectors COPASST Checklist with Trash Delete Buttons -->
+              <!-- Inspectores del COPASST Presentes -->
               <div class="flex flex-col gap-2 pt-2 border-t border-[#eaedff]">
                 <div class="flex items-center justify-between">
                   <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
@@ -398,6 +439,60 @@
                 <p class="text-[11px] text-[#6f7b66]">Selecciona los inspectores presentes o elimina con 🗑️ a quienes no asistan:</p>
 
                 <div id="copasstMembersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+
+              <!-- Representante SST Presente -->
+              <div class="flex flex-col gap-2 pt-3 border-t border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#226d00] text-[18px]">health_and_safety</span>
+                    Representante SST Presente
+                  </label>
+                  <button onclick="openAddRoleModal('Representante SST')" type="button" class="text-[11px] text-[#226d00] font-bold flex items-center gap-1 hover:underline">
+                    <span class="material-symbols-outlined text-[14px]">person_add</span>
+                    + Agregar Rep. SST
+                  </button>
+                </div>
+                <p class="text-[11px] text-[#6f7b66]">Selecciona uno o varios representantes de Seguridad y Salud en el Trabajo:</p>
+                <div id="repSstMembersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+
+              <!-- Representante Ambiental Presente -->
+              <div class="flex flex-col gap-2 pt-3 border-t border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#006c49] text-[18px]">eco</span>
+                    Representante Ambiental Presente
+                  </label>
+                  <button onclick="openAddRoleModal('Representante Ambiental')" type="button" class="text-[11px] text-[#006c49] font-bold flex items-center gap-1 hover:underline">
+                    <span class="material-symbols-outlined text-[14px]">person_add</span>
+                    + Agregar Rep. Ambiental
+                  </button>
+                </div>
+                <p class="text-[11px] text-[#6f7b66]">Selecciona uno o varios representantes de Gestión Ambiental (SIGA):</p>
+                <div id="repAmbientalMembersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+
+              <!-- Encargado de Infraestructura Presente -->
+              <div class="flex flex-col gap-2 pt-3 border-t border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <label class="text-[13px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[#006398] text-[18px]">engineering</span>
+                    Encargado de Infraestructura Presente
+                  </label>
+                  <button onclick="openAddRoleModal('Encargado de Infraestructura')" type="button" class="text-[11px] text-[#006398] font-bold flex items-center gap-1 hover:underline">
+                    <span class="material-symbols-outlined text-[14px]">person_add</span>
+                    + Agregar Encargado
+                  </button>
+                </div>
+                <p class="text-[11px] text-[#6f7b66]">Selecciona uno o varios encargados de Mantenimiento e Infraestructura:</p>
+                <div id="repInfraestructuraMembersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto">
                   <!-- Rendered by JS -->
                 </div>
               </div>
@@ -417,6 +512,22 @@
                 </div>
               </div>
 
+              <!-- Active Multi-Finding Session Banner -->
+              <div id="activeSessionFindingsContainer" class="hidden flex flex-col gap-3 p-4 bg-[#f2f3ff] rounded-2xl border border-[#eaedff]">
+                <div class="flex items-center justify-between">
+                  <span class="text-[12px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-[#226d00]">collections</span>
+                    <span>Hallazgos Registrados en esta Inspección (<strong id="txtFindingsCount" class="text-[#226d00]">0</strong>)</span>
+                  </span>
+                  <button type="button" onclick="goToFindingReportView()" class="text-[11px] text-[#226d00] font-bold hover:underline">
+                    Ver Informe Consolidado →
+                  </button>
+                </div>
+                <div id="findingsThumbnailsList" class="flex gap-2 overflow-x-auto py-1">
+                  <!-- Dynamic Thumbnail Badges -->
+                </div>
+              </div>
+
               <!-- Separate inputs for direct Camera (capture="environment") vs Gallery file picker -->
               <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(event)">
               <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
@@ -433,7 +544,7 @@
               </div>
 
               <button onclick="proceedToAnalysis()" class="w-full mt-2 py-3.5 bg-[#39a900] hover:bg-[#226d00] text-white font-extrabold text-[14px] rounded-xl flex items-center justify-center gap-2 shadow-lg">
-                <span>Continuar a Análisis IA Maker-Checker</span>
+                <span>Continuar con el análisis</span>
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
             </div>
@@ -443,14 +554,21 @@
 
       <!-- VIEW 3: ANÁLISIS IA MAKER-CHECKER -->
       <section id="view-analisis-ia-maker-checker" class="view-section hidden flex flex-col gap-6">
-        <h1 class="text-2xl font-bold text-[#131b2e]">Arbitraje IA Maker-Checker (F-SST-012)</h1>
+        <h1 class="text-2xl font-bold text-[#131b2e]">Análisis IA Maker-Checker</h1>
         <div class="p-6 rounded-2xl bg-white/90 border border-[#eaedff] flex flex-col gap-5">
           <p class="text-[13px] text-[#3f4a38]">El modelo Gemini 2.5 Flash analizó la evidencia fotográfica e infirió el riesgo GTC 45 con alta precisión.</p>
           <div id="makerCheckerProposalBox"></div>
-          <button onclick="approveFinding()" class="px-6 py-3.5 bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[14px] rounded-xl shadow-lg w-full sm:w-fit flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined text-[20px]">draw</span>
-            <span>Aprobar y Firmar Informe Oficial</span>
-          </button>
+
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button onclick="addFindingAndTakeAnother()" class="flex-1 py-3.5 bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] border border-[#eaedff] font-extrabold text-[13px] rounded-xl shadow flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[20px] text-[#226d00]">add_a_photo</span>
+              <span>➕ Guardar Hallazgo y Tomar Otra Foto</span>
+            </button>
+            <button onclick="goToFindingReportView()" class="flex-1 py-3.5 bg-[#39a900] hover:bg-[#226d00] text-white font-extrabold text-[13px] rounded-xl shadow-lg flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">description</span>
+              <span>📋 Ver Informe Consolidado F-SST-012</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -462,19 +580,42 @@
         </div>
       </section>
 
-      <!-- VIEW 5: MATRIZ GTC 45 NORMATIVA -->
-      <section id="view-matriz-gtc-45-normativa" class="view-section hidden flex flex-col gap-6">
-        <h1 class="text-2xl font-bold text-[#131b2e]">Matriz GTC 45 & Normativa SST SENA</h1>
-        <div class="p-6 bg-white rounded-2xl border border-[#eaedff]">
-          <p class="text-[13px] text-[#3f4a38]">Clasificación normativa de peligros según la Guía Técnica Colombiana GTC 45:2012 y la Resolución 0312 de 2019.</p>
+      <!-- VIEW 5: DIRECTORIO OFICIAL PROFESIONALES HSE POR SEDES -->
+      <section id="view-directorio-profesionales-hse" class="view-section hidden flex flex-col gap-6">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <div class="flex flex-col gap-1">
+            <h1 class="text-2xl font-bold text-[#131b2e] flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#226d00] text-[28px]">contact_phone</span>
+              Directorio Oficial de Profesionales HSE por Sedes
+            </h1>
+            <p class="text-[13px] text-[#3f4a38]">Consulta rápida de encargados SST / HSE y datos de contacto de la Regional SENA Atlántico</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-[#39a900]/20 text-[#226d00] border border-[#39a900]/40">12 Profesionales HSE Disponibles</span>
+          </div>
         </div>
-      </section>
 
-      <!-- VIEW 6: CONFIGURACIÓN SEDES -->
-      <section id="view-configuracion-sedes" class="view-section hidden flex flex-col gap-6">
-        <h1 class="text-2xl font-bold text-[#131b2e]">Configuración de Sedes SENA</h1>
-        <div class="p-6 bg-white rounded-2xl border border-[#eaedff]">
-          <p class="text-[13px] text-[#3f4a38]">Administración de regionales, centros de formación y talleres críticos.</p>
+        <!-- Search Bar & Filters -->
+        <div class="p-4 rounded-2xl bg-white/90 backdrop-blur-xl shadow-sm border border-[#eaedff] flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div class="relative w-full sm:w-96">
+            <span class="material-symbols-outlined absolute left-3.5 top-2.5 text-[#6f7b66] text-[20px]">search</span>
+            <input type="text" id="inputSearchHse" oninput="filterHseDirectory()" placeholder="Buscar por Sede (ej: Galapa, Malambo, Sabanalarga) o Nombre..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-[#f2f3ff] text-[13px] border border-[#eaedff] focus:outline-none focus:border-[#226d00]">
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <select id="filterHseCentro" onchange="filterHseDirectory()" class="bg-[#f2f3ff] py-2 px-3 rounded-xl text-[12px] font-semibold border border-[#eaedff]">
+              <option value="todos">Todos los Centros Adscritos</option>
+              <option value="Comercio y Servicios">Centro Comercio y Servicios</option>
+              <option value="Industrial y de Aviación">Centro Industrial y Aviación</option>
+              <option value="Colombo Aleman">Centro Nacional Colombo Alemán</option>
+              <option value="CEDAGRO">CEDAGRO Agroecológico</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Cards Directory Container -->
+        <div id="hseCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendered dynamically by JS -->
         </div>
       </section>
 
@@ -496,6 +637,262 @@
       </form>
     </div>
   </div>
+  <!-- Modal: Agregar Integrante por Rol (SST, Ambiental, Infraestructura) -->
+  <div id="modalAddRoleMember" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-2">
+        <h3 id="modalAddRoleTitle" class="text-lg font-bold text-[#131b2e] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#226d00]">person_add</span>
+          <span>Agregar Integrante</span>
+        </h3>
+        <button type="button" onclick="closeAddRoleModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form onsubmit="saveNewRoleMember(event)" class="flex flex-col gap-3">
+        <input type="hidden" id="targetRoleCategory" value="Representante SST">
+        <div class="flex flex-col gap-1">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Nombre Completo:</label>
+          <input type="text" id="newRoleMemberName" required placeholder="ej: Ing. Carlos Mora" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff]">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Cargo / Rol Específico:</label>
+          <input type="text" id="newRoleMemberCargo" required placeholder="ej: Inspector de Seguridad Industrial" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff]">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Número de C.C.:</label>
+          <input type="text" id="newRoleMemberCc" required placeholder="ej: 80.124.991" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff]">
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" onclick="closeAddRoleModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold">Guardar en Base de Datos</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar Centro de Formación / Regional SENA -->
+  <div id="modalAddSede" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-2">
+        <h3 class="text-lg font-bold text-[#131b2e] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#226d00]">location_city</span>
+          <span>Agregar Nuevo Centro SENA</span>
+        </h3>
+        <button type="button" onclick="closeAddSedeModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form onsubmit="saveNewSede(event)" class="flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Nombre del Centro / Regional:</label>
+          <input type="text" id="newSedeName" required placeholder="ej: Centro Agropecuario y de Servicios - Regional Cauca" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff]">
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" onclick="closeAddSedeModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold">Guardar Centro en BD</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar Centro de Tecnologías del Transporte / Taller -->
+  <div id="modalAddTaller" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-2">
+        <h3 class="text-lg font-bold text-[#131b2e] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#226d00]">factory</span>
+          <span>Agregar Nuevo Taller / Área</span>
+        </h3>
+        <button type="button" onclick="closeAddTallerModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form onsubmit="saveNewTaller(event)" class="flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Nombre del Taller o Área Especializada:</label>
+          <input type="text" id="newTallerName" required placeholder="ej: Taller de Electromecánica Automotriz" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff]">
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" onclick="closeAddTallerModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold">Guardar Taller en BD</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar Responsable Asignado -->
+  <div id="modalAddResponsible" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-2">
+        <h3 class="text-lg font-bold text-[#131b2e] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#226d00]">person_add</span>
+          <span>Agregar Nuevo Responsable Asignado</span>
+        </h3>
+        <button type="button" onclick="closeAddResponsibleModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form onsubmit="saveNewResponsible(event)" class="flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Nombre y Cargo del Responsable:</label>
+          <input type="text" id="newResponsibleName" required placeholder="ej: Ing. Roberto Peña (Líder SST)" class="p-2.5 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff]">
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" onclick="closeAddResponsibleModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold">Guardar Responsable en BD</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Dibujar / Capturar Firma Digital -->
+  <div id="modalDrawSignature" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-2">
+        <h3 id="modalSignatureTitle" class="text-lg font-bold text-[#131b2e] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#226d00]">draw</span>
+          <span>Captura de Firma Digital</span>
+        </h3>
+        <button type="button" onclick="closeDrawSignatureModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-[12px] font-semibold text-[#131b2e]">Firmante Seleccionado:</label>
+        <span id="txtSignatureOwner" class="text-[13px] font-bold text-[#226d00] bg-[#f2f3ff] p-2.5 rounded-xl border border-[#eaedff]">
+          Ing. Laura Noguera (Inspector COPASST)
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between">
+          <label class="text-[11px] font-bold text-[#6f7b66] uppercase">Trazo de Firma Digital:</label>
+          <button type="button" onclick="clearSignatureCanvas()" class="text-[11px] text-[#ba1a1a] font-bold hover:underline">
+            Limpiar Lienzo
+          </button>
+        </div>
+        <div class="w-full h-40 border-2 border-dashed border-[#226d00]/40 rounded-xl bg-slate-50 relative overflow-hidden flex items-center justify-center">
+          <canvas id="signatureCanvas" class="w-full h-full cursor-crosshair touch-none"></canvas>
+          <span id="canvasHint" class="absolute pointer-events-none text-[12px] text-[#6f7b66] italic">
+            Dibuja tu firma con el dedo o mouse aquí
+          </span>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-2">
+        <button type="button" onclick="closeDrawSignatureModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+        <button type="button" onclick="saveCapturedCanvasSignature()" class="px-5 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold shadow flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">save</span>
+          <span>Guardar Firma en BD</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Previsualización de PDF (F-SST-012) -->
+  <div id="modalPdfPreview" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#eaedff]">
+      
+      <!-- Previsualización Header -->
+      <div class="px-6 py-4 bg-[#002113] text-white flex items-center justify-between border-b border-[#39a900]/30 shrink-0">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-[#6cf8bb] text-[24px]">visibility</span>
+          <div>
+            <h3 class="text-base font-bold leading-tight">Previsualización de Documento PDF</h3>
+            <p class="text-[11px] text-[#6cf8bb] font-mono">Formato Oficial F-SST-012 • SENA SG-SST</p>
+          </div>
+        </div>
+        <button type="button" onclick="closePdfPreviewModal()" class="p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/10">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Previsualización Body (Paper view style) -->
+      <div class="p-6 overflow-y-auto flex-1 bg-slate-50 flex justify-center">
+        <div id="pdfPreviewContent" class="w-full max-w-2xl bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col gap-5 text-[#131b2e]">
+          <!-- Dynamic PDF Card HTML rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Previsualización Footer Actions -->
+      <div id="pdfModalFooterActions" class="px-6 py-4 bg-white border-t border-[#eaedff] flex items-center justify-between gap-3 shrink-0">
+        <span class="text-[12px] text-[#6f7b66] italic flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px] text-[#226d00]">verified</span>
+          Documento verificado y listo para descarga
+        </span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closePdfPreviewModal()" class="px-4 py-2.5 rounded-xl bg-[#eaedff] hover:bg-[#becbb3]/40 text-[#131b2e] font-semibold text-[13px]">
+            Cerrar
+          </button>
+          <button type="button" onclick="confirmAndDownloadPdf()" class="px-5 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            <span>Confirmar y Descargar PDF</span>
+          </button>
+        </div>
+      </div>
+  <!-- Modal: Matriz Normativa GTC 45 (SG-SST SENA) -->
+  <div id="modalGtc45Matrix" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col gap-4 border border-[#eaedff]">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#226d00] text-[24px]">table_chart</span>
+          <div>
+            <h3 class="text-base font-bold text-[#131b2e]">Matriz de Evaluación de Riesgos GTC 45</h3>
+            <p class="text-[11px] text-[#6f7b66]">Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST)</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeGtc45MatrixModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-3 text-[12px] text-[#131b2e]">
+        <!-- Sección 1: Probabilidad -->
+        <div class="p-3 bg-[#f2f3ff] rounded-xl border border-[#eaedff]">
+          <span class="font-bold text-[#226d00] uppercase text-[11px] block">1. Niveles de Probabilidad (NC):</span>
+          <ul class="list-disc list-inside mt-1 flex flex-col gap-1 text-[#3f4a38]">
+            <li><strong>Baja (B):</strong> El daño ocurriría raras veces.</li>
+            <li><strong>Media (M):</strong> El daño ocurriría algunas veces.</li>
+            <li><strong>Alta (A):</strong> El daño ocurriría siempre o casi siempre.</li>
+          </ul>
+        </div>
+
+        <!-- Sección 2: Consecuencia -->
+        <div class="p-3 bg-[#f2f3ff] rounded-xl border border-[#eaedff]">
+          <span class="font-bold text-[#226d00] uppercase text-[11px] block">2. Niveles de Consecuencia (ND):</span>
+          <ul class="list-disc list-inside mt-1 flex flex-col gap-1 text-[#3f4a38]">
+            <li><strong>Leve (L):</strong> Lesiones que no incapacitan (primeros auxilios, molestias menores).</li>
+            <li><strong>Grave (G):</strong> Lesiones con incapacidad temporal o secuelas reversibles.</li>
+            <li><strong>Mortal / Catastrófica (M):</strong> Lesiones que provocan la muerte o incapacidad permanente.</li>
+          </ul>
+        </div>
+
+        <!-- Sección 3: Niveles de Riesgo -->
+        <div class="p-3 bg-white rounded-xl border border-[#eaedff] flex flex-col gap-2">
+          <span class="font-bold text-[#131b2e] uppercase text-[11px] block">3. Interpretación de Niveles de Riesgo (NR):</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+            <div class="p-2.5 bg-red-100 border border-red-300 rounded-lg text-red-900 font-semibold">
+              <strong>Nivel I (No Aceptable):</strong> Situación crítica. Corrección inmediata y paralización si aplica.
+            </div>
+            <div class="p-2.5 bg-amber-100 border border-amber-300 rounded-lg text-amber-900 font-semibold">
+              <strong>Nivel II (Aceptable con Control):</strong> Establecer medidas de control específico y seguimiento periódico (Caso Mobiliario/Sillas).
+            </div>
+            <div class="p-2.5 bg-emerald-100 border border-emerald-300 rounded-lg text-emerald-900 font-semibold sm:col-span-2">
+              <strong>Nivel III / IV (Tolerable / Bajo):</strong> Monitoreo y control operacional rutinario sin mejoras inmediatas.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-[#eaedff]">
+        <button type="button" onclick="closeGtc45MatrixModal()" class="px-5 py-2 bg-[#226d00] text-white font-bold rounded-xl text-[12px] shadow">
+          Entendido ✓
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Mobile Bottom Navigation Bar -->
   <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-xl border-t border-[#eaedff] z-40 flex items-center justify-around px-2 shadow-[0_-4px_16px_rgba(15,23,42,0.04)]">
@@ -503,7 +900,7 @@
       <span class="material-symbols-outlined text-[22px]">monitoring</span>
       <span class="text-[10px]">Dashboard</span>
     </button>
-    <button onclick="navigateTo('nueva-inspeccion-campo')" id="bottom-nav-nueva-inspeccion-campo" class="flex flex-col items-center justify-center text-[#6f7b66] hover:text-[#226d00] gap-0.5">
+    <button onclick="startNewInspectionSession()" id="bottom-nav-nueva-inspeccion-campo" class="flex flex-col items-center justify-center text-[#6f7b66] hover:text-[#226d00] gap-0.5">
       <span class="material-symbols-outlined text-[22px]">add_a_photo</span>
       <span class="text-[10px]">Nueva</span>
     </button>
@@ -514,6 +911,10 @@
     <button onclick="navigateTo('hallazgos-plan-de-accion')" id="bottom-nav-hallazgos-plan-de-accion" class="flex flex-col items-center justify-center text-[#6f7b66] hover:text-[#226d00] gap-0.5">
       <span class="material-symbols-outlined text-[22px]">description</span>
       <span class="text-[10px]">Informe</span>
+    </button>
+    <button onclick="navigateTo('directorio-profesionales-hse')" id="bottom-nav-directorio-profesionales-hse" class="flex flex-col items-center justify-center text-[#6f7b66] hover:text-[#226d00] gap-0.5">
+      <span class="material-symbols-outlined text-[22px]">contact_phone</span>
+      <span class="text-[10px]">Directorio HSE</span>
     </button>
   </nav>
 

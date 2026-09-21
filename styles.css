@@ -70,3 +70,75 @@ body {
   animation: fadeIn 0.25s ease-out forwards;
 }
 
+/* Print CSS Rules for PDF Export (F-SST-012) */
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 10mm;
+  }
+
+  /* Hide outer app UI, sidebar, header, nav, floating buttons */
+  aside,
+  header,
+  nav,
+  #toastContainer,
+  button {
+    display: none !important;
+  }
+
+  /* Make modalPdfPreview render as standard block document */
+  #modalPdfPreview {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+
+  #modalPdfPreview > div {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+
+  /* Hide modal header bar and action buttons in PDF output */
+  #modalPdfPreview .bg-\[\#002113\],
+  #pdfModalFooterActions {
+    display: none !important;
+  }
+
+  #pdfPreviewContent {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+    display: block !important;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+
