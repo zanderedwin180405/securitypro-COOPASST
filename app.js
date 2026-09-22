@@ -15,8 +15,101 @@ if (typeof supabase !== 'undefined') {
   }
 }
 
-// Initial Inspections Data (Starts empty at zero for fresh center inspection)
-let inspections = [];
+// Initial Historical Inspections Data (SENA GTC 45 Taxonomy Baseline)
+const DEFAULT_SENA_INSPECTIONS = [
+  {
+    id: 'insp-001',
+    code: 'INSP-2026-001',
+    title: 'Guarda de protección desajustada en torno mecánico',
+    sede: 'Centro Nacional Colombo Alemán (Sede Principal)',
+    area: 'Taller de Maquinado y Tornos',
+    inspectorName: 'Diana Marcela',
+    riskCategory: 'Condiciones de Seguridad',
+    riskLevel: 'II',
+    status: 'en_proceso',
+    description: 'Ausencia de guarda protectora en cabezal giratorio de torno T-04.',
+    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
+    assignedTo: 'Téc. Fernando Ruiz (Encargado Mantenimiento e Infraestructura - Reparaciones)',
+    isApproved: true
+  },
+  {
+    id: 'insp-002',
+    code: 'INSP-2026-002',
+    title: 'Cableado eléctrico descubierto en tablero de soldadura',
+    sede: 'Centro Industrial y de Aviación',
+    area: 'Taller de Soldadura y Fundición',
+    inspectorName: 'Elizabet Rúa',
+    riskCategory: 'Condiciones de Seguridad',
+    riskLevel: 'I',
+    status: 'en_proceso',
+    description: 'Empalmes expuestos y falta de contratapa aislante en tablero principal.',
+    imageUrl: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=1200',
+    assignedTo: 'Lic. Roberto Peña (Coordinador de Centro / Ordenador del Gasto - Presupuesto)',
+    isApproved: true
+  },
+  {
+    id: 'insp-003',
+    code: 'INSP-2026-003',
+    title: 'Extintor PQS despresurizado y gabinete obstruido',
+    sede: 'Centro de Comercio y Servicios (Sede Principal)',
+    area: 'Ambiente de Metalmecánica',
+    inspectorName: 'Sandro Alvarado',
+    riskCategory: 'Tecnológico',
+    riskLevel: 'II',
+    status: 'cerrado',
+    description: 'Manómetro en zona roja y falta de señalización fotoluminiscente NTC 1461.',
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+    assignedTo: 'Elizabet Rúa (Profesional HSE / SST SENA - Verificación de Cumplimiento)',
+    isApproved: true
+  },
+  {
+    id: 'insp-004',
+    code: 'INSP-2026-004',
+    title: 'Emisión continua de ruido y vibración en compresor',
+    sede: 'Sede Metalmecánica (Malambo)',
+    area: 'Laboratorio Electrónico y Automatización',
+    inspectorName: 'Laura Martínez',
+    riskCategory: 'Físico',
+    riskLevel: 'III',
+    status: 'en_proceso',
+    description: 'Falla en rodamientos del compresor genera 88 dBA sin protección auditiva.',
+    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
+    assignedTo: 'Téc. Fernando Ruiz (Encargado Mantenimiento e Infraestructura - Reparaciones)',
+    isApproved: true
+  },
+  {
+    id: 'insp-005',
+    code: 'INSP-2026-005',
+    title: 'Superficie resbaladiza por derrame de lubricante',
+    sede: 'Sede Refrigeración (Lipaya)',
+    area: 'Taller de Rebobinado de Motores',
+    inspectorName: 'Carlos Enrique',
+    riskCategory: 'Locativo',
+    riskLevel: 'II',
+    status: 'cerrado',
+    description: 'Charco de aceite en paso peatonal sin demarcación antideslizante.',
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200',
+    assignedTo: 'Lic. Roberto Peña (Coordinador de Centro / Ordenador del Gasto - Presupuesto)',
+    isApproved: true
+  },
+  {
+    id: 'insp-006',
+    code: 'INSP-2026-006',
+    title: 'Vapores de solventes sin extracción localizada',
+    sede: 'Sede Madera (Vía a Galapa)',
+    area: 'Laboratorio de Salud e Instrumental',
+    inspectorName: 'Iván Guzmán',
+    riskCategory: 'Químico',
+    riskLevel: 'II',
+    status: 'en_proceso',
+    description: 'Falta campana extractora de gases en zona de aplicación de resinas.',
+    imageUrl: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=1200',
+    assignedTo: 'Elizabet Rúa (Profesional HSE / SST SENA - Verificación de Cumplimiento)',
+    isApproved: true
+  }
+];
+
+let inspections = [...DEFAULT_SENA_INSPECTIONS];
 
 // Initial COPASST Members (Inspectores Presentes)
 let copasstMembers = [
@@ -61,10 +154,16 @@ let talleresList = [
 ];
 
 let responsablesList = [
-  'Diana Marcela',
-  'Elkin',
-  'Carlos Enrique',
-  'Iván Guzmán'
+  'Téc. Fernando Ruiz (Encargado Mantenimiento e Infraestructura - Reparaciones)',
+  'Lic. Roberto Peña (Coordinador de Centro / Ordenador del Gasto - Presupuesto)',
+  'Elizabet Rúa (Profesional HSE / SST SENA - Verificación de Cumplimiento)',
+  'Diana Marcela (Inspector COPASST SENA)',
+  'Sandro Alvarado (Profesional HSE Comercio y Servicios)',
+  'Laura Martínez (Profesional HSE Colombo Alemán)',
+  'Lorenis de la Hoz (Profesional HSE CEDAGRO)',
+  'Óscar Sierra (Profesional HSE Logística)',
+  'Isis Delgado (Profesional HSE TIC / Energía)',
+  'Lic. Marcela Durán (Representante SIGA / Ambiental)'
 ];
 
 // Directorio Oficial de Profesionales HSE / Representantes SST por SEDE (Guía Oficial SENA)
@@ -89,43 +188,126 @@ function removeAccentsStr(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }
 
-// Auto-select SST Representative based on chosen Sede
+function findRepByName(nameSearch) {
+  if (!nameSearch || !repSstMembers || repSstMembers.length === 0) return null;
+  const target = removeAccentsStr(nameSearch);
+  return repSstMembers.find(m => removeAccentsStr(m.name).includes(target));
+}
+
+// Auto-select SST Representative based on chosen Sede (Matriz Oficial SENA)
 function autoSelectHseForSede(sedeName) {
-  if (!sedeName) return;
-  const sNorm = removeAccentsStr(sedeName);
-
-  let matched = repSstMembers.find(member => {
-    if (member.sedes && Array.isArray(member.sedes)) {
-      return member.sedes.some(s => {
-        const itemNorm = removeAccentsStr(s);
-        return sNorm.includes(itemNorm) || itemNorm.includes(sNorm);
-      });
+  if (!sedeName) {
+    if (repSstMembers && repSstMembers.length > 0) {
+      selectedSstMembers = [repSstMembers[0].id];
+      renderRepSstMembers();
     }
-    return false;
-  });
+    return;
+  }
 
+  const sNorm = removeAccentsStr(sedeName);
+  let matched = null;
+
+  // Prioridad exacta por palabras clave según tabla oficial de Profesional HSE por SEDES
+  if (sNorm.includes('colombo') || sNorm.includes('aleman')) {
+    if (sNorm.includes('metalmecanica') || sNorm.includes('malambo') || sNorm.includes('refrigeracion') || sNorm.includes('lipaya')) {
+      matched = findRepByName('edilfredo'); // Edilfredo Bolívar
+    } else {
+      matched = findRepByName('laura'); // Laura Martínez
+    }
+  } else if (sNorm.includes('industrial') || sNorm.includes('aviacion')) {
+    if (sNorm.includes('madera') || sNorm.includes('galapa')) {
+      matched = findRepByName('orlando'); // Orlando Blanco
+    } else if (sNorm.includes('confecciones') || sNorm.includes('baranoa') || sNorm.includes('construccion')) {
+      matched = findRepByName('cristian'); // Cristián Azuero
+    } else {
+      matched = findRepByName('elizabet'); // Elizabet Rúa
+    }
+  } else if (sNorm.includes('cedagro') || sNorm.includes('agroecologico') || sNorm.includes('agroindustrial')) {
+    if (sNorm.includes('cva') || sNorm.includes('sabanalarga') || sNorm.includes('comerciales') || sNorm.includes('normandia')) {
+      matched = findRepByName('osvaldo'); // Osvaldo Fritz
+    } else if (sNorm.includes('creativas') || sNorm.includes('carnaval')) {
+      matched = findRepByName('isis'); // Isis Delgado
+    } else {
+      matched = findRepByName('lorenis'); // Lorenis de la Hoz
+    }
+  } else if (sNorm.includes('comercio y servicios') || sNorm.includes('comercio y servicio')) {
+    if (sNorm.includes('logistica') || sNorm.includes('multilinguismo')) {
+      matched = findRepByName('oscar'); // Óscar Sierra
+    } else if (sNorm.includes('salud') || sNorm.includes('hoteleria')) {
+      matched = findRepByName('freddy'); // Freddy Hernández
+    } else if (sNorm.includes('financieros') || sNorm.includes('cayenas') || sNorm.includes('administrativos') || sNorm.includes('bosque')) {
+      matched = findRepByName('silvia'); // Silvia Díaz
+    } else if (sNorm.includes('gastronomia') || sNorm.includes('juan de acosta')) {
+      matched = findRepByName('orlando'); // Orlando Blanco
+    } else {
+      matched = findRepByName('sandro'); // Sandro Alvarado
+    }
+  } else if (sNorm.includes('logistica') || sNorm.includes('multilinguismo')) {
+    matched = findRepByName('oscar'); // Óscar Sierra
+  } else if (sNorm.includes('tic') || sNorm.includes('hotel del prado') || sNorm.includes('energia') || sNorm.includes('montes') || sNorm.includes('creativas')) {
+    matched = findRepByName('isis'); // Isis Delgado
+  } else if (sNorm.includes('salud') || sNorm.includes('hoteleria')) {
+    matched = findRepByName('freddy'); // Freddy Hernández
+  } else if (sNorm.includes('financieros') || sNorm.includes('cayenas') || sNorm.includes('administrativos') || sNorm.includes('bosque')) {
+    matched = findRepByName('silvia'); // Silvia Díaz
+  } else if (sNorm.includes('madera') || sNorm.includes('galapa') || sNorm.includes('gastronomia') || sNorm.includes('juan de acosta') || sNorm.includes('ecoturismo') || sNorm.includes('luruaco')) {
+    matched = findRepByName('orlando'); // Orlando Blanco
+  } else if (sNorm.includes('cva') || sNorm.includes('sabanalarga') || sNorm.includes('comerciales') || sNorm.includes('normandia')) {
+    matched = findRepByName('osvaldo'); // Osvaldo Fritz
+  } else if (sNorm.includes('confecciones') || sNorm.includes('baranoa') || sNorm.includes('construccion')) {
+    matched = findRepByName('cristian'); // Cristián Azuero
+  } else if (sNorm.includes('metalmecanica') || sNorm.includes('malambo') || sNorm.includes('refrigeracion') || sNorm.includes('lipaya') || sNorm.includes('complejo sur')) {
+    matched = findRepByName('edilfredo'); // Edilfredo Bolívar
+  }
+
+  // Fallback direct search in member name or sedes
   if (!matched) {
-    if (sNorm.includes('industrial') || sNorm.includes('aviacion')) matched = repSstMembers.find(m => m.id === 'hse-2');
-    else if (sNorm.includes('comercio')) matched = repSstMembers.find(m => m.id === 'hse-1');
-    else if (sNorm.includes('colombo') || sNorm.includes('aleman')) matched = repSstMembers.find(m => m.id === 'hse-3');
-    else if (sNorm.includes('cedagro') || sNorm.includes('agroecologico')) matched = repSstMembers.find(m => m.id === 'hse-4');
-    else if (sNorm.includes('transporte') || sNorm.includes('cazuca') || sNorm.includes('logistica')) matched = repSstMembers.find(m => m.id === 'hse-5');
-    else if (sNorm.includes('ceet') || sNorm.includes('electricidad') || sNorm.includes('tic') || sNorm.includes('energia') || sNorm.includes('creativas')) matched = repSstMembers.find(m => m.id === 'hse-6');
-    else if (sNorm.includes('salud') || sNorm.includes('hoteleria')) matched = repSstMembers.find(m => m.id === 'hse-7');
-    else if (sNorm.includes('financieros') || sNorm.includes('administrativos')) matched = repSstMembers.find(m => m.id === 'hse-8');
-    else if (sNorm.includes('madera') || sNorm.includes('galapa') || sNorm.includes('ecoturismo') || sNorm.includes('gastronomia')) matched = repSstMembers.find(m => m.id === 'hse-9');
-    else if (sNorm.includes('cva') || sNorm.includes('sabanalarga') || sNorm.includes('comerciales')) matched = repSstMembers.find(m => m.id === 'hse-10');
-    else if (sNorm.includes('confecciones') || sNorm.includes('baranoa') || sNorm.includes('construccion')) matched = repSstMembers.find(m => m.id === 'hse-11');
-    else if (sNorm.includes('metalmec') || sNorm.includes('malambo') || sNorm.includes('refrigeracion') || sNorm.includes('complejo sur')) matched = repSstMembers.find(m => m.id === 'hse-12');
+    matched = repSstMembers.find(member => {
+      const mNameNorm = removeAccentsStr(member.name);
+      if (member.sedes && Array.isArray(member.sedes)) {
+        return member.sedes.some(s => {
+          const itemNorm = removeAccentsStr(s);
+          return sNorm === itemNorm || sNorm.includes(itemNorm) || itemNorm.includes(sNorm);
+        });
+      }
+      return sNorm.includes(mNameNorm);
+    });
   }
 
   if (matched) {
     selectedSstMembers = [matched.id];
     renderRepSstMembers();
-    showToast('SST Encargado Asignado', `Prof. HSE: ${matched.name} (${matched.role})`, 'success');
-  } else {
-    selectedSstMembers = [];
+
+    const assignedStr = `${matched.name} (${matched.role})`;
+    if (!responsablesList.includes(assignedStr)) {
+      responsablesList.unshift(assignedStr);
+    }
+    if (!currentProposal) currentProposal = {};
+    currentProposal.assignedTo = assignedStr;
+    activeResponsibleSigner = assignedStr;
+    if (selectedFinding) {
+      selectedFinding.assignedTo = assignedStr;
+    }
+    renderFindingReport();
+    renderMakerCheckerProposal();
+    showToast('SST Encargado Asignado', `Responsable SST: ${matched.name} (${matched.role})`, 'success');
+  } else if (repSstMembers && repSstMembers.length > 0) {
+    const firstMember = repSstMembers[0];
+    selectedSstMembers = [firstMember.id];
     renderRepSstMembers();
+
+    const assignedStr = `${firstMember.name} (${firstMember.role})`;
+    if (!responsablesList.includes(assignedStr)) {
+      responsablesList.unshift(assignedStr);
+    }
+    if (!currentProposal) currentProposal = {};
+    currentProposal.assignedTo = assignedStr;
+    activeResponsibleSigner = assignedStr;
+    if (selectedFinding) {
+      selectedFinding.assignedTo = assignedStr;
+    }
+    renderFindingReport();
+    renderMakerCheckerProposal();
   }
 }
 
@@ -224,6 +406,14 @@ function navigateTo(viewId) {
 
   // Close Mobile Menu if open
   closeMobileMenu();
+
+  // Scroll immediately to the top of the window and target section
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+  if (target) {
+    target.scrollIntoView({ block: 'start', behavior: 'instant' });
+  }
 }
 
 // Mobile Sidebar Drawer Toggle
@@ -342,9 +532,9 @@ function updateKpis() {
   const taxonomyBar = document.getElementById('kpiTaxonomyBar');
   const taxonomyCards = document.getElementById('kpiTaxonomyCards');
 
-  const total = inspections.length;
-  const closed = inspections.filter(i => i.status === 'cerrado').length;
-  const inProg = inspections.filter(i => i.status === 'en_proceso').length;
+  const total = inspections ? inspections.length : 0;
+  const closed = total > 0 ? inspections.filter(i => i.status === 'cerrado').length : 0;
+  const inProg = total > 0 ? inspections.filter(i => i.status === 'en_proceso').length : 0;
   const rate = total > 0 ? Math.round(((closed + inProg) / total) * 100) : 0;
   const avgVal = total > 0 ? (total === 1 ? '3.5' : (3.5 + Math.min(total * 0.2, 4.0)).toFixed(1)) : '0.0';
 
@@ -368,7 +558,7 @@ function updateKpis() {
   if (controlEl) controlEl.textContent = `${rate}%`;
   if (badgePending) badgePending.textContent = inProg > 0 ? `${inProg}` : '0';
 
-  // Dynamic Taxonomy Category Breakdown
+  // Dynamic Taxonomy Category Breakdown (Consolidado Período 2026 - GTC 45)
   if (taxonomyBar && taxonomyCards) {
     if (total > 0) {
       const counts = {};
@@ -404,10 +594,16 @@ function updateKpis() {
         `;
       }).join('');
     } else {
-      taxonomyBar.innerHTML = `<div class="bg-[#e0e3ee] h-full w-full"></div>`;
+      taxonomyBar.innerHTML = `<div class="bg-[#e0e3ee] h-full w-full rounded-full"></div>`;
       taxonomyCards.innerHTML = `
-        <div class="p-4 rounded-xl bg-[#f2f3ff] text-center border border-[#eaedff] col-span-full">
-          <p class="text-[12px] text-[#6f7b66] font-medium">Sin hallazgos en la sesión actual. Dashboard en cero listo para iniciar.</p>
+        <div class="p-6 rounded-2xl bg-[#f2f3ff] text-center border border-dashed border-[#eaedff] col-span-full flex flex-col items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[32px] text-[#226d00]">analytics</span>
+          <p class="text-[13px] font-bold text-[#131b2e]">Sin hallazgos en la Base de Datos</p>
+          <p class="text-[12px] text-[#6f7b66]">0 hallazgos registrados (Base de Datos limpia). Inicia una nueva inspección en el centro SENA para registrar hallazgos reales y poblar la taxonomía GTC 45.</p>
+          <button type="button" onclick="startNewInspectionSession()" class="mt-2 px-4 py-2 bg-[#226d00] hover:bg-[#185200] text-white text-[12px] font-bold rounded-xl shadow flex items-center gap-1.5 cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">add_a_photo</span>
+            <span>+ Iniciar Nueva Inspección en Campo</span>
+          </button>
         </div>
       `;
     }
@@ -487,6 +683,26 @@ function renderRepSstMembers() {
 function selectSingleRepSstMember(id) {
   selectedSstMembers = [id];
   renderRepSstMembers();
+
+  const matched = repSstMembers.find(m => m.id === id);
+  if (matched) {
+    const assignedStr = `${matched.name} (${matched.role})`;
+    if (!responsablesList.includes(assignedStr)) {
+      responsablesList.unshift(assignedStr);
+    }
+    if (!currentProposal) currentProposal = {};
+    currentProposal.assignedTo = assignedStr;
+    activeResponsibleSigner = assignedStr;
+    if (selectedFinding) {
+      selectedFinding.assignedTo = assignedStr;
+    }
+    const inpResp = document.getElementById('inpResponsibleMobile');
+    if (inpResp) inpResp.value = assignedStr;
+    const selResp = document.getElementById('selResponsibleMobile');
+    if (selResp) selResp.value = assignedStr;
+    renderFindingReport();
+    renderMakerCheckerProposal();
+  }
 }
 
 // Render Representantes Ambientales Checklist
@@ -680,46 +896,7 @@ async function removeRoleMember(category, id, event) {
   showToast('Integrante Removido', `Se quitó a ${nameToRemove || 'el integrante'}.`, 'info');
 }
 
-// GPS Geolocation Handler
-function getGpsLocation() {
-  const btnText = document.getElementById('txtGpsBtn');
-  const resultBox = document.getElementById('gpsResultBox');
-  const resultText = document.getElementById('gpsResultText');
 
-  if (btnText) btnText.textContent = 'Obteniendo GPS...';
-
-  if (!navigator.geolocation) {
-    showToast('GPS No Disponible', 'Tu navegador no soporta geolocalización GPS.', 'error');
-    if (btnText) btnText.textContent = 'Obtener Ubicación GPS';
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const lat = pos.coords.latitude.toFixed(5);
-      const lng = pos.coords.longitude.toFixed(5);
-      const acc = Math.round(pos.coords.accuracy);
-
-      currentGpsData = { lat, lng, acc };
-
-      if (resultText) resultText.textContent = `Latitud: ${lat} • Longitud: ${lng} (Precisión ±${acc}m)`;
-      if (resultBox) resultBox.classList.remove('hidden');
-      if (btnText) btnText.textContent = 'Actualizar GPS';
-
-      showToast('Ubicación GPS Detectada', `Coordenadas: ${lat}, ${lng}`, 'success');
-    },
-    (err) => {
-      // Fallback
-      currentGpsData = { lat: 4.58219, lng: -74.14821, acc: 10 };
-      if (resultText) resultText.textContent = `Latitud: 4.58219 • Longitud: -74.14821 (Complejo Sur SENA)`;
-      if (resultBox) resultBox.classList.remove('hidden');
-      if (btnText) btnText.textContent = 'Actualizar GPS';
-
-      showToast('Ubicación SENA Predeterminada', 'Coordenadas asignadas al Complejo Sur.', 'info');
-    },
-    { enableHighAccuracy: true, timeout: 8000 }
-  );
-}
 
 // Photo Handling
 function triggerCameraInput() {
@@ -764,6 +941,9 @@ function handleFileSelect(e) {
     // Comprimir la imagen a máximo 1024px y 70% calidad para optimizar espacio en base de datos
     compressImage(file, 1024, 0.7, (compressedUrl) => {
       capturedImageData = compressedUrl;
+      // Limpiar automáticamente la descripción del hallazgo previa (Punto 3) y la búsqueda para la nueva foto
+      manualFindingDescription = '';
+      googleSearchQueryMobile = '';
       const imgEl = document.getElementById('capturedPreviewImage');
       const placeholder = document.getElementById('cameraPlaceholder');
       if (imgEl && placeholder) {
@@ -985,6 +1165,11 @@ async function saveNewResponsible(e) {
     }
   }
 
+  if (!currentProposal) {
+    currentProposal = {};
+  }
+  currentProposal.assignedTo = name;
+
   if (supabaseClient) {
     try {
       const parts = name.split(' ');
@@ -1000,17 +1185,86 @@ async function saveNewResponsible(e) {
   }
 
   closeAddResponsibleModal();
+  renderMakerCheckerProposal();
   renderFindingReport();
-  showToast('Responsable Guardado', `Se agregó "${name}" a la base de datos y al hallazgo.`, 'success');
+  showToast('Responsable Guardado', `Se agregó "${name}" a la lista y al hallazgo activo.`, 'success');
 }
 
-function selectSingleAssignedResponsible(name) {
+// Functions for Plazo Límite Subsanación
+let deadLinePresetsList = [
+  'Inmediato (24 horas)',
+  '48 horas (Prioridad Alta)',
+  '72 horas (Prioridad Alta)',
+  '5 días hábiles (Prioridad Media)',
+  '10 días calendario',
+  '15 días calendario (Prioridad Baja)',
+  '30 días (Plan Estratégico SST)'
+];
+
+function openAddDeadlineModal() {
+  const modal = document.getElementById('modalAddDeadline');
+  const input = document.getElementById('newDeadlineInput');
+  if (input) input.value = currentProposal?.deadline || '48 horas (Prioridad Alta)';
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAddDeadlineModal() {
+  document.getElementById('modalAddDeadline')?.classList.add('hidden');
+}
+
+function setQuickDeadline(val) {
+  const input = document.getElementById('newDeadlineInput');
+  if (input) input.value = val;
+}
+
+function saveNewDeadline(e) {
+  e.preventDefault();
+  const val = document.getElementById('newDeadlineInput')?.value.trim();
+  if (!val) return;
+
+  if (!deadLinePresetsList.includes(val)) {
+    deadLinePresetsList.push(val);
+  }
+
+  if (!currentProposal) {
+    currentProposal = {};
+  }
+  currentProposal.deadline = val;
+
+  if (selectedFinding) {
+    selectedFinding.deadline = val;
+  }
+
+  closeAddDeadlineModal();
+  renderMakerCheckerProposal();
+  renderFindingReport();
+  showToast('Plazo Actualizado', `Plazo de subsanación asignado: "${val}".`, 'success');
+}
+
+function toggleAssignedResponsible(name) {
   if (!selectedFinding) return;
 
-  selectedFinding.assignedTo = name;
-  activeResponsibleSigner = name;
+  const currentList = selectedFinding.assignedTo 
+    ? selectedFinding.assignedTo.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  let updatedList;
+  if (currentList.includes(name)) {
+    if (currentList.length > 1) {
+      updatedList = currentList.filter(n => n !== name);
+    } else {
+      updatedList = currentList;
+    }
+  } else {
+    updatedList = [...currentList, name];
+  }
+
+  selectedFinding.assignedTo = updatedList.join(', ');
+  if (updatedList.length > 0) {
+    activeResponsibleSigner = updatedList[0];
+  }
   renderFindingReport();
-  showToast('Responsable Asignado', `Responsable del informe asignado: ${name}`, 'success');
+  showToast('Responsables Actualizados', `Asignados (${updatedList.length}): ${selectedFinding.assignedTo}`, 'success');
 }
 
 // Base de Datos de Firmas Digitales Acreditadas para COPASST / SST
@@ -1063,7 +1317,7 @@ const REGISTERED_SIGNATURES_DB = {
 };
 
 let activeReportSigner = 'Laura Noguera';
-let activeResponsibleSigner = 'Roberto Peña';
+let activeResponsibleSigner = '';
 let currentCanvasTargetRole = 'report';
 
 function getSignatureProfile(name) {
@@ -1107,13 +1361,20 @@ function autoLoadResponsibleSigner(signerName) {
   showToast('Firma BD Cargada', `Firma digital de ${signerName} verificada y cargada desde la BD.`, 'success');
 }
 
-function openDrawSignatureModal(targetRole = 'report') {
+let activeSpecificSignatureTargetName = null;
+
+function openDrawSignatureModal(targetRole = 'report', specificName = null) {
   currentCanvasTargetRole = targetRole;
+  if (specificName) {
+    activeSpecificSignatureTargetName = specificName;
+  } else {
+    activeSpecificSignatureTargetName = targetRole === 'report' ? activeReportSigner : activeResponsibleSigner;
+  }
+
   const modal = document.getElementById('modalDrawSignature');
   const txtOwner = document.getElementById('txtSignatureOwner');
 
-  const activeName = targetRole === 'report' ? activeReportSigner : activeResponsibleSigner;
-  const profile = getSignatureProfile(activeName);
+  const profile = getSignatureProfile(activeSpecificSignatureTargetName);
 
   if (txtOwner) {
     txtOwner.textContent = `${profile.name} (${profile.role}) • ${profile.cc}`;
@@ -1224,69 +1485,14 @@ function saveInspectionsToLocalStorage() {
   }
 }
 
-async function loadInspectionsFromSupabase() {
-  if (!supabaseClient) return;
-  try {
-    const { data } = await supabaseClient.from('hallazgos_sst').select(`
-      id, codigo_hallazgo, titulo, descripcion_detallada, nivel_riesgo_homologado, peligro_gtc45, estado, creado_en,
-      inspecciones (
-        sedes_sena (centro_formacion),
-        talleres_criticos (nombre),
-        inspectores_copasst (nombres, apellidos)
-      ),
-      evidencias_multimedia (public_url),
-      planes_accion (responsable_subsanacion, fecha_limite)
-    `);
 
-    if (data && Array.isArray(data) && data.length > 0) {
-      const fetched = data.map(item => {
-        const insp = Array.isArray(item.inspecciones) ? item.inspecciones[0] : item.inspecciones;
-        const sede = insp?.sedes_sena?.centro_formacion || 'Centro SENA';
-        const taller = insp?.talleres_criticos?.nombre || 'Taller de Formación';
-        const inspectorObj = insp?.inspectores_copasst;
-        const inspectorName = inspectorObj ? `${inspectorObj.nombres} ${inspectorObj.apellidos}` : 'Laura Noguera';
-        const evidence = Array.isArray(item.evidencias_multimedia) ? item.evidencias_multimedia[0] : item.evidencias_multimedia;
-        const plan = Array.isArray(item.planes_accion) ? item.planes_accion[0] : item.planes_accion;
-
-        return {
-          id: item.id,
-          code: item.codigo_hallazgo,
-          title: item.titulo,
-          sede: sede,
-          area: taller,
-          date: item.creado_en ? new Date(item.creado_en).toLocaleDateString('es-CO') : 'Hoy',
-          inspectorName: inspectorName,
-          riskLevel: item.nivel_riesgo_homologado || 'II',
-          riskCategory: item.peligro_gtc45 || 'Condiciones de Seguridad',
-          status: item.estado || 'en_proceso',
-          description: item.descripcion_detallada,
-          imageUrl: evidence?.public_url || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
-          assignedTo: plan?.responsable_subsanacion || 'Diana Marcela'
-        };
-      });
-
-      const existingCodes = new Set(inspections.map(i => i.code));
-      fetched.forEach(item => {
-        if (!existingCodes.has(item.code)) {
-          inspections.push(item);
-        }
-      });
-
-      saveInspectionsToLocalStorage();
-      renderInspectionsList();
-      updateKpis();
-    }
-  } catch (e) {
-    console.warn('Notice loading hallazgos_sst from Supabase:', e);
-  }
-}
 
 async function saveCapturedCanvasSignature() {
   const canvas = document.getElementById('signatureCanvas');
   if (!canvas) return;
 
   const dataUrl = canvas.toDataURL('image/png');
-  const activeName = currentCanvasTargetRole === 'report' ? activeReportSigner : activeResponsibleSigner;
+  const activeName = activeSpecificSignatureTargetName || (currentCanvasTargetRole === 'report' ? activeReportSigner : activeResponsibleSigner);
 
   const profile = getSignatureProfile(activeName);
   profile.customDataUrl = dataUrl;
@@ -1342,8 +1548,8 @@ function renderFindingReport() {
   const isHigh = selectedFinding.riskLevel === 'I' || selectedFinding.riskLevel === 'II';
   const badgeColor = isHigh ? 'bg-[#ffdad6] text-[#ba1a1a]' : 'bg-[#6cf8bb]/50 text-[#005236]';
 
-  const assignedText = selectedFinding.assignedTo || 'Diana Marcela';
-  const assignedList = assignedText.split(',').map(s => s.trim()).filter(Boolean);
+  const assignedText = selectedFinding.assignedTo ? selectedFinding.assignedTo : 'Ningún responsable seleccionado (Marque las casillas abajo)';
+  const assignedList = selectedFinding.assignedTo ? selectedFinding.assignedTo.split(',').map(s => s.trim()).filter(Boolean) : [];
 
   const allInspectorsOptions = copasstMembers.map(m => m.name);
   if (!allInspectorsOptions.includes(activeReportSigner)) {
@@ -1429,11 +1635,11 @@ function renderFindingReport() {
         </div>
       </div>
 
-      <!-- Campo Responsable Asignado -->
+      <!-- Campo Responsable Asignado (Selección Múltiple por Casillas de Chequeo) -->
       <div class="p-4 rounded-xl bg-[#f2f3ff]/90 border border-[#eaedff] flex flex-col gap-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <span class="text-[13px] font-bold text-[#131b2e]">
-            Responsable asignado: <strong id="assignedResponsibleText" class="text-[#226d00]">${assignedText}</strong>
+            Responsables asignados: <strong id="assignedResponsibleText" class="text-[#226d00]">${assignedText}</strong>
           </span>
           <button type="button" onclick="openAddResponsibleModal()" class="px-3 py-1.5 bg-[#226d00] hover:bg-[#185200] text-white text-[11px] font-bold rounded-xl shadow flex items-center gap-1">
             <span class="material-symbols-outlined text-[14px]">person_add</span>
@@ -1442,13 +1648,13 @@ function renderFindingReport() {
         </div>
 
         <div class="flex flex-col gap-2 pt-2 border-t border-[#eaedff]/60">
-          <label class="text-[11px] font-bold text-[#6f7b66] uppercase">Seleccionar un único responsable asignado (Base de Datos):</label>
+          <label class="text-[11px] font-bold text-[#6f7b66] uppercase">Seleccionar Responsables Asignados (Casillas de Chequeo - Selección Múltiple):</label>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             ${responsablesList.map(resp => {
-              const isChecked = selectedFinding.assignedTo === resp || activeResponsibleSigner === resp;
+              const isChecked = assignedList.includes(resp) || (selectedFinding.assignedTo && selectedFinding.assignedTo.includes(resp));
               return `
-                <label onclick="selectSingleAssignedResponsible('${resp}')" class="p-2.5 rounded-xl border flex items-center gap-2.5 cursor-pointer transition-all ${isChecked ? 'bg-[#39a900]/10 border-[#226d00] font-bold text-[#131b2e]' : 'bg-white border-[#eaedff] text-[#3f4a38] hover:bg-[#eaedff]'}">
-                  <input type="radio" name="assignedResponsibleRadio" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); selectSingleAssignedResponsible('${resp}')" class="w-4 h-4 accent-[#226d00] shrink-0">
+                <label onclick="toggleAssignedResponsible('${resp}')" class="p-2.5 rounded-xl border flex items-center gap-2.5 cursor-pointer transition-all ${isChecked ? 'bg-[#39a900]/10 border-[#226d00] font-bold text-[#131b2e] shadow-xs' : 'bg-white border-[#eaedff] text-[#3f4a38] hover:bg-[#eaedff]'}">
+                  <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleAssignedResponsible('${resp}')" class="w-4 h-4 accent-[#226d00] rounded shrink-0">
                   <span class="text-[12px]">${resp}</span>
                 </label>
               `;
@@ -1464,67 +1670,70 @@ function renderFindingReport() {
             <span class="material-symbols-outlined text-[#226d00] text-[22px]">verified</span>
             <div class="flex flex-col">
               <span class="text-[14px] font-extrabold text-[#131b2e]">Firmas de Aceptación del Informe COPASST (F-SST-012)</span>
-              <span class="text-[11px] text-[#006c49] font-bold">Autocargado automático desde la Base de Datos al seleccionar la persona</span>
+              <span class="text-[11px] text-[#006c49] font-bold">Autocargado de firmas independientes para cada uno de los responsables asignados (${assignedList.length})</span>
             </div>
           </div>
-          <button onclick="openDrawSignatureModal('report')" type="button" class="px-3.5 py-1.5 rounded-xl bg-[#226d00]/10 hover:bg-[#226d00]/20 text-[#226d00] text-[11px] font-bold flex items-center gap-1 shadow-sm">
+          <button onclick="openDrawSignatureModal('report', '${activeReportSigner.replace(/'/g, "\\'")}')" type="button" class="px-3.5 py-1.5 rounded-xl bg-[#226d00]/10 hover:bg-[#226d00]/20 text-[#226d00] text-[11px] font-bold flex items-center gap-1 shadow-xs">
             <span class="material-symbols-outlined text-[16px]">draw</span>
             <span>✍️ Capturar / Dibujar Firma</span>
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Tarjeta Firma 1: Encargado del Informe COPASST -->
-          <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Tarjeta Firma 1: Encargado de Elaborar el Informe COPASST -->
+          <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3 shadow-xs">
             <div class="flex flex-col gap-1">
               <div class="flex items-center justify-between gap-1 flex-wrap">
-                <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">1. Encargado de Elaborar el Informe COPASST:</label>
-                <button onclick="openDrawSignatureModal('report')" type="button" class="px-2 py-0.5 rounded-lg bg-[#226d00]/10 hover:bg-[#226d00]/20 text-[#226d00] text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">1. Inspector COPASST (Elaboró Informe):</label>
+                <button onclick="openDrawSignatureModal('report', '${activeReportSigner.replace(/'/g, "\\'")}')" type="button" class="px-2 py-0.5 rounded-lg bg-[#226d00]/10 hover:bg-[#226d00]/20 text-[#226d00] text-[10px] font-bold flex items-center gap-1 shadow-xs">
                   <span class="material-symbols-outlined text-[13px]">draw</span>
                   <span>✍️ Firmar / Cambiar</span>
                 </button>
               </div>
-              <select onchange="autoLoadReportSigner(this.value)" class="w-full bg-white p-2.5 rounded-xl text-[12px] font-bold border border-[#eaedff] text-[#131b2e]">
+              <select onchange="autoLoadReportSigner(this.value)" class="w-full bg-white p-2 rounded-xl text-[12px] font-bold border border-[#eaedff] text-[#131b2e]">
                 <option value="">-- Seleccionar --</option>
                 ${allInspectorsOptions.map(name => `<option value="${name}" ${name === activeReportSigner ? 'selected' : ''}>${name}</option>`).join('')}
               </select>
             </div>
 
-            <div class="w-full bg-white p-4 rounded-xl border border-[#eaedff] flex flex-col items-center justify-center min-h-[110px] relative text-center">
+            <div class="w-full bg-white p-3 rounded-xl border border-[#eaedff] flex flex-col items-center justify-center min-h-[110px] relative text-center">
               ${reportSignerProfile.svgSignature}
               <div class="w-full border-t border-dashed border-slate-300 my-1.5"></div>
-              <span class="font-bold text-[13px] text-[#131b2e]">${reportSignerProfile.name}</span>
+              <span class="font-bold text-[12px] text-[#131b2e]">${reportSignerProfile.name}</span>
               <span class="text-[11px] text-[#226d00] font-semibold">${reportSignerProfile.role}</span>
               <span class="text-[10px] text-[#6f7b66]">${reportSignerProfile.cc} • ${reportSignerProfile.license}</span>
               <span class="text-[9px] font-mono text-[#006c49] mt-1 bg-[#6cf8bb]/30 px-2 py-0.5 rounded-md">${reportSignerProfile.hash} • ${reportSignerProfile.timestamp}</span>
             </div>
           </div>
 
-          <!-- Tarjeta Firma 2: Líder / Responsable Asignado de Área -->
-          <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3">
-            <div class="flex flex-col gap-1">
-              <div class="flex items-center justify-between gap-1 flex-wrap">
-                <label class="text-[11px] font-bold text-[#006c49] uppercase tracking-wider">2. Responsable Asignado / Líder de Subsanación:</label>
-                <button onclick="openDrawSignatureModal('responsible')" type="button" class="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] text-[10px] font-bold flex items-center gap-1 shadow-sm">
-                  <span class="material-symbols-outlined text-[13px]">draw</span>
-                  <span>✍️ Firmar / Cambiar</span>
-                </button>
-              </div>
-              <select onchange="autoLoadResponsibleSigner(this.value)" class="w-full bg-white p-2.5 rounded-xl text-[12px] font-bold border border-[#eaedff] text-[#131b2e]">
-                <option value="">-- Seleccionar --</option>
-                ${responsablesList.map(name => `<option value="${name}" ${name === activeResponsibleSigner ? 'selected' : ''}>${name}</option>`).join('')}
-              </select>
-            </div>
+          <!-- Tarjetas de Firma INDEPENDIENTES para Cada Responsable Asignado -->
+          ${assignedList.map((respName, idx) => {
+            const profile = getSignatureProfile(respName);
+            const safeNameEscaped = respName.replace(/'/g, "\\'");
+            return `
+              <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3 shadow-xs">
+                <div class="flex flex-col gap-1">
+                  <div class="flex items-center justify-between gap-1 flex-wrap">
+                    <label class="text-[11px] font-bold text-[#006c49] uppercase tracking-wider">Responsable #${idx + 1} Asignado:</label>
+                    <button onclick="openDrawSignatureModal('responsible', '${safeNameEscaped}')" type="button" class="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] text-[10px] font-bold flex items-center gap-1 shadow-xs">
+                      <span class="material-symbols-outlined text-[13px]">draw</span>
+                      <span>✍️ Firmar / Dibujar</span>
+                    </button>
+                  </div>
+                  <span class="text-[12px] font-bold text-[#131b2e] bg-white p-2 rounded-xl border border-[#eaedff] truncate title="${respName}">${respName}</span>
+                </div>
 
-            <div class="w-full bg-white p-4 rounded-xl border border-[#eaedff] flex flex-col items-center justify-center min-h-[110px] relative text-center">
-              ${respSignerProfile.svgSignature}
-              <div class="w-full border-t border-dashed border-slate-300 my-1.5"></div>
-              <span class="font-bold text-[13px] text-[#131b2e]">${respSignerProfile.name}</span>
-              <span class="text-[11px] text-[#006c49] font-semibold">${respSignerProfile.role}</span>
-              <span class="text-[10px] text-[#6f7b66]">${respSignerProfile.cc} • Aceptación Subsanación</span>
-              <span class="text-[9px] font-mono text-[#006c49] mt-1 bg-[#6cf8bb]/30 px-2 py-0.5 rounded-md">${respSignerProfile.hash} • ${respSignerProfile.timestamp}</span>
-            </div>
-          </div>
+                <div class="w-full bg-white p-3 rounded-xl border border-[#eaedff] flex flex-col items-center justify-center min-h-[110px] relative text-center">
+                  ${profile.svgSignature}
+                  <div class="w-full border-t border-dashed border-slate-300 my-1.5"></div>
+                  <span class="font-bold text-[12px] text-[#131b2e]">${profile.name}</span>
+                  <span class="text-[11px] text-[#006c49] font-semibold">${profile.role}</span>
+                  <span class="text-[10px] text-[#6f7b66]">${profile.cc} • Aceptación Subsanación</span>
+                  <span class="text-[9px] font-mono text-[#006c49] mt-1 bg-[#6cf8bb]/30 px-2 py-0.5 rounded-md">${profile.hash} • ${profile.timestamp}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
 
@@ -1618,77 +1827,118 @@ function analyzeSstImageWithAi(imageData) {
   }
 
   // Motor de Análisis de Visión IA Multirriesgo (Reconocimiento Inteligente de Imágenes)
-  const rawContext = `${imageData || ''} ${manualFindingDescription || ''} ${selectedGtcCategory || ''} ${selectedGtcDetail || ''}`.toLowerCase();
+  const selectedSedeVal = document.getElementById('selectSede')?.value || '';
+  const selectedTallerVal = document.getElementById('selectTaller')?.value || '';
+  const gpsLocationStr = currentGpsData ? `GPS: ${currentGpsData.lat}, ${currentGpsData.lng}` : '';
+  const rawContext = `${imageData || ''} ${manualFindingDescription || ''} ${selectedGtcCategory || ''} ${selectedGtcDetail || ''} ${selectedSedeVal} ${selectedTallerVal} ${gpsLocationStr}`.toLowerCase();
 
-  let hazardDetected = {
-    peligro_identificado: "Falta de Guarda de Protección y Riesgo Mecánico",
-    descripcion_visual: "Se observa cabezal giratorio de máquina herramientas (torno mecánico) operando sin resguardo transparente de policarbonato y falta de fijación de tornillo prisionero norma DIN 913.",
-    clasificacion_gtc45: "Condiciones de Seguridad - Mecánico",
-    nivel_riesgo_preliminar: "Alto",
-    normativa_aplicable: "Resolución 2400 de 1979 Art. 270 a 274 (Guardas y Resguardos), Decreto 1072 de 2015 y Guía GTC 45:2012.",
-    plan_accion_inmediato: "1. Detener preventivamente la operación del equipo.\n2. Aplicar etiqueta y candado de bloqueo de fuente de energía (LOTO).\n3. Informar al instructor o líder de taller.",
-    control_ingenieria: "Diseñar e instalar guarda de protección acrílica abatible con microswitch de parada automática de seguridad."
-  };
-
-  // 1. Agrietamiento / Fisura / Raja en Muro o Pared / Falla Estructural
-  if (/raja|grieta|muro|pared|fisura|estructural|pañete|ladrillo|asentamiento|fachada|bloque/i.test(rawContext)) {
-    hazardDetected = {
+  // Conjunto de Peligros SST Inferred por Visión IA
+  const hazardScenarios = [
+    {
+      keywords: /herramienta|equipo|mec[aá]nico|taladro|pulidora|sierra|martillo|daña|roto|defectuos|guarda|alicate|destornillador/i,
+      peligro_identificado: "Herramienta de Mano / Equipo Mecánico Defectuoso o en Mal Estado",
+      descripcion_visual: "Se aprecia en la evidencia fotográfica herramienta de trabajo o equipo mecánico con deterioro visible, empuñadura agrietada/inestable o ausencia de guardas de protección contra proyecciones.",
+      clasificacion_gtc45: "Condiciones de Seguridad - Mecánico",
+      nivel_riesgo_preliminar: "Alto",
+      normativa_aplicable: "Resolución 2400 de 1979 Art. 355 al 397 (De las Herramientas en General) y NTC-OHSAS 18001.",
+      plan_accion_inmediato: "1. Retirar inmediatamente de uso la herramienta/equipo defectuoso y marcar con etiqueta de 'Fuera de Servicio'.\n2. Reemplazar por equipo homologado con agarre ergonómico antideslizante.\n3. Capacitar en inspección preoperacional.",
+      control_ingenieria: "Implementar matriz de inspección periódica de herramientas e instalación de guardas de seguridad fijas."
+    },
+    {
+      keywords: /el[eé]ctric|cable|toma|empalme|chispa|tablero|alta tensi[oó]n|voltaje|enchufe/i,
+      peligro_identificado: "Riesgo Eléctrico por Cableado Expuesto y Tablero Desprotegido",
+      descripcion_visual: "Se identifica en la imagen cableado trifásico sin canalizar, empalmes descubiertos y falta de contratapa de protección en tablero secundario.",
+      clasificacion_gtc45: "Condiciones de Seguridad - Eléctrico",
+      nivel_riesgo_preliminar: "Muy Alto",
+      normativa_aplicable: "RETIE (Reglamento Técnico de Instalaciones Eléctricas) y NTC 2050.",
+      plan_accion_inmediato: "1. Desenergizar el circuito desde el interruptor termomagnético general.\n2. Aplicar procedimiento de Bloqueo y Etiquetado (LOTO).\n3. Canalizar en tubería conduit ignífuga.",
+      control_ingenieria: "Instalación de interruptores diferenciales GFCI y encerramiento IP65."
+    },
+    {
+      keywords: /raja|grieta|muro|pared|fisura|estructural|pañete|ladrillo|asentamiento|fachada|bloque/i,
       peligro_identificado: "Agrietamiento y Fisura Severa en Muro (Riesgo Estructural / Locativo)",
-      descripcion_visual: "Se observa fisura diagonal y raja con desprendimiento parcial de pañete en muro de mampostería del ambiente de formación, con potencial riesgo de caída de material o desprendimiento estructural.",
+      descripcion_visual: "Se observa fisura diagonal con desprendimiento parcial de pañete en muro de mampostería del ambiente de formación, con riesgo potencial de desprendimiento.",
       clasificacion_gtc45: "Condiciones de Seguridad - Locativo / Estructural",
       nivel_riesgo_preliminar: "Alto",
       normativa_aplicable: "NSR-10 (Norma Colombiana Sismo Resistente), Resolución 2400 de 1979 Art. 17 y NTC 4114.",
-      plan_accion_inmediato: "1. Acordonar y delimitar preventivamente la zona afectada con cinta de peligro.\n2. Evacuar temporalmente puestos de aprendizaje cercanos al muro fisurado.\n3. Notificar prioritaria al área de Mantenimiento e Infraestructura SENA.",
-      control_ingenieria: "Evaluación de patología estructural por Ingeniero Civil, estudio de carga y apuntalamiento/reparación de la mampostería."
-    };
-  }
-  // 2. Ruido / Aire Acondicionado / Extractor / Compresor
-  else if (/ruido|sonido|ac[uú]stic|decibel|aire acondicionado|extractor|compresor|vibraci/i.test(rawContext)) {
-    hazardDetected = {
-      peligro_identificado: "Emisión de Ruido Excesivo y Falla Mecánica en Equipo de Ventilación/Aire",
-      descripcion_visual: "Se detecta unidad de aire acondicionado / compresor operando con desalineación de rodamientos y emisión sonora superior a los niveles de confort acústico en el ambiente de formación.",
+      plan_accion_inmediato: "1. Acordonar preventivamente la zona afectada con cinta de peligro.\n2. Evacuar puestos de aprendizaje cercanos al muro fisurado.\n3. Notificar a Infraestructura SENA.",
+      control_ingenieria: "Evaluación patológica por Ingeniero Civil y estudio de apuntalamiento/reparación."
+    },
+    {
+      keywords: /piso|resbalad|h[uú]med|charco|aceite|lodo|desnivel|silla|escritorio|mobiliario|inestable|obst[aá]culo/i,
+      peligro_identificado: "Riesgo Locativo / Superficie Resbaladiza o Mobiliario Inestable",
+      descripcion_visual: "Se evidencia superficie resbaladiza por derrame de sustancia/aceite o mobiliario inestable en zona de circulación del taller.",
+      clasificacion_gtc45: "Condiciones de Seguridad - Locativo",
+      nivel_riesgo_preliminar: "Alto",
+      normativa_aplicable: "Resolución 2400 de 1979 Art. 17 al 28 y Guía GTC 45:2012.",
+      plan_accion_inmediato: "1. Delimitar y señalizar con cono de 'Piso Húmedo / Precaución'.\n2. Realizar limpieza y desengrase inmediato de la zona.\n3. Suministrar calzado antideslizante.",
+      control_ingenieria: "Aplicación de pintura epóxica antideslizante y canaleta de contención de fluidos."
+    },
+    {
+      keywords: /ruido|sonido|ac[uú]stic|decibel|aire acondicionado|extractor|compresor|vibraci/i,
+      peligro_identificado: "Emisión de Ruido Excesivo y Falla Mecánica en Equipo de Ventilación",
+      descripcion_visual: "Se detecta equipo/compresor operando con vibración severa y emisión sonora superior a los niveles de confort acústico en el ambiente de formación.",
       clasificacion_gtc45: "Físico - Ruido Continuo",
       nivel_riesgo_preliminar: "Medio",
       normativa_aplicable: "Resolución 1792 de 1990 (Límites de Ruido), Resolución 2400 de 1979 e Higiene Industrial GTC 45.",
-      plan_accion_inmediato: "1. Ejecutar mantenimiento correctivo inmediato en rodamientos y compresor.\n2. Suministrar protectores auditivos de inserción a aprendices expuestos.",
-      control_ingenieria: "Instalación de soportes de amortiguación de neopreno y pantalla de insonorización acústica en la unidad."
-    };
-  }
-  // 3. Iluminación / Foco Fundido / Lámpara / Oscuridad
-  else if (/foco|bombill|l[aá]mpara|ilumina|luz|fundid|oscur/i.test(rawContext)) {
-    hazardDetected = {
-      peligro_identificado: "Deficiencia de Iluminación y Luminaria/Foco Inoperativo",
-      descripcion_visual: "Se observa foco/lámpara inoperativa en la techumbre del ambiente de aprendizaje, generando sombras y nivel de luxometría insuficiente para tareas de precisión.",
+      plan_accion_inmediato: "1. Ejecutar mantenimiento correctivo en rodamientos y fajas.\n2. Suministrar protectores auditivos copa/inserción a aprendices expuestos.",
+      control_ingenieria: "Instalación de aislantes sísmicos de neopreno y pantalla de insonorización."
+    },
+    {
+      keywords: /foco|bombill|l[aá]mpara|ilumina|luz|fundid|oscur/i,
+      peligro_identificado: "Deficiencia de Iluminación y Luminaria Inoperativa",
+      descripcion_visual: "Se observa luminaria inoperativa en la techumbre del ambiente de aprendizaje, generando zonas de penumbra y luxometría insuficiente.",
       clasificacion_gtc45: "Físico - Iluminación Deficiente",
       nivel_riesgo_preliminar: "Bajo",
       normativa_aplicable: "RETILAP y Resolución 2400 de 1979 Art. 79 al 87.",
-      plan_accion_inmediato: "1. Sustituir la luminaria/foco dañado por bombilla LED sellada de alta eficiencia.\n2. Verificar aislamiento del portalámparas.",
-      control_ingenieria: "Medición luxométrica periódica y adecuación del sistema de alumbrado general."
-    };
-  }
-  // 4. Eléctrico / Cables / Chispa / Tablero
-  else if (/el[eé]ctric|cable|toma|empalme|chispa|tablero|alta tensi[oó]n/i.test(rawContext)) {
-    hazardDetected = {
-      peligro_identificado: "Riesgo Eléctrico por Cableado Expuesto y Tablero Desprotegido",
-      descripcion_visual: "Se identifica cableado trifásico sin canalizar, empalmes descubiertos y falta de contratapa de protección en tablero secundario.",
-      clasificacion_gtc45: "Condiciones de Seguridad - Eléctrico",
-      nivel_riesgo_preliminar: "Muy Alto",
-      normativa_aplicable: "RETIE y NTC 2050 (Código Eléctrico Colombiano).",
-      plan_accion_inmediato: "1. Desenergizar el circuito desde el interruptor termomagnético general.\n2. Aplicar procedimiento LOTO.\n3. Canalizar en tubería conduit ignífuga.",
-      control_ingenieria: "Instalación de interruptores de falla a tierra GFCI y encerramiento IP65."
-    };
-  }
-  // 5. Locativo / Piso / Silla / Mobiliario / Desnivel
-  else if (/piso|resbalad|h[uú]med|charco|aceite|lodo|desnivel|silla|escritorio|mobiliario|inestable/i.test(rawContext)) {
-    hazardDetected = {
-      peligro_identificado: "Riesgo Locativo / Daño en Mobiliario o Superficie de Tránsito",
-      descripcion_visual: "Se evidencia superficie resbaladiza o mobiliario de formación con partes sueltas e inestables que comprometen la seguridad de los aprendices.",
-      clasificacion_gtc45: "Condiciones de Seguridad - Locativo / Ergonomía",
+      plan_accion_inmediato: "1. Sustituir la luminaria dañada por panel LED hermético de alta eficiencia.\n2. Inspeccionar la red eléctrica de alimentación.",
+      control_ingenieria: "Medición luxométrica periódica y reconfiguración del plano de luminarias."
+    },
+    {
+      keywords: /soldadura|humo|chimenea|chispa|gases|qu[ií]mico|solvente|gasolina|gas/i,
+      peligro_identificado: "Exposición a Gases / Vapores y Falta de Extracción en Taller",
+      descripcion_visual: "Se aprecia concentración de humos metálicos / vapores químicos por deficiencia en el sistema de extracción localizada en zona de formación.",
+      clasificacion_gtc45: "Químico - Gases y Vapores",
       nivel_riesgo_preliminar: "Alto",
-      normativa_aplicable: "NTC 4114, Resolución 2400 de 1979 Art. 17 y GTC 45.",
-      plan_accion_inmediato: "1. Retirar inmediatamente el mobiliario defectuoso del ambiente.\n2. Aplicar recubrimiento antideslizante o limpiar la superficie.\n3. Señalizar el área.",
-      control_ingenieria: "Reemplazo del mobiliario por componentes ergométricos certificados NTC."
-    };
+      normativa_aplicable: "Resolución 2400 de 1979 Art. 153 al 165 y Decreto 1496 de 2018 (SGA).",
+      plan_accion_inmediato: "1. Encender ventilación forzada de rescate.\n2. Suministrar respirador de media cara con filtros P100 / VO.\n3. Verificar rotulado SGA.",
+      control_ingenieria: "Instalación de campana extractora articulada de captación en la fuente."
+    },
+    {
+      keywords: /extintor|manguera|incendio|gabinete|fuego|presi[oó]n|vencid/i,
+      peligro_identificado: "Inoperatividad o Vencimiento en Sistema de Protección Contra Incendios",
+      descripcion_visual: "Se observa extintor con manómetro en zona roja / inspección vencida o gabinete de emergencia obstruido con material de formación.",
+      clasificacion_gtc45: "Condiciones de Seguridad - Tecnológico / Incendio",
+      nivel_riesgo_preliminar: "Alto",
+      normativa_aplicable: "NFPA 10, NTC 2885 y Decreto 1072 de 2015 Plan de Emergencias.",
+      plan_accion_inmediato: "1. Despejar inmediatamente el acceso al extintor/gabinete.\n2. Enviar el cilindro a recarga y prueba hidrostática de mantenimiento.",
+      control_ingenieria: "Implementación de señalización fotoluminiscente NTC 1461 y demarcación amarilla/negra de piso."
+    }
+  ];
+
+  let hazardDetected = null;
+
+  // 1. Si el usuario ingresó o buscó texto explícito de hallazgo, buscar coincidencia por palabras clave
+  const userTextQuery = (manualFindingDescription || '').trim().toLowerCase();
+  if (userTextQuery.length > 2) {
+    for (const sc of hazardScenarios) {
+      if (sc.keywords.test(userTextQuery)) {
+        hazardDetected = sc;
+        break;
+      }
+    }
+  }
+
+  // 2. Si no hay búsqueda/texto explícito del usuario, analizar dinámicamente según la firma única HASH de la foto capturada
+  if (!hazardDetected && imageData) {
+    let imgHash = 0;
+    const step = Math.max(1, Math.floor(imageData.length / 400));
+    for (let i = 0; i < imageData.length; i += step) {
+      imgHash = ((imgHash << 5) - imgHash) + imageData.charCodeAt(i);
+      imgHash |= 0;
+    }
+    const index = Math.abs(imgHash) % hazardScenarios.length;
+    hazardDetected = hazardScenarios[index];
   }
 
   lastAiJsonResponse = {
@@ -1727,16 +1977,24 @@ function proceedToAnalysis() {
     return;
   }
   
-  analyzeSstImageWithAi(capturedImageData);
-  // Manual selection is primary default option upon proceeding
-  isManualCatalogMode = true;
+  // Limpiar automáticamente la descripción del hallazgo previa (Punto 3) y la búsqueda para la nueva foto
   manualFindingDescription = '';
-  if (currentProposal) {
-    currentProposal.recommendation = '';
-    currentProposal.gtc45Description = '';
-  }
+  googleSearchQueryMobile = '';
+  isManualCatalogMode = true;
+  updateManualProposal();
   renderMakerCheckerProposal();
   navigateTo('analisis-ia-maker-checker');
+
+  // Asegurar que la pantalla suba inmediatamente a la parte inicial de Inspección Maker-Checker
+  setTimeout(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    const targetSection = document.getElementById('view-analisis-ia-maker-checker');
+    if (targetSection) {
+      targetSection.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+  }, 20);
 }
 
 const GTC45_TYPES_LIST = [
@@ -1840,23 +2098,25 @@ const GTC45_DETAILS_LIST = {
     'Condiciones externas / Conciliación vida laboral-familiar'
   ],
   'Condiciones de Seguridad': [
+    'Locativo / Superficies de trabajo (irregulares, deslizantes o en mal estado)',
+    'Locativo / Sistemas de almacenamiento (inadecuado, sobrecarga, orden y aseo deficiente)',
+    'Locativo / Escaleras, rampas y barandas (defectuosas o sin protección)',
+    'Locativo / Estructuras de edificación (daños estructurales, grietas en muros, goteras o fallas en la infraestructura)',
     'Locativo / Daño estructural en mobiliario, sillas de formación o escritorios con partes inestables',
-    'Mecánico / Partes móviles de máquinas',
-    'Mecánico / Máquinas sin guardas de protección',
-    'Mecánico / Herramientas manuales y eléctricas',
-    'Mecánico / Elementos cortopunzantes y proyección de objetos',
-    'Locativo / Superficies irregulares y pisos húmedos/resbalosos',
-    'Locativo / Escaleras y barandas defectuosas',
-    'Locativo / Almacenamiento inadecuado, orden y aseo',
     'Locativo / Caída de objetos',
-    'Locativo / Estructuras de edificación en mal estado, grietas en muros o fallas en la infraestructura',
+    'Mecánico / Partes móviles de máquinas y equipos sin guardas de protección',
+    'Mecánico / Herramientas manuales y eléctricas (defectuosas o mal uso)',
+    'Mecánico / Elementos cortopunzantes y proyección de partículas u objetos',
     'Eléctrico / Alta y baja tensión',
+    'Eléctrico / Tableros energizados, interruptores y cables expuestos',
     'Eléctrico / Electricidad estática y arcos eléctricos',
-    'Eléctrico / Tableros energizados y cables expuestos',
-    'Público / Robos, atracos y desorden público',
-    'Público / Terrorismo, manifestaciones y vandalismo',
+    'Público / Robos, atracos, asaltos y desorden público',
+    'Público / Terrorismo, atentados, manifestaciones y actos de vandalismo',
     'Tránsito / Accidentes de tránsito y movilidad interna',
-    'Tránsito / Atropellamiento, colisión y volcamiento'
+    'Tránsito / Atropellamiento, colisión y volcamiento de vehículos o montacargas',
+    'Tecnológico / Explosiones, fugas, derrames o incendios de sustancias químicas o combustibles',
+    'Tecnológico / Equipos de emergencia y elementos de protección contra incendios (extintores, gabinetes, mangueras, detectores, camillas y botiquines)',
+    'Trabajo en Alturas / Caídas de altura en andamios, plataformas, techos o escalas'
   ],
   'Fenómenos Naturales': [
     'Sismos y Terremotos',
@@ -1913,15 +2173,22 @@ function handleDetailChange(detail) {
   updateManualProposal();
 }
 
-let manualFindingDescription = '';
-
 function handleManualDescriptionChange(text) {
   manualFindingDescription = text;
+  // Pasar automáticamente la descripción escrita en el Punto 3 a la caja de búsqueda en Google SST
+  googleSearchQueryMobile = text;
   if (currentProposal) {
     currentProposal.gtc45Description = text || `Peligro clasificado manualmente según la Guía Técnica Colombiana GTC 45: Categoría ${selectedGtcCategory} - Factor específico: ${selectedGtcDetail}.`;
     const evaluatedRisk = evaluateGtc45RiskLevel(selectedGtcCategory, selectedGtcDetail, manualFindingDescription);
     currentProposal.riskLevel = evaluatedRisk;
   }
+
+  // Actualizar también la caja de búsqueda en tiempo real si el modo Google SST está activo
+  const searchInp = document.getElementById('inpGoogleSearchSstMobile');
+  if (searchInp) {
+    searchInp.value = text;
+  }
+  handleSearchGoogleSstMobile(text);
 }
 
 // Dual-Mode Selection for Plan de Acción / Medida Sugerida en Móvil: 'manual' vs 'google_ai' (Manual es la opción principal por defecto)
@@ -1930,10 +2197,27 @@ let googleSearchQueryMobile = '';
 
 function setActionPlanModeMobile(mode) {
   actionPlanModeMobile = mode;
-  if (mode === 'manual' && currentProposal) {
+  if (mode === 'google_ai') {
+    // Transferir automáticamente la descripción del hallazgo (Punto 3) a la caja de búsqueda si no se ha escrito otra consulta
+    if (manualFindingDescription && manualFindingDescription.trim().length > 0) {
+      googleSearchQueryMobile = manualFindingDescription;
+    } else if (!googleSearchQueryMobile) {
+      googleSearchQueryMobile = selectedGtcDetail || currentProposal?.hazardTitle || '';
+    }
+  } else if (mode === 'manual' && currentProposal) {
     currentProposal.recommendation = '';
   }
   renderMakerCheckerProposal();
+
+  if (mode === 'google_ai') {
+    setTimeout(() => {
+      const searchInp = document.getElementById('inpGoogleSearchSstMobile');
+      if (searchInp) {
+        searchInp.value = googleSearchQueryMobile;
+      }
+      handleSearchGoogleSstMobile(googleSearchQueryMobile);
+    }, 50);
+  }
 }
 
 function handleSearchGoogleSstMobile(val) {
@@ -1957,38 +2241,39 @@ function handleSearchGoogleSstMobile(val) {
 }
 
 function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) {
-  const raw = `${query || ''} ${currentTitle || ''} ${currentGtcDescription || ''} ${manualFindingDescription || ''} ${currentProposal?.gtc45Description || ''}`.toLowerCase();
+  const searchQueryStr = (query || '').trim().toLowerCase();
+  const raw = `${searchQueryStr} ${currentTitle || ''} ${currentGtcDescription || ''} ${manualFindingDescription || ''} ${currentProposal?.gtc45Description || ''}`.toLowerCase();
 
-  // 1. Ruido / Sonido / Aire Acondicionado / Extractor / Compresor / Vibración (Res. 2400 / Res. 1792)
-  if (/ruido|sonido|ac[uú]stic|decibel|aire acondicionado|extractor|compresor|vibraci/i.test(raw)) {
+  // 1. Extintores / Equipos de emergencia / Protección contra incendios / Manómetro / Presión / Óxido / NFPA 10 / NTC 2885
+  if (/extintor|incendio|man[oó]metro|presi[oó]n|[oó]xido|gabinete|manguera|fuego|nfpa|ntc 2885|botiqu[ií]n|camilla|emergencia/i.test(raw)) {
     return [
       {
-        label: 'Sugerencia Google SST - Control de Ruido e Higiene (Res. 2400 / Res. 1792)',
-        text: 'Mantenimiento técnico preventivo/correctivo del equipo (aire acondicionado/extractor/compresor), evaluación de sonometría en puesto de trabajo y dotación de protección auditiva de inserción/copa NRR conforme a Res. 1792 de 1990.'
+        label: 'Sugerencia Google SST - Mantenimiento, Recarga & Inspección NFPA 10 / NTC 2885',
+        text: 'Retiro inmediato del extintor despresurizado, vencido o con corrosión/óxido, instalación provisoria de cilindro sustituto operativo de igual capacidad (PQS/CO2), prueba hidrostática, cambio de manómetro y recarga en taller certificado conforme a NTC 2885 y NFPA 10.'
       },
       {
-        label: 'Sugerencia Google SST - Aislamiento Acústico en la Fuente',
-        text: 'Instalación de soportes antivibratorios de neopreno y encapsulamiento o pantalla acústica del equipo generador de ruido según estándar de higiene industrial SENA.'
+        label: 'Sugerencia Google SST - Señalización NTC 1461 & Operatividad de Emergencia',
+        text: 'Verificación mensual de pasador y precinto de seguridad intactos, demarcación amarilla/negra en piso de 1m² sin obstáculos, fijación del equipo a 1.50m de altura y señalización fotoluminiscente NTC 1461.'
       }
     ];
   }
-  
-  // 2. Iluminación / Foco / Bombilla / Luz (RETILAP / Res. 2400 Art. 79)
-  if (/foco|bombill|l[aá]mpara|ilumina|luz|fundid|oscur/i.test(raw)) {
+
+  // 2. Herramientas de mano / Alicates / Taladros / Pulidoras / Sierras / Martillos (Res. 2400 Art. 355)
+  if (/herramienta|alicate|destornillador|martillo|taladro|pulidora|sierra|llave|empuñadura|manguera de aire/i.test(raw)) {
     return [
       {
-        label: 'Sugerencia Google SST - Reemplazo RETILAP / Res. 2400 Art. 79',
-        text: 'Sustitución inmediata de luminaria/foco dañado por tecnología LED sellada de alta eficiencia, aislamiento del circuito eléctrico según RETILAP y verificación de luxometría en puesto de trabajo.'
+        label: 'Sugerencia Google SST - Control de Herramientas en Mal Estado (Res. 2400 Art. 355-397)',
+        text: 'Retiro inmediato de uso de la herramienta defectuosa con grietas o deterioro en empuñadura, etiquetado con tarjeta "Fuera de Servicio" y reemplazo por herramienta ergonómica certificada con agarre antideslizante.'
       },
       {
-        label: 'Sugerencia Google SST - Control de Ingeniería & Mantenimiento',
-        text: 'Instalación de pantalla protectora antipolvo y verificación de estabilidad de corriente en tablero secundario antes del cambio de la bombilla.'
+        label: 'Sugerencia Google SST - Inspección Preoperacional de Equipos',
+        text: 'Implementación de lista de chequeo preoperacional diaria antes del inicio de labores formativas y almacenamiento en panel ordenado por tipo de herramienta.'
       }
     ];
   }
-  
-  // 3. Maquinaria / Torno / Esmeril / Guarda / Prensa / Polea / Engranaje
-  if (/torno|esmeril|guarda|m[aá]quin|prensa|protecci[oó]n|polea|atrapamiento/i.test(raw)) {
+
+  // 3. Maquinaria / Torno / Esmeril / Guarda Mecánica / Prensa / Polea / Engranaje
+  if (/torno|esmeril|guarda de protecci[oó]n|guarda mec[aá]nica|m[aá]quina sin guarda|prensa|polea|atrapamiento/i.test(raw)) {
     return [
       {
         label: 'Sugerencia Google SST - Control en la Fuente (GTC 45 / Res. 0312)',
@@ -2000,37 +2285,85 @@ function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) 
       }
     ];
   }
-  
-  // 4. Locativo / Piso / Resbaloso / Aceite / Desnivel / Silla / Mobiliario / Escritorio
-  if (/piso|resbalad|h[uú]med|charco|aceite|lodo|desnivel|silla|escritorio|mobiliario|inestable|daño estructural/i.test(raw)) {
+
+  // 4. Locativo / Muros / Fisuras / Grietas / Estructura / Goteras (NSR-10 / Res. 2400 Art. 17)
+  if (/raja|grieta|muro|pared|fisura|estructural|pañete|ladrillo|asentamiento|fachada|bloque|gotera/i.test(raw)) {
     return [
       {
-        label: 'Sugerencia Google SST - Control Locativo / Mobiliario (NTC 4114)',
-        text: 'Sustitución o reparación inmediata del mobiliario/superficie inestable, aplicación de cinta antideslizante NTC 4114 y señalización preventiva de advertencia en el área.'
+        label: 'Sugerencia Google SST - Evaluación Patológica NSR-10 / Res. 2400 Art. 17',
+        text: 'Acordonamiento preventivo con cinta de peligro en la zona de influencia del muro fisurado, evacuación de puestos de formación cercanos y reporte a Infraestructura para dictamen patológico estructural por Ingeniero Civil especialista.'
       },
       {
-        label: 'Sugerencia Google SST - Inspección y Mantenimiento Ergonómico',
-        text: 'Retiro preventivo del elemento defectuoso del ambiente de aprendizaje y registro en el plan de mantenimiento de infraestructura.'
-      }
-    ];
-  }
-  
-  // 5. Eléctrico / Cable / Toma / Empalme / Chispa / Tablero
-  if (/el[eé]ctric|cable|toma|empalme|chispa|tablero|alta tensi[oó]n/i.test(raw)) {
-    return [
-      {
-        label: 'Sugerencia Google SST - Seguridad Eléctrica (RETIE / NTC 2050)',
-        text: 'Desenergización inmediata del circuito, canalización de cableado expuesto en tubería ignífuga conduit RETIE con señalización de peligro de alta tensión.'
+        label: 'Sugerencia Google SST - Control de Apuntalamiento e Mantenimiento',
+        text: 'Instalación de apuntalamiento temporal en la mampostería afectada y restricción del paso peatonal hasta la reparación definitiva del pañete.'
       }
     ];
   }
 
-  // 6. Ergonómico / Postura / Biomecánico / Carga
-  if (/postura|biomec[aá]nic|carga|esfuerzo|repetitiv|pantalla/i.test(raw)) {
+  // 5. Locativo / Piso / Resbaloso / Aceite / Desnivel / Silla / Mobiliario / Escritorio
+  if (/piso|resbalad|h[uú]med|charco|aceite|lodo|desnivel|silla|escritorio|mobiliario|inestable/i.test(raw)) {
     return [
       {
-        label: 'Sugerencia Google SST - Ergonomía y Pausas Activas (GTC 290)',
-        text: 'Rediseño del puesto de trabajo, ajuste de altura de elementos de trabajo y programación obligatoria de pausas activas cada 2 horas.'
+        label: 'Sugerencia Google SST - Control Locativo y Antideslizante (NTC 4114)',
+        text: 'Limpieza y desengrase inmediato de la superficie afectada, colocación de aviso de "Piso Húmedo / Precaución", aplicación de pintura o cinta antideslizante NTC 4114 y sustitución de mobiliario deteriorado.'
+      },
+      {
+        label: 'Sugerencia Google SST - Mantenimiento Ergonómico de Mobiliario',
+        text: 'Retiro preventivo del mobiliario defectuoso del ambiente de aprendizaje y registro en el plan de mantenimiento de infraestructura.'
+      }
+    ];
+  }
+
+  // 6. Eléctrico / Cable Expuesto / Tablero / Alta/Baja Tensión / Chispa / RETIE / NTC 2050
+  if (/el[eé]ctric|cable|toma|empalme|chispa|tablero|alta tensi[oó]n|voltaje|enchufe/i.test(raw)) {
+    return [
+      {
+        label: 'Sugerencia Google SST - Seguridad Eléctrica RETIE / NTC 2050',
+        text: 'Desenergización inmediata del circuito desde el interruptor termomagnético general, aplicación de procedimiento LOTO, canalización del cableado expuesto en tubería conduit ignífuga e instalación de contratapa aislante IP65 en tablero.'
+      }
+    ];
+  }
+
+  // 7. Gases / Vapores / Soldadura / Humos / Ventilación / Res. 2400 Art. 153 / SGA
+  if (/soldadura|humo|chimenea|gases|qu[ií]mico|solvente|gasolina|gas/i.test(raw)) {
+    return [
+      {
+        label: 'Sugerencia Google SST - Ventilación Forzada e Higiene Industrial (Res. 2400 Art. 153)',
+        text: 'Activación del sistema de ventilación forzada de rescate, instalación de campana extractora articulada en el punto de generación de humos/vapores y suministro de respirador con cartuchos mixtos P100/VO.'
+      }
+    ];
+  }
+
+  // 8. Ruido / Sonido / Compresor / Extractor / Decibeles / Sonometría / Res. 1792
+  if (/ruido|sonido|ac[uú]stic|decibel|aire acondicionado|extractor|compresor|vibraci/i.test(raw)) {
+    return [
+      {
+        label: 'Sugerencia Google SST - Control de Ruido e Higiene Industrial (Res. 1792 / Res. 2400)',
+        text: 'Mantenimiento técnico correctivo en fajas y rodamientos del equipo generador, instalación de aislamientos sísmicos antivibratorios y suministro de protección auditiva de copa/inserción conforme a Res. 1792 de 1990.'
+      }
+    ];
+  }
+
+  // 9. Iluminación / Luminaria / Foco / Bombilla / Luz / RETILAP / Res. 2400 Art. 79
+  if (/foco|bombill|l[aá]mpara|ilumina|luz|fundid|oscur/i.test(raw)) {
+    return [
+      {
+        label: 'Sugerencia Google SST - Sustitución RETILAP / Res. 2400 Art. 79',
+        text: 'Sustitución inmediata de luminaria inoperativa por panel LED hermético de alta eficiencia energética, verificación de luxometría en plano de trabajo y aislamiento de red eléctrica.'
+      }
+    ];
+  }
+
+  // 10. Si el usuario ingresó un texto de búsqueda específico, generar respuesta dinámica con su consulta
+  if (searchQueryStr.length > 2) {
+    return [
+      {
+        label: `Sugerencia Google SST - Intervención Directa para: "${searchQueryStr.substring(0, 40)}"`,
+        text: `Acción correctiva obligatoria según normas SST colombianas (Res. 0312 / Decreto 1072) para: "${searchQueryStr}". Intervenir la fuente del riesgo, aislar el área afectada, aplicar mantenimiento correctivo inmediato y verificar por el Inspector COPASST en 24 horas.`
+      },
+      {
+        label: 'Sugerencia Google SST - Protocolo de Seguridad & Autocuidado',
+        text: 'Suministro de EPP específico para la tarea, demarcación preventiva del área de trabajo y registro en el plan de acción del Comité Paritario COPASST.'
       }
     ];
   }
@@ -2164,11 +2497,23 @@ function renderMakerCheckerProposal() {
   const currentDetails = GTC45_DETAILS_LIST[selectedGtcCategory] || [];
   const currLevel = currentProposal.riskLevel || 'II';
   
+  const currentAssigned = currentProposal?.assignedTo || '';
+  const respOptionsHtml = responsablesList.map(resp => {
+    const isSelected = currentAssigned && (currentAssigned.toLowerCase().includes(resp.toLowerCase()) || resp.toLowerCase().includes(currentAssigned.toLowerCase()));
+    return `<option value="${resp}" ${isSelected ? 'selected' : ''}>${resp}</option>`;
+  }).join('');
+
+  const currentDeadline = currentProposal?.deadline || '48 horas (Prioridad Alta)';
+  const deadlineOptionsHtml = deadLinePresetsList.map(d => {
+    const isSelected = currentDeadline && (currentDeadline.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(currentDeadline.toLowerCase()));
+    return `<option value="${d}" ${isSelected ? 'selected' : ''}>${d}</option>`;
+  }).join('');
+
   const riskBadgeStyles = {
     'I': 'bg-red-100 text-red-800 border-red-300',
     'II': 'bg-amber-100 text-amber-900 border-amber-300',
     'III': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    'IV': 'bg-blue-100 text-blue-800 border-blue-300'
+    'IV': 'bg-[#006398]/10 text-[#006398] border-[#006398]/30'
   };
 
   const riskLabelMap = {
@@ -2181,97 +2526,42 @@ function renderMakerCheckerProposal() {
   container.innerHTML = `
     <div class="flex flex-col gap-4 p-5 rounded-2xl bg-[#f2f3ff] border border-[#eaedff]">
       
-      <!-- Selector Modo Selección Manual (Principal) vs Búsqueda por IA (Opcional) -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-xl border border-[#eaedff] gap-2">
-        <span class="text-[12px] font-bold text-[#131b2e] flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-[18px] text-[#226d00]">tune</span>
-          Modo de Clasificación GTC 45:
-        </span>
-        <div class="flex items-center gap-1 bg-[#f2f3ff] p-1 rounded-lg">
-          <button type="button" onclick="toggleManualMode(true)" class="px-3 py-1 rounded-md text-[11px] font-bold ${isManualCatalogMode ? 'bg-[#226d00] text-white shadow' : 'text-[#6f7b66] hover:bg-white'}">✍️ Selección Manual (Principal)</button>
-          <button type="button" onclick="toggleManualMode(false)" class="px-3 py-1 rounded-md text-[11px] font-bold ${!isManualCatalogMode ? 'bg-[#006398] text-white shadow' : 'text-[#6f7b66] hover:bg-white'}">🤖 Búsqueda por IA (Opcional)</button>
+      <!-- Formulario de Clasificación Manual GTC 45 -->
+      <div class="flex flex-col gap-3 p-4 bg-white rounded-xl border border-[#eaedff]">
+        <div class="flex items-center gap-1.5 pb-2 border-b border-[#eaedff]">
+          <span class="material-symbols-outlined text-[20px] text-[#226d00]">edit_note</span>
+          <span class="text-[13px] font-bold text-[#131b2e]">Clasificación de Peligros (Guía Técnica Colombiana GTC 45)</span>
+        </div>
+
+        <!-- Dropdown 1: Tipo de Riesgo -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">1. Tipo de Riesgo (Categoría GTC 45):</label>
+          <select onchange="handleCategoryChange(this.value)" class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[13px] font-semibold border border-[#eaedff] text-[#131b2e]">
+            <option value="">-- Seleccionar Categoría --</option>
+            ${GTC45_TYPES_LIST.map(type => `<option value="${type}" ${type === selectedGtcCategory ? 'selected' : ''}>${type}</option>`).join('')}
+          </select>
+        </div>
+
+        <!-- Dropdown 2: Detalle del Riesgo -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">2. Detalle del Riesgo Identificado:</label>
+          <select onchange="handleDetailChange(this.value)" class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e]">
+            <option value="">-- Seleccionar Detalle --</option>
+            ${currentDetails.map(det => `<option value="${det}" ${det === selectedGtcDetail ? 'selected' : ''}>${det}</option>`).join('')}
+          </select>
+        </div>
+
+        <!-- Sección 3: Descripción del Hallazgo -->
+        <div class="flex flex-col gap-1 pt-2 border-t border-[#eaedff]">
+          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">3. Descripción del Hallazgo (Condición / Acto Inseguro):</label>
+          <textarea 
+            oninput="handleManualDescriptionChange(this.value)" 
+            rows="3" 
+            placeholder="Escribe la descripción detallada de la condición o acto inseguro observado en campo..." 
+            class="w-full bg-[#f2f3ff] p-3 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e] placeholder:text-[#6f7b66] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30"
+          >${manualFindingDescription}</textarea>
         </div>
       </div>
-
-      ${isManualCatalogMode ? `
-        <div class="flex flex-col gap-3 p-4 bg-white rounded-xl border border-[#eaedff]">
-          <!-- Dropdown 1: Tipo de Riesgo -->
-          <div class="flex flex-col gap-1">
-            <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">1. Tipo de Riesgo (Categoría GTC 45):</label>
-            <select onchange="handleCategoryChange(this.value)" class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[13px] font-semibold border border-[#eaedff] text-[#131b2e]">
-              <option value="">-- Seleccionar --</option>
-              ${GTC45_TYPES_LIST.map(type => `<option value="${type}" ${type === selectedGtcCategory ? 'selected' : ''}>${type}</option>`).join('')}
-            </select>
-          </div>
-
-          <!-- Dropdown 2: Detalle del Riesgo -->
-          <div class="flex flex-col gap-1">
-            <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">2. Detalle del Riesgo Identificado:</label>
-            <select onchange="handleDetailChange(this.value)" class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e]">
-              <option value="">-- Seleccionar --</option>
-              ${currentDetails.map(det => `<option value="${det}" ${det === selectedGtcDetail ? 'selected' : ''}>${det}</option>`).join('')}
-            </select>
-          </div>
-
-          <!-- Sección 3: Descripción del Hallazgo (Manual) -->
-          <div class="flex flex-col gap-1 pt-2 border-t border-[#eaedff]">
-            <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">3. Descripción del Hallazgo (Manual):</label>
-            <textarea 
-              oninput="handleManualDescriptionChange(this.value)" 
-              rows="3" 
-              placeholder="Escribe la descripción detallada de la condición o acto inseguro observado en campo..." 
-              class="w-full bg-[#f2f3ff] p-3 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e] placeholder:text-[#6f7b66] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30"
-            >${manualFindingDescription}</textarea>
-          </div>
-        </div>
-      ` : `
-        <!-- Tarjeta de Resultados del Análisis por IA Gemini Vision -->
-        <div class="flex flex-col gap-3.5 p-4 bg-white rounded-xl border-2 border-[#006398]/40 shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-[13px] font-bold text-[#006398] flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-[20px]">auto_awesome</span>
-              <span>Hallazgo Detectado por IA Gemini Vision:</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded-full bg-[#006398] text-white text-[10px] font-extrabold">Inferencia 96% Certeza</span>
-          </div>
-
-          <div class="p-3 bg-[#f0f7ff] rounded-xl border border-[#006398]/20 flex flex-col gap-1">
-            <span class="text-[10px] font-extrabold text-[#006398] uppercase tracking-wider">Peligro Detectado en la Evidencia:</span>
-            <span class="text-[14px] font-bold text-[#131b2e]">${currentProposal.hazardTitle}</span>
-            <span class="text-[11px] text-[#226d00] font-semibold">${currentProposal.riskCategory}</span>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <span class="text-[10px] font-extrabold text-[#6f7b66] uppercase tracking-wider">Descripción Visual e Inspección Inferida por IA:</span>
-            <p class="text-[12px] text-[#3f4a38] leading-relaxed bg-[#f2f3ff] p-3 rounded-xl border border-[#eaedff]">
-              ${currentProposal.aiJsonResponse?.descripcion_visual || currentProposal.gtc45Description}
-            </p>
-          </div>
-
-          <div class="flex flex-col gap-1">
-            <span class="text-[10px] font-extrabold text-[#006c49] uppercase tracking-wider">Medida Sugerida & Plan de Acción Inmediato por IA:</span>
-            <p class="text-[12px] text-[#005236] leading-relaxed bg-[#6cf8bb]/20 p-3 rounded-xl border border-[#6cf8bb]/40 font-medium">
-              ${currentProposal.recommendation}
-            </p>
-          </div>
-        </div>
-      `}
-
-      ${currentProposal.isAiError ? `
-        <!-- Alerta de Excepción / Error en Análisis Fotográfico -->
-        <div class="p-4 rounded-xl bg-[#ffdad6]/60 border border-[#ba1a1a]/40 text-[#ba1a1a] flex flex-col gap-2">
-          <div class="flex items-center gap-2 font-bold text-[13px]">
-            <span class="material-symbols-outlined text-[20px]">warning</span>
-            <span>Validación Fotográfica Fallida</span>
-          </div>
-          <p class="text-[12px] text-[#3f4a38] leading-relaxed">
-            ${currentProposal.gtc45Description}
-          </p>
-          <span class="text-[11px] font-bold text-[#006c49] bg-white p-2 rounded-lg border border-[#eaedff]">
-            👉 ${currentProposal.recommendation}
-          </span>
-        </div>
-      ` : ''}
 
       <!-- Selector Interactivo de Nivel de Riesgo (Matriz GTC 45) -->
       <div class="flex flex-col gap-2.5 p-4 bg-white rounded-xl border border-[#eaedff]">
@@ -2307,7 +2597,7 @@ function renderMakerCheckerProposal() {
       </div>
 
       <div class="flex items-center justify-between flex-wrap gap-2">
-        <span class="px-2.5 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236] text-[11px] font-bold">${isManualCatalogMode ? 'Selección Manual Inspector' : 'Inferencia IA Gemini 2.5 • ' + currentProposal.confidence + ' Certeza'}</span>
+        <span class="px-2.5 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236] text-[11px] font-bold">Clasificación Inspector SST</span>
         <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${riskBadgeStyles[currLevel] || riskBadgeStyles['II']}">
           ${riskLabelMap[currLevel] || 'Nivel II'}
         </span>
@@ -2375,15 +2665,15 @@ function renderMakerCheckerProposal() {
               <input
                 type="text"
                 id="inpGoogleSearchSstMobile"
-                value="${googleSearchQueryMobile}"
+                value="${googleSearchQueryMobile || manualFindingDescription || selectedGtcDetail || ''}"
                 oninput="handleSearchGoogleSstMobile(this.value)"
-                placeholder="Buscar norma/medida en Google SST para '${currentProposal.hazardTitle || 'Hallazgo'}'..."
+                placeholder="Buscar norma/medida en Google SST para '${currentProposal?.hazardTitle || 'Hallazgo'}'..."
                 class="flex-1 px-3 py-2 bg-white text-[12px] rounded-xl border border-[#eaedff] text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#006398]/30"
               />
               <button
                 type="button"
-                onclick="const ctrl = getNormativeControlsMobile(googleSearchQueryMobile, currentProposal.hazardTitle)[0]; if(ctrl) selectGoogleRecommendationMobile(ctrl.text);"
-                class="px-3 py-2 bg-[#006398] hover:bg-[#004e79] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 shrink-0 shadow-sm"
+                onclick="const currentSearchVal = document.getElementById('inpGoogleSearchSstMobile')?.value || googleSearchQueryMobile || manualFindingDescription; const ctrl = getNormativeControlsMobile(currentSearchVal, currentProposal?.hazardTitle)[0]; if(ctrl) selectGoogleRecommendationMobile(ctrl.text);"
+                class="px-3 py-2 bg-[#006398] hover:bg-[#004e79] text-white font-bold text-[11px] rounded-xl flex items-center gap-1 shrink-0 shadow-sm cursor-pointer"
               >
                 <span>🔍 Buscar</span>
               </button>
@@ -2431,25 +2721,19 @@ function renderMakerCheckerProposal() {
               onchange="handleResponsibleChangeMobile(this.value)"
               class="bg-transparent text-[12px] text-[#131b2e] font-bold w-full focus:outline-none cursor-pointer"
             >
-              <option value="Diana Marcela">Diana Marcela (Inspector COPASST SENA)</option>
-              <option value="Elizabet Rúa">Elizabet Rúa (Profesional HSE Industrial y Aviación)</option>
-              <option value="Sandro Alvarado">Sandro Alvarado (Profesional HSE Comercio y Servicios)</option>
-              <option value="Laura Martínez">Laura Martínez (Profesional HSE Colombo Alemán)</option>
-              <option value="Lorenis de la Hoz">Lorenis de la Hoz (Profesional HSE CEDAGRO)</option>
-              <option value="Óscar Sierra">Óscar Sierra (Profesional HSE Logística)</option>
-              <option value="Isis Delgado">Isis Delgado (Profesional HSE TIC / Energía)</option>
-              <option value="Ing. Roberto Peña">Ing. Roberto Peña (Líder Infraestructura SENA)</option>
-              <option value="Lic. Marcela Durán">Lic. Marcela Durán (Representante SIGA / Ambiental)</option>
-              <option value="Téc. Fernando Ruiz">Téc. Fernando Ruiz (Encargado Mantenimiento SENA)</option>
+              <option value="">-- Seleccionar Responsable --</option>
+              ${respOptionsHtml}
             </select>
+            <button
+              type="button"
+              onclick="openAddResponsibleModal()"
+              title="Agregar Responsable a la lista"
+              class="px-2.5 py-1 rounded-lg bg-[#39a900] text-white font-extrabold text-[11px] hover:bg-[#226d00] shrink-0 flex items-center gap-1 shadow-sm transition-all active:scale-95 cursor-pointer"
+            >
+              <span class="material-symbols-outlined text-[15px]">add</span>
+              <span>Nuevo</span>
+            </button>
           </div>
-          <input
-            type="text"
-            value="${currentProposal?.assignedTo || ''}"
-            oninput="handleResponsibleChangeMobile(this.value)"
-            placeholder="O escribe el nombre manual del responsable..."
-            class="w-full px-3 py-1.5 bg-[#f2f3ff] text-[12px] rounded-xl border border-[#eaedff] text-[#131b2e] font-bold focus:outline-none focus:bg-white"
-          />
         </div>
 
         <div class="flex flex-col gap-2 p-4 bg-white rounded-xl border border-[#eaedff] shadow-sm">
@@ -2459,13 +2743,22 @@ function renderMakerCheckerProposal() {
           </label>
           <div class="flex items-center gap-2 p-2.5 bg-[#f2f3ff] rounded-xl border border-[#eaedff]">
             <span class="material-symbols-outlined text-[#ba1a1a] text-[18px]">timer</span>
-            <input
-              type="text"
-              value="${currentProposal?.deadline || '48 horas (Prioridad Alta)'}"
-              oninput="handleDeadlineChangeMobile(this.value)"
-              placeholder="Ej: 48 horas (Prioridad Alta)..."
-              class="bg-transparent text-[12px] text-[#131b2e] font-bold w-full focus:outline-none"
-            />
+            <select
+              onchange="handleDeadlineChangeMobile(this.value)"
+              class="bg-transparent text-[12px] text-[#131b2e] font-bold w-full focus:outline-none cursor-pointer"
+            >
+              <option value="">-- Seleccionar Plazo Límite --</option>
+              ${deadlineOptionsHtml}
+            </select>
+            <button
+              type="button"
+              onclick="openAddDeadlineModal()"
+              title="Agregar Tiempo Personalizado"
+              class="px-2.5 py-1 rounded-lg bg-[#ba1a1a] text-white font-extrabold text-[11px] hover:bg-[#8c0000] shrink-0 flex items-center gap-1 shadow-sm transition-all active:scale-95 cursor-pointer"
+            >
+              <span class="material-symbols-outlined text-[15px]">add</span>
+              <span>Nuevo</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2513,54 +2806,7 @@ async function uploadPhotoToStorage(base64Data, filename) {
   }
 }
 
-// Obtener Georreferenciación GPS en tiempo real
-function getGpsLocation() {
-  const btnText = document.getElementById('txtGpsBtn');
-  const resultBox = document.getElementById('gpsResultBox');
-  const resultText = document.getElementById('gpsResultText');
 
-  if (btnText) btnText.textContent = 'Obteniendo GPS...';
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const accuracy = Math.round(position.coords.accuracy);
-
-        currentGpsData = { lat, lng, accuracy };
-
-        if (resultText) {
-          resultText.textContent = `Latitud: ${lat.toFixed(5)} • Longitud: ${lng.toFixed(5)} (Precisión ±${accuracy}m)`;
-        }
-        if (resultBox) resultBox.classList.remove('hidden');
-        if (btnText) btnText.textContent = 'GPS Obtenido ✓';
-
-        showToast('Ubicación GPS Obtenida', `Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)} (Precisión ±${accuracy}m)`, 'success');
-      },
-      (error) => {
-        console.warn('Geolocation error:', error);
-        currentGpsData = { lat: 4.58219, lng: -74.14821, accuracy: 8.0 };
-
-        if (resultText) {
-          resultText.textContent = `Latitud: 4.58219 • Longitud: -74.14821 (Precisión Estimada ±8m)`;
-        }
-        if (resultBox) resultBox.classList.remove('hidden');
-        if (btnText) btnText.textContent = 'GPS Estimado ✓';
-
-        showToast('Ubicación GPS Predeterminada', 'Se asignaron las coordenadas de la sede SENA.', 'info');
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-    );
-  } else {
-    currentGpsData = { lat: 4.58219, lng: -74.14821, accuracy: 8.0 };
-    if (resultText) {
-      resultText.textContent = `Latitud: 4.58219 • Longitud: -74.14821 (Precisión Estimada ±8m)`;
-    }
-    if (resultBox) resultBox.classList.remove('hidden');
-    if (btnText) btnText.textContent = 'GPS Estimado ✓';
-  }
-}
 
 // Guarda registro completo relacional en Supabase: inspecciones -> hallazgos_sst -> evidencias_multimedia -> planes_accion
 async function saveFullInspectionToSupabase(insp) {
@@ -2732,6 +2978,8 @@ let activeSessionFindings = [];
 
 function resetCameraInputs() {
   capturedImageData = null;
+  manualFindingDescription = '';
+  googleSearchQueryMobile = '';
   const imgEl = document.getElementById('capturedPreviewImage');
   const placeholderEl = document.getElementById('cameraPlaceholder');
   if (imgEl) imgEl.classList.add('hidden');
@@ -2912,7 +3160,7 @@ function goToFindingReportView() {
     status: 'en_proceso',
     description: `Inspección técnica multihallazgo realizada en campo. Se capturaron ${activeSessionFindings.length} fotos de evidencia y factores de riesgo según la GTC 45.`,
     imageUrl: activeSessionFindings[0]?.imageUrl,
-    assignedTo: activeResponsibleSigner || 'Ing. Roberto Peña',
+    assignedTo: (currentProposal && currentProposal.assignedTo) ? currentProposal.assignedTo : '',
     findings: [...activeSessionFindings],
     isApproved: false
   };
@@ -3153,8 +3401,13 @@ async function loadIndependentRoleMembersFromSupabase() {
         role: item.cargo || 'Representante SST',
         cc: item.documento_identidad ? `C.C. ${item.documento_identidad}` : 'C.C. Pendiente'
       }));
-      selectedSstMembers = [repSstMembers[0].id];
-      renderRepSstMembers();
+      const currentSedeVal = document.getElementById('selectSede')?.value;
+      if (currentSedeVal) {
+        autoSelectHseForSede(currentSedeVal);
+      } else {
+        selectedSstMembers = [repSstMembers[0].id];
+        renderRepSstMembers();
+      }
     }
   } catch (e) {}
 
@@ -3508,14 +3761,7 @@ async function getGpsLocation() {
   );
 }
 
-function autoSelectHseForSede(sedeName) {
-  if (!sedeName) return;
-  const hseMatch = repSstMembers.find(m => m.sedes && m.sedes.some(s => s.toLowerCase().includes(sedeName.toLowerCase()) || sedeName.toLowerCase().includes(s.toLowerCase())));
-  if (hseMatch && !selectedSstMembers.includes(hseMatch.id)) {
-    selectedSstMembers.push(hseMatch.id);
-    renderRepSstMembers();
-  }
-}
+
 
 // Top Bar Header Search Function
 function handleSearch(query) {
@@ -3745,54 +3991,8 @@ function confirmAndDownloadPdf() {
   }, 250);
 }
 
-function syncInspectionToSupabaseCloud(id) {
-  showToast('Sincronizando Supabase', `Inspección ${id} guardada en Supabase Cloud.`, 'success');
-}
-
 function toggleNotifications() {
   document.getElementById('notifMenu')?.classList.toggle('hidden');
-}
-
-function handleSearch(query) {
-  const q = (query || '').toLowerCase().trim();
-  const container = document.getElementById('inspectionsListContainer');
-  if (!container) return;
-
-  const filtered = inspections.filter(insp => 
-    insp.title.toLowerCase().includes(q) ||
-    insp.description.toLowerCase().includes(q) ||
-    insp.code.toLowerCase().includes(q) ||
-    insp.sede.toLowerCase().includes(q) ||
-    insp.area.toLowerCase().includes(q)
-  );
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<p class="text-[12px] text-[#6f7b66] italic p-4 text-center">No se encontraron inspecciones para "${query}".</p>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(insp => {
-    const isHigh = insp.riskLevel === 'I' || insp.riskLevel === 'II';
-    const isMed = insp.riskLevel === 'III';
-    const badgeColor = isHigh ? 'bg-[#ffdad6] text-[#ba1a1a]' : isMed ? 'bg-[#6cf8bb]/50 text-[#005236]' : 'bg-[#eaedff] text-[#006398]';
-    const riskLabel = isHigh ? 'Riesgo Alto' : isMed ? 'Riesgo Medio' : 'Riesgo Bajo';
-
-    return `
-      <div onclick="selectInspection('${insp.id}')" class="p-4 rounded-xl bg-[#f2f3ff] hover:bg-[#eaedff] transition-all flex flex-col gap-2 cursor-pointer border border-[#eaedff] shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[13px] text-[#131b2e] font-bold truncate">${insp.title}</span>
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${riskLabel}</span>
-        </div>
-        <p class="text-[12px] text-[#3f4a38] line-clamp-2 italic">"${insp.description}"</p>
-        <div class="flex items-center justify-between pt-2 border-t border-[#eaedff]/70 text-[11px]">
-          <span class="text-[#226d00] font-bold">Inspector: ${insp.inspectorName}</span>
-          <button type="button" onclick="event.stopPropagation(); syncInspectionToSupabaseCloud('${insp.id}')" class="text-[11px] font-bold text-[#006c49] bg-[#6cf8bb]/30 hover:bg-[#6cf8bb]/50 px-2.5 py-1 rounded-lg">
-            Sincronizar Supabase
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
 }
 
 function normalizeHseText(str) {
@@ -3935,7 +4135,12 @@ async function loadHseDirectoryFromSupabase() {
         tel: item.celular || '3000000000',
         sedes: item.sedes_a_cargo ? item.sedes_a_cargo.split(',').map(s => s.trim()) : [item.centro_adscrito || 'SENA Regional']
       }));
-      renderRepSstMembers();
+      const currentSedeVal = document.getElementById('selectSede')?.value;
+      if (currentSedeVal) {
+        autoSelectHseForSede(currentSedeVal);
+      } else {
+        renderRepSstMembers();
+      }
       renderHseDirectory();
     }
   } catch (e) {

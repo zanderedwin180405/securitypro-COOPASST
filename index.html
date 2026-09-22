@@ -75,9 +75,9 @@
         <button onclick="navigateTo('analisis-ia-maker-checker')" id="nav-analisis-ia-maker-checker" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
           <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-[20px] text-[#6f7b66]">verified_user</span>
-            <span class="text-[13px]">Análisis IA Maker-Checker</span>
+            <span class="text-[13px]">Inspección Maker-Checker (GTC 45)</span>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236]">Dual MCP</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6cf8bb]/60 text-[#005236]">GTC 45</span>
         </button>
 
         <button onclick="navigateTo('hallazgos-plan-de-accion')" id="nav-hallazgos-plan-de-accion" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
@@ -345,7 +345,7 @@
           <div class="lg:col-span-7 flex flex-col gap-6">
             <div class="p-6 rounded-2xl bg-white/90 backdrop-blur-xl border border-[#eaedff] shadow-sm flex flex-col gap-5">
               
-              <!-- Sede Selection with Add/Delete Buttons -->
+              <!-- Sede Selection with Add Button Only -->
               <div class="flex flex-col gap-1.5">
                 <div class="flex items-center justify-between">
                   <label class="text-[13px] font-semibold text-[#131b2e] flex items-center gap-1.5">
@@ -353,13 +353,9 @@
                     Centro de Formación / Regional SENA
                   </label>
                   <div class="flex items-center gap-1">
-                    <button type="button" onclick="openAddSedeModal()" class="px-2 py-1 rounded-lg bg-[#226d00]/10 text-[#226d00] hover:bg-[#226d00]/20 text-[11px] font-bold flex items-center gap-1">
+                    <button type="button" onclick="openAddSedeModal()" class="px-2.5 py-1 rounded-lg bg-[#226d00]/10 text-[#226d00] hover:bg-[#226d00]/20 text-[11px] font-bold flex items-center gap-1">
                       <span class="material-symbols-outlined text-[14px]">add</span>
-                      <span>Agregar</span>
-                    </button>
-                    <button type="button" onclick="deleteCurrentSede()" class="px-2 py-1 rounded-lg bg-[#ba1a1a]/10 text-[#ba1a1a] hover:bg-[#ba1a1a]/20 text-[11px] font-bold flex items-center gap-1" title="Eliminar centro seleccionado">
-                      <span class="material-symbols-outlined text-[14px]">delete</span>
-                      <span>Eliminar</span>
+                      <span>+ Agregar Centro</span>
                     </button>
                   </div>
                 </div>
@@ -557,11 +553,11 @@
         </div>
       </section>
 
-      <!-- VIEW 3: ANÁLISIS IA MAKER-CHECKER -->
+      <!-- VIEW 3: ANÁLISIS E INSPECCIÓN MAKER-CHECKER (GTC 45) -->
       <section id="view-analisis-ia-maker-checker" class="view-section hidden flex flex-col gap-6">
-        <h1 class="text-2xl font-bold text-[#131b2e]">Análisis IA Maker-Checker</h1>
+        <h1 class="text-2xl font-bold text-[#131b2e]">Inspección e Identificación de Peligros (GTC 45)</h1>
         <div class="p-6 rounded-2xl bg-white/90 border border-[#eaedff] flex flex-col gap-5">
-          <p class="text-[13px] text-[#3f4a38]">El modelo Gemini 2.5 Flash analizó la evidencia fotográfica e infirió el riesgo GTC 45 con alta precisión.</p>
+          <p class="text-[13px] text-[#3f4a38]">Clasifique la condición o acto inseguro detectado en la evidencia fotográfica según los factores de riesgo de la Guía Técnica Colombiana GTC 45.</p>
           <div id="makerCheckerProposalBox"></div>
 
           <div class="flex flex-col sm:flex-row gap-3 pt-2">
@@ -746,6 +742,40 @@
         <div class="flex justify-end gap-2 mt-2">
           <button type="button" onclick="closeAddResponsibleModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
           <button type="submit" class="px-4 py-2 bg-[#226d00] text-white rounded-xl text-[13px] font-bold">Guardar Responsable en BD</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Agregar / Personalizar Plazo Límite de Subsanación -->
+  <div id="modalAddDeadline" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-[#eaedff] pb-2">
+        <h3 class="text-lg font-bold text-[#131b2e] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[#ba1a1a]">timer</span>
+          <span>Adicionar Plazo Límite de Subsanación</span>
+        </h3>
+        <button type="button" onclick="closeAddDeadlineModal()" class="text-[#6f7b66] hover:text-[#131b2e]">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form onsubmit="saveNewDeadline(event)" class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[12px] font-semibold text-[#131b2e]">Escribe o ajusta el tiempo de subsanación:</label>
+          <input type="text" id="newDeadlineInput" required placeholder="ej: 36 horas, 5 días hábiles, 72 horas..." class="p-3 border border-[#eaedff] rounded-xl text-[13px] bg-[#f2f3ff] text-[#131b2e] font-bold focus:outline-none focus:ring-2 focus:ring-[#ba1a1a]/30">
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold text-[#6f7b66] uppercase">Atajos Rápidos SST:</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="setQuickDeadline('24 horas (Inmediato)')" class="px-2.5 py-1 rounded-lg bg-[#ffdad6] text-[#ba1a1a] text-[11px] font-bold border border-[#ba1a1a]/20 hover:bg-[#ffb4ab]">⚡ 24h Inmediato</button>
+            <button type="button" onclick="setQuickDeadline('48 horas (Prioridad Alta)')" class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-[11px] font-bold border border-amber-300 hover:bg-amber-200">🔴 48h Alta</button>
+            <button type="button" onclick="setQuickDeadline('5 días hábiles (Prioridad Media)')" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-[11px] font-bold border border-emerald-300 hover:bg-emerald-200">🟡 5 Días Hábiles</button>
+            <button type="button" onclick="setQuickDeadline('15 días calendario')" class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-900 text-[11px] font-bold border border-blue-300 hover:bg-blue-200">🟢 15 Días</button>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" onclick="closeAddDeadlineModal()" class="px-4 py-2 bg-[#eaedff] text-[#131b2e] rounded-xl text-[13px] font-semibold">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-[#ba1a1a] text-white rounded-xl text-[13px] font-bold shadow-md hover:bg-[#8c0000]">Asignar Tiempo</button>
         </div>
       </form>
     </div>
