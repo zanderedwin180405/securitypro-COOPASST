@@ -1846,11 +1846,21 @@ function renderFindingReport() {
                   Nivel Riesgo ${f.riskLevel} • ${f.riskCategory || 'GTC 45'}
                 </span>
               </div>
-              <div class="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#226d00]/30 shadow-xs">
-                <span class="text-[18px]">📷</span>
-                <div class="flex flex-col">
-                  <span class="text-[12px] font-bold text-[#131b2e]">Evidencia Fotográfica #${idx + 1} Registrada</span>
-                  <span class="text-[10px] text-[#226d00] font-semibold">✓ Imagen optimizada guardada en memoria (0 MB en DOM)</span>
+              <div class="flex flex-col gap-2 p-3 rounded-xl bg-white border border-[#226d00]/30 shadow-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-[12px] font-bold text-[#131b2e] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-[#226d00]">photo_camera</span>
+                    <span>Evidencia Fotográfica #${idx + 1} Registrada</span>
+                  </span>
+                  <span class="text-[10px] text-[#226d00] font-bold bg-[#6cf8bb]/30 px-2 py-0.5 rounded-full">✓ Foto Acreditada</span>
+                </div>
+                <div class="w-full h-44 sm:h-56 rounded-xl overflow-hidden bg-slate-900 border border-[#eaedff] relative">
+                  <img 
+                    src="${f.imageUrl || f.photo || f.photoUrl || selectedFinding.imageUrl || capturedImageData || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=600'}" 
+                    alt="Evidencia Fotográfica #${idx + 1}" 
+                    class="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                    onerror="this.src='https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=600'"
+                  />
                 </div>
               </div>
               <p class="text-[12px] text-[#3f4a38] leading-relaxed bg-white p-3 rounded-xl border border-[#eaedff]">
@@ -1970,14 +1980,10 @@ function renderFindingReport() {
         ${!isApproved ? `
           <span class="text-[12px] text-[#006398] font-semibold flex items-center gap-1.5">
             <span class="material-symbols-outlined text-[18px] text-[#006398]">info</span>
-            <span>Previsualiza el documento F-SST-012 con sus firmas antes de aprobar.</span>
+            <span>Previsualiza el documento F-SST-012 y aprueba la inspección para registrar en BD y habilitar la exportación a Excel / Google Sheets.</span>
           </span>
           <div class="flex items-center gap-2.5 flex-wrap">
-            <button onclick="exportSenaExcelReport()" class="px-5 py-3 bg-[#006c49] hover:bg-[#005236] text-white text-[13px] font-bold rounded-xl shadow-md flex items-center gap-2">
-              <span class="material-symbols-outlined text-[18px]">table_chart</span>
-              <span>📊 Descargar Excel SENA</span>
-            </button>
-            <button onclick="exportReportPDF()" class="px-5 py-3 bg-[#006398] hover:bg-[#004a73] text-white text-[13px] font-bold rounded-xl shadow-md flex items-center gap-2">
+            <button onclick="exportReportPDF()" class="px-6 py-3 bg-[#006398] hover:bg-[#004a73] text-white text-[13px] font-bold rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition-all">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>Previsualizar Informe F-SST-012</span>
             </button>
@@ -2206,6 +2212,26 @@ function analyzeSstImageWithAi(imageData) {
     isAiError: false
   };
 }
+
+// Clear and handle manual finding description
+window.clearManualDescription = function() {
+  manualFindingDescription = '';
+  if (typeof currentProposal !== 'undefined' && currentProposal) {
+    currentProposal.gtc45Description = '';
+  }
+  const txtArea = document.getElementById('textareaFindingDescription');
+  if (txtArea) txtArea.value = '';
+  if (typeof showToast === 'function') {
+    showToast('Campo Limpiado', 'Se borró el contenido de la descripción del hallazgo.', 'info');
+  }
+};
+
+window.handleManualDescriptionChange = function(val) {
+  manualFindingDescription = val;
+  if (typeof currentProposal !== 'undefined' && currentProposal) {
+    currentProposal.gtc45Description = val;
+  }
+};
 
 // Proceed to Analysis
 function proceedToAnalysis() {
@@ -2787,13 +2813,25 @@ function renderMakerCheckerProposal() {
         </div>
 
         <!-- Sección 4: Descripción del Hallazgo -->
-        <div class="flex flex-col gap-1 pt-2 border-t border-[#eaedff]">
-          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">4. Descripción del Hallazgo:</label>
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-[#eaedff]">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">4. Descripción del Hallazgo:</label>
+            <button 
+              type="button" 
+              onclick="clearManualDescription()" 
+              class="px-2.5 py-1 text-[11px] font-bold text-[#ba1a1a] hover:bg-[#ffdad6] bg-[#ffdad6]/40 rounded-lg border border-[#ba1a1a]/30 transition-colors flex items-center gap-1 cursor-pointer"
+              title="Limpiar el contenido del campo de descripción"
+            >
+              <span class="material-symbols-outlined text-[14px]">backspace</span>
+              <span>Limpiar Campo</span>
+            </button>
+          </div>
           <textarea 
+            id="textareaFindingDescription"
             oninput="handleManualDescriptionChange(this.value)" 
-            rows="3" 
+            rows="8" 
             placeholder="Escribe la descripción detallada de la condición o acto observado en campo..." 
-            class="w-full bg-[#f2f3ff] p-3 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e] placeholder:text-[#6f7b66] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30"
+            class="w-full bg-[#f2f3ff] p-3.5 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e] placeholder:text-[#6f7b66] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30 transition-all shadow-inner"
           >${manualFindingDescription || currentProposal?.gtc45Description || ''}</textarea>
         </div>
 
@@ -4323,13 +4361,42 @@ async function getBase64PngFromUrl(url, fallbackLabel) {
   });
 }
 
-// Exportar Informe de Inspecciones en Formato Oficial Excel SENA (Soporte Nativo .XLSX + Google Sheets =IMAGE)
+// Exportar Informe de Inspecciones en Formato Oficial Excel SENA (Soporte Nativo .XLSX + Hojas de Cálculo de Google)
 async function exportSenaExcelReport() {
   try {
-    showToast('Descargando Excel SENA...', 'Generando archivo .xlsx nativo para Excel y Google Sheets...', 'info');
+    showToast('Descargando Excel / Hojas de Cálculo...', 'Generando archivo .xlsx con fotos incrustadas para Hojas de cálculo de Google...', 'info');
     
+    let currentItemsPayload = [];
+    if (selectedFinding) {
+      if (selectedFinding.findings && selectedFinding.findings.length > 0) {
+        currentItemsPayload = selectedFinding.findings.map((f, idx) => ({
+          id: idx + 1,
+          sede: selectedFinding.sede,
+          area: selectedFinding.area,
+          riskCategory: f.riskCategory || selectedFinding.riskCategory || 'Condiciones locativas',
+          tipoHallazgo: f.tipoHallazgo || selectedFinding.tipoHallazgo || 'Correctivo',
+          description: f.description || selectedFinding.description || 'Hallazgo registrado durante inspección.',
+          fotoDescripcion: f.fotoDescripcion || `Fotografía No. ${idx + 1} – ${f.title || selectedFinding.title}`,
+          imageUrl: f.imageUrl || f.photo || selectedFinding.imageUrl || capturedImageData,
+          riesgoAsociado: f.riesgoAsociado || selectedFinding.riesgoAsociado || 'Biológico, locativo y deterioro de infraestructura.',
+          recomendacionesCopasst: f.recommendation || selectedFinding.recomendacionesCopasst || selectedFinding.recommendation || 'Realizar inspección técnica y efectuar mantenimiento correctivo.',
+          assignedTo: selectedFinding.assignedTo || 'Coordinación Administrativa y Servicios Generales'
+        }));
+      } else {
+        currentItemsPayload = [selectedFinding];
+      }
+    } else if (inspections && inspections.length > 0) {
+      currentItemsPayload = inspections;
+    } else {
+      currentItemsPayload = DEFAULT_SENA_INSPECTIONS;
+    }
+
     // 1. Intentar descargar el archivo .xlsx binario nativo con imágenes incrustadas vía servidor local
-    const resp = await fetch('/download-sena-excel');
+    const resp = await fetch('/download-sena-excel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentItemsPayload)
+    });
     if (resp.ok) {
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
@@ -4340,7 +4407,7 @@ async function exportSenaExcelReport() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Excel Descargado ✓', 'Archivo .xlsx nativo listo con fotos para Excel y Google Sheets.', 'success');
+      showToast('Excel / Hojas de Cálculo Descargado ✓', 'Archivo .xlsx nativo listo con fotos para Google Sheets y Excel.', 'success');
       return;
     }
   } catch (e) {
@@ -4579,7 +4646,7 @@ function exportReportPDF() {
     </div>
 
     <!-- Responsables Asignados -->
-    <div class="p-3 bg-[#226d00]/10 rounded-xl border border-[#226d00]/30 text-[11px] sm:text-[12px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 print-avoid-break">
+    <div class="p-2.5 bg-[#226d00]/10 rounded-xl border border-[#226d00]/30 text-[11px] sm:text-[12px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 print-avoid-break">
       <div>
         <span class="font-bold text-[#006c49] block text-[10px] uppercase">Responsable Asignado de Subsanación:</span>
         <span class="font-bold text-[#131b2e] text-[12px] sm:text-[13px]">${assigned}</span>
@@ -4588,31 +4655,31 @@ function exportReportPDF() {
     </div>
 
     <!-- Firmas de Aceptación Digital Acreditadas al Final del Informe (F-SST-012) -->
-    <div class="flex flex-col gap-2 pt-3 border-t-2 border-[#226d00]/40 mt-1 print-avoid-break">
-      <span class="text-[10px] sm:text-[11px] font-bold text-[#226d00] uppercase tracking-wider">Firmas de Aceptación y Conformidad Oficial (F-SST-012):</span>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[10px] sm:text-[11px] text-slate-700">
-        <!-- Firma 1 -->
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center">
-          <div class="w-full h-14 flex items-center justify-center">
+    <div class="flex flex-col gap-1.5 pt-2 border-t-2 border-[#226d00]/40 mt-1 print-avoid-break">
+      <span class="text-[9px] sm:text-[10px] font-bold text-[#226d00] uppercase tracking-wider">Firmas de Aceptación y Conformidad Oficial (F-SST-012):</span>
+      <div class="grid grid-cols-2 gap-2 text-[9px] text-slate-700">
+        <!-- Firma 1: Inspector COPASST -->
+        <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 flex flex-col items-center text-center shadow-xs">
+          <div class="w-full h-8 flex items-center justify-center scale-90 overflow-hidden">
             ${reportSignerProfile.svgSignature}
           </div>
-          <div class="w-full border-t border-dashed border-slate-300 my-1"></div>
-          <span class="font-bold text-slate-900 text-[11px] sm:text-[12px]">${reportSignerProfile.name}</span>
-          <span class="text-[10px] text-[#226d00] font-semibold">${reportSignerProfile.role}</span>
-          <span class="text-[9px] text-slate-500">${reportSignerProfile.cc} • ${reportSignerProfile.license}</span>
-          <span class="text-[8px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1.5 py-0.5 rounded truncate max-w-full">${reportSignerProfile.hash}</span>
+          <div class="w-full border-t border-dashed border-slate-300 my-0.5"></div>
+          <span class="font-bold text-slate-900 text-[10px] sm:text-[11px] leading-tight">${reportSignerProfile.name}</span>
+          <span class="text-[9px] text-[#226d00] font-semibold">${reportSignerProfile.role}</span>
+          <span class="text-[8px] text-slate-500">${reportSignerProfile.cc} • ${reportSignerProfile.license}</span>
+          <span class="text-[7px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1 py-0.2 rounded truncate max-w-full">${reportSignerProfile.hash}</span>
         </div>
 
-        <!-- Firma 2 -->
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col items-center text-center">
-          <div class="w-full h-14 flex items-center justify-center">
+        <!-- Firma 2: Responsable Asignado -->
+        <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 flex flex-col items-center text-center shadow-xs">
+          <div class="w-full h-8 flex items-center justify-center scale-90 overflow-hidden">
             ${respSignerProfile.svgSignature}
           </div>
-          <div class="w-full border-t border-dashed border-slate-300 my-1"></div>
-          <span class="font-bold text-slate-900 text-[11px] sm:text-[12px]">${respSignerProfile.name}</span>
-          <span class="text-[10px] text-[#006c49] font-semibold">${respSignerProfile.role}</span>
-          <span class="text-[9px] text-slate-500">${respSignerProfile.cc} • Aceptación Subsanación</span>
-          <span class="text-[8px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1.5 py-0.5 rounded truncate max-w-full">${respSignerProfile.hash}</span>
+          <div class="w-full border-t border-dashed border-slate-300 my-0.5"></div>
+          <span class="font-bold text-slate-900 text-[10px] sm:text-[11px] leading-tight">${respSignerProfile.name}</span>
+          <span class="text-[9px] text-[#006c49] font-semibold">${respSignerProfile.role}</span>
+          <span class="text-[8px] text-slate-500">${respSignerProfile.cc} • Aceptación Subsanación</span>
+          <span class="text-[7px] font-mono text-[#006c49] mt-0.5 bg-[#6cf8bb]/40 px-1 py-0.2 rounded truncate max-w-full">${respSignerProfile.hash}</span>
         </div>
       </div>
     </div>
@@ -4644,11 +4711,15 @@ function exportReportPDF() {
           <span class="material-symbols-outlined text-[16px] text-[#226d00]">verified</span>
           <span>Informe Aprobado y Registrado en BD</span>
         </span>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="closePdfPreviewModal()" class="px-4 py-2.5 rounded-xl bg-[#eaedff] text-[#131b2e] font-semibold text-[13px]">
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" onclick="closePdfPreviewModal()" class="px-4 py-2.5 rounded-xl bg-[#eaedff] text-[#131b2e] font-semibold text-[13px] cursor-pointer">
             Cerrar
           </button>
-          <button type="button" onclick="confirmAndDownloadPdf()" class="px-5 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow flex items-center gap-2">
+          <button type="button" onclick="exportSenaExcelReport()" class="px-4 py-2.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-[13px] shadow flex items-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">table_chart</span>
+            <span>Exportar Excel / Google Sheets</span>
+          </button>
+          <button type="button" onclick="confirmAndDownloadPdf()" class="px-5 py-2.5 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[13px] shadow flex items-center gap-2 cursor-pointer">
             <span class="material-symbols-outlined text-[18px]">download</span>
             <span>Descargar PDF con Firmas</span>
           </button>
@@ -4665,12 +4736,36 @@ function closePdfPreviewModal() {
 }
 
 function confirmAndDownloadPdf() {
-  // Asegurar que el informe esté renderizado y el modal visible para la función window.print()
   exportReportPDF();
-  showToast('Generando PDF', 'Iniciando descarga / impresión del reporte oficial F-SST-012...', 'info');
+  showToast('Generando PDF', 'Cargando fotos de evidencia e iniciando vista de impresión PDF...', 'info');
   setTimeout(() => {
-    window.print();
-  }, 250);
+    const modalImgs = document.querySelectorAll('#pdfPreviewContent img');
+    let loadedCount = 0;
+    const totalImgs = modalImgs.length;
+    if (totalImgs === 0) {
+      window.print();
+      return;
+    }
+    let printed = false;
+    const triggerPrint = () => {
+      if (!printed) {
+        printed = true;
+        window.print();
+      }
+    };
+    modalImgs.forEach(img => {
+      if (img.complete) {
+        loadedCount++;
+        if (loadedCount === totalImgs) triggerPrint();
+      } else {
+        img.onload = img.onerror = () => {
+          loadedCount++;
+          if (loadedCount === totalImgs) triggerPrint();
+        };
+      }
+    });
+    setTimeout(triggerPrint, 600);
+  }, 200);
 }
 
 function toggleNotifications() {

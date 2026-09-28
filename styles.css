@@ -77,13 +77,25 @@ body {
     margin: 10mm;
   }
 
-  /* Hide outer app UI, sidebar, header, nav, floating buttons */
+  /* Hide outer app UI, sidebar, header, nav, floating buttons, inputs, checkboxes */
   aside,
   header,
   nav,
   #toastContainer,
-  button {
+  button,
+  input[type="checkbox"],
+  input[type="radio"],
+  .no-print,
+  .print-hide {
     display: none !important;
+  }
+
+  /* Compact SVG Signatures in PDF Output */
+  #modalPdfPreview svg,
+  #pdfPreviewContent svg {
+    max-height: 32px !important;
+    height: 32px !important;
+    width: auto !important;
   }
 
   /* Make modalPdfPreview render as standard block document */
