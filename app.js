@@ -20,16 +20,20 @@ const DEFAULT_SENA_INSPECTIONS = [
   {
     id: 'insp-001',
     code: 'INSP-2026-001',
-    title: 'Guarda de protección desajustada en torno mecánico',
-    sede: 'Centro Nacional Colombo Alemán (Sede Principal)',
-    area: 'Taller de Maquinado y Tornos',
+    title: 'Humedad en cielo raso y pared norte por filtración de agua',
+    sede: 'Bloque Administrativo – Escuela Nacional de Instructores (ENI)',
+    area: 'segundo piso, oficina 204',
     inspectorName: 'Diana Marcela',
-    riskCategory: 'Condiciones de Seguridad',
+    riskCategory: 'Condiciones locativas',
+    tipoHallazgo: 'Correctivo',
     riskLevel: 'II',
     status: 'en_proceso',
-    description: 'Ausencia de guarda protectora en cabezal giratorio de torno T-04.',
+    description: 'Durante la inspección se evidenció humedad en el cielo raso ocasionada por una posible filtración de agua. Se observan manchas de humedad y desprendimiento parcial de la pintura, situación que podría favorecer la proliferación de microorganismos y el deterioro de la infraestructura.',
+    fotoDescripcion: 'Fotografía No. 1 – Humedad en techo y pared norte del área inspeccionada.',
+    riesgoAsociado: 'Biológico, locativo y deterioro de infraestructura.',
+    recomendacionesCopasst: 'Realizar la inspección técnica para identificar el origen de la filtración y efectuar el mantenimiento correctivo correspondiente. Una vez solucionada la causa, realizar limpieza, desinfección y reposición de los acabados afectados para prevenir la proliferación de hongos y mejorar las condiciones del ambiente de trabajo.',
     imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
-    assignedTo: 'Téc. Fernando Ruiz (Encargado Mantenimiento e Infraestructura - Reparaciones)',
+    assignedTo: 'Coordinación Administrativa y Servicios Generales',
     isApproved: true
   },
   {
@@ -166,7 +170,98 @@ let responsablesList = [
   'Lic. Marcela Durán (Representante SIGA / Ambiental)'
 ];
 
-// Directorio Oficial de Profesionales HSE / Representantes SST por SEDE (Guía Oficial SENA)
+// Catálogo Ampliado de Riesgos Asociados y Consecuencias (9 Categorías GTC 45 / SST Colombia)
+const RIESGOS_ASOCIADOS_CATALOG = [
+  {
+    category: "1. Condiciones Locativas y de Infraestructura",
+    items: [
+      "Pisos resbaladizos por grasa, aceite, agua u otros líquidos: Caídas al mismo nivel, contusiones, esguinces, fracturas de extremidades.",
+      "Superficies de tránsito o trabajo irregulares, agrietadas o con huecos: Tropiezos, caídas al mismo nivel, torceduras de tobillo, lesiones de rodilla.",
+      "Falta de orden y limpieza (acumulación de materiales, herramientas o residuos en vías de circulación): Tropezones, caídas, golpes contra estructuras, obstrucción de rutas de evacuación.",
+      "Ausencia, daño o deficiencia en barandas, pasamanos de escaleras o plataformas elevadas: Caídas a distinto nivel, politraumatismos severos, fracturas expuestas, lesiones craneoencefálicas.",
+      "Escaleras con huellas desgastadas, sin cintas antideslizantes o con contrahuellas irregulares: Resbalones, caídas de altura, fracturas múltiples.",
+      "Falta de iluminación o iluminación deficiente (sombras marcadas o deslumbramientos) en pasillos y áreas operativas: Tropiezos, errores operativos, fatiga visual, golpes contra objetos fijos.",
+      "Techos, cielorrasos o paredes con humedad, filtraciones o riesgo de desprendimiento de material: Caída de escombros o pañete, contusiones, laceraciones, problemas respiratorios por exposición a hongos.",
+      "Puertas de emergencia bloqueadas, con apertura hacia adentro o sin señalización visible: Atrapamientos en situaciones de emergencia, estampidas, dificultad para la evacuación oportuna.",
+      "Falta de señalización de seguridad (advertencia, obligación, prohibición o equipos contra incendio): Confusión del personal, uso indebido de áreas o equipos, incremento del riesgo de accidentes."
+    ]
+  },
+  {
+    category: "2. Condiciones de Seguridad (Mecánicas y de Equipos)",
+    items: [
+      "Ausencia o deficiencia de guardas de seguridad en partes móviles (fajas, poleas, engranajes, ejes): Atrapamientos, amputaciones traumáticas, fracturas por aplastamiento, desgarros de piel y tejidos.",
+      "Herramientas manuales defectuosas, desgastadas, con mangos flojos o hechizas: Golpes por desprendimiento de piezas, cortes profundos, proyecciones de partículas hacia los ojos.",
+      "Herramientas portátiles eléctricas sin doble aislamiento, con cables pelados o sin puesta a tierra: Electrocución, quemaduras de piel, espasmos musculares.",
+      "Equipos de izaje (grúas, polipastos, montacargas) sin inspección técnica vigente o sin alarmas de reversa: Golpes por atropellamiento, aplastamiento, caída de cargas suspendidas.",
+      "Vehículos o montacargas operados por personal sin certificación o capacitación: Colisiones, volcamientos, atropellamientos con consecuencias fatales.",
+      "Puntos de operación de maquinaria sin dispositivos de parada de emergencia funcionales: Lesiones graves por imposibilidad de detener la máquina a tiempo ante un enganche."
+    ]
+  },
+  {
+    category: "3. Condiciones Eléctricas",
+    items: [
+      "Cables eléctricos expuestos, pinchados, tirados en el suelo o sobre pasillos: Tropiezos, daños al aislamiento, riesgo de contacto directo, electrocución.",
+      "Tableros eléctricos sin tapa, sin señalización de riesgo eléctrico, sin bloqueo o bloqueados con objetos al frente: Arcos eléctricos, quemaduras graves, dificultad para cortar energía en emergencias.",
+      "Tomacorrientes sobrecargados (uso excesivo de extensiones o multi-tomas en cadena): Cortocircuitos, sobrecalentamiento de líneas, conatos de incendio.",
+      "Instalaciones eléctricas provisionales mantenidas en el tiempo sin protección diferencial: Riesgo permanente de choque eléctrico por contactos indirectos."
+    ]
+  },
+  {
+    category: "4. Peligros Físicos y Ambientales",
+    items: [
+      "Exposición a ruido continuo o de impacto por encima de los valores límite permisibles (VLP): Hipoacusia neurosensorial inducida por ruido (sordera profesional), acúfenos, estrés, hipertensión arterial.",
+      "Vibraciones transmitidas al cuerpo entero (maquinaria pesada) o al sistema mano-brazo (herramientas vibratorias): Trastornos vasculares, osteomusculares, síndrome de vibración mano-brazo (dedo blanco), lumbalgias.",
+      "Temperaturas extremas de calor (trabajos a la intemperie o cerca de hornos) sin hidratación o descansos: Golpes de calor, deshidratación severa, síncopes, desvanecimientos.",
+      "Temperaturas extremas de frío (cuartos fríos o zonas altoandinas) sin ropa térmica adecuada: Hipotermia, congelamiento de extremidades, enfermedades respiratorias frecuentes.",
+      "Radiaciones no ionizantes (soldadura, rayos UV solares) sin protección: Queratoconjuntivitis, quemaduras en la piel, riesgo de cáncer de piel a largo plazo."
+    ]
+  },
+  {
+    category: "5. Peligros Químicos",
+    items: [
+      "Sustancias químicas almacenadas sin etiquetas, sin pictograma GHS o sin fichas de datos de seguridad (FDS): Confusión de productos, mezclas peligrosas (generación de gases tóxicos), intoxicaciones accidentales.",
+      "Inexistencia o deficiencia de sistemas de extracción localizada en zonas de vapores, gases o polvos: Inhalación de sustancias tóxicas, irritación de vías respiratorias, neumoconiosis, daño hepático o renal crónico.",
+      "Falta de elementos de protección personal (EPP) específicos para manejo de químicos (guantes de nitrilo/neopreno, gafas de seguridad, caretas): Quemaduras químicas en piel y ojos, dermatitis de contacto, absorción cutánea tóxica.",
+      "Almacenamiento de líquidos inflamables cerca de fuentes de ignición o sin cubetos de contención: Incendios, explosiones, derrames con contaminación ambiental."
+    ]
+  },
+  {
+    category: "6. Peligros Biológicos",
+    items: [
+      "Presencia de vectores (roedores, insectos, aves) en zonas de trabajo o almacenamiento de alimentos: Transmisión de enfermedades infectocontagiosas (leptospirosis, dengue, hantavirus).",
+      "Manipulación de residuos peligrosos (biológicos/sanitarios) sin protocolos de bioseguridad: Pinchazos con agujas contaminadas, cortes, infecciones por patógenos de transmisión sanguínea (VIH, Hepatitis B o C).",
+      "Sistemas de aire acondicionado o tanques de agua sin mantenimiento ni limpieza preventiva: Exposición a bacterias como Legionella, alergias severas, infecciones respiratorias."
+    ]
+  },
+  {
+    category: "7. Condiciones Ergonómicas",
+    items: [
+      "Manipulación manual de cargas pesadas o voluminosas sin ayudas mecánicas ni técnica adecuada: Lesiones en la columna vertebral, hernias discales, lumbalgias mecánicas agudas o crónicas.",
+      "Movimientos repetitivos de extremidades superiores (en líneas de producción, digitación continua) sin pausas: Lesiones por Esfuerzos Repetitivos (LER), tendinitis, tenosinovitis, síndrome del túnel carpiano.",
+      "Posturas forzadas o prolongadas (bipedestación o sedestación prolongada) sin diseño ergonómico: Trastornos músculo-esqueléticos, fatiga muscular, varices en extremidades inferiores.",
+      "Diseño inadecuado del puesto de trabajo de oficina (silla sin ajuste lumbar, monitor a altura incorrecta): Dolores cervicales, dorsales, fatiga visual crónica, cefaleas tensionales."
+    ]
+  },
+  {
+    category: "8. Condiciones Psicosociales y de Organización del Trabajo",
+    items: [
+      "Jornadas de trabajo excesivas, turnos rotativos sin descanso adecuado o exceso de horas extra: Fatiga crónica, aumento de la tasa de errores operativos, incidentes por falta de concentración, estrés laboral severo (burnout).",
+      "Ritmos de trabajo acelerados por alta presión de producción: Descuido de normas de seguridad, conductas inseguras por afán, ansiedad.",
+      "Falta de claridad en las funciones, responsabilidades o ambigüedad de rol: Desmotivación, conflictos interpersonales, estrés crónico.",
+      "Ausencia de canales de comunicación efectivos para reportar condiciones inseguras o acoso: Ocultamiento de cuasifallas, clima laboral tenso, riesgos latentes sin atender."
+    ]
+  },
+  {
+    category: "9. Preparación y Respuesta ante Emergencias",
+    items: [
+      "Extintores vencidos, descargados, obstruidos o sin la señalización correspondiente: Imposibilidad de controlar un conato de incendio en su etapa inicial, propagación del fuego.",
+      "Sistemas de detección de incendios (humo/calor) o alarmas inoperativos: Retraso crítico en la alerta y evacuación del personal.",
+      "Falta de brigadas de emergencia formadas o entrenadas en primeros auxilios, contraincendios o evacuación: Respuesta tardía o ineficaz ante un evento real, empeoramiento de lesiones de los afectados.",
+      "Rutas de evacuación y salidas de emergencia bloqueadas con mercancía, estibas o rejas cerradas con llave: Atrapamiento de trabajadores, lesiones múltiples por avalancha humana o asfixia por humo."
+    ]
+  }
+];
+
 // Directorio Oficial de Profesionales HSE / Representantes SST por SEDE (Guía Oficial SENA)
 let repSstMembers = [
   { id: 'hse-1', name: 'Sandro Alvarado', role: 'Profesional HSE - Comercio y Servicios', cc: 'C.C. 31.122.505', email: 'sealvaradp@sena.edu.co', tel: '3112250539', sedes: ['Centro de Comercio y Servicios (Sede Principal)', 'Centro de Comercio y Servicios', 'Nodo Hotelería', 'Nodo Salud', 'Nodo Industrias Creativas'] },
@@ -414,6 +509,11 @@ function navigateTo(viewId) {
   if (target) {
     target.scrollIntoView({ block: 'start', behavior: 'instant' });
   }
+
+  // View specific triggers
+  if (viewId === 'subsanacion-hallazgos') {
+    renderSubsanacionView();
+  }
 }
 
 // Mobile Sidebar Drawer Toggle
@@ -444,10 +544,51 @@ function closeMobileMenu() {
 // Current Search Query state
 let currentSearchQuery = '';
 let activeCategoryFilter = null;
+let currentRiskFilterState = 'todos';
+
+function handleSearch(query) {
+  currentSearchQuery = query || '';
+  const qTrim = currentSearchQuery.trim();
+
+  // Render inspections list with active risk & search query filter
+  renderInspectionsList(currentRiskFilterState, currentSearchQuery);
+  updateKpis();
+
+  // Actualizar subtítulo del Dashboard indicando el filtro activo de Centro de Formación / Sede
+  const dashboardSedeText = document.getElementById('dashboardCurrentSedeText');
+  if (dashboardSedeText) {
+    if (qTrim.length > 0) {
+      dashboardSedeText.innerHTML = `Filtro Centro / Sede SENA: <strong class="text-[#226d00] bg-[#6cf8bb]/30 px-2.5 py-0.5 rounded-full border border-[#006c49]/20">"${qTrim}"</strong>`;
+    } else {
+      dashboardSedeText.textContent = 'Consolidado General • Todos los Centros SENA';
+    }
+  }
+
+  // Sync search with Directorio HSE if input exists
+  const inputDir = document.getElementById('inputSearchHse');
+  if (inputDir && typeof filterHseDirectory === 'function') {
+    inputDir.value = qTrim;
+    filterHseDirectory();
+  }
+
+  // Navigate to Dashboard if searching from another view
+  if (qTrim.length > 1) {
+    const activeSection = document.querySelector('.view-section:not(.hidden)');
+    if (activeSection && activeSection.id !== 'view-dashboard-telemetria' && activeSection.id !== 'view-directorio-profesionales-hse') {
+      navigateTo('dashboard-telemetria');
+    }
+  }
+}
+
+function clearSearchInput() {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.value = '';
+  handleSearch('');
+}
 
 function filterInspectionsByCategory(catName) {
   activeCategoryFilter = activeCategoryFilter === catName ? null : catName;
-  renderInspectionsList();
+  renderInspectionsList(currentRiskFilterState, currentSearchQuery);
   updateKpis();
 }
 
@@ -504,19 +645,83 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
   container.innerHTML = filtered.map(insp => {
     const isHigh = insp.riskLevel === 'I' || insp.riskLevel === 'II';
     const isMed = insp.riskLevel === 'III';
-    const badgeColor = isHigh ? 'bg-[#ffdad6] text-[#ba1a1a]' : isMed ? 'bg-[#6cf8bb]/50 text-[#005236]' : 'bg-[#eaedff] text-[#006398]';
-    const riskLabel = isHigh ? 'Riesgo Alto' : isMed ? 'Riesgo Medio' : 'Riesgo Bajo';
+    
+    // Risk Badge Styling (Keep Risk Level Badge)
+    const riskBadge = isHigh 
+      ? 'bg-[#ffdad6] text-[#ba1a1a] border border-[#ffb4ab]' 
+      : isMed 
+      ? 'bg-[#fff0c2] text-[#7a5300] border border-[#ffe082]' 
+      : 'bg-[#e2f8eb] text-[#005236] border border-[#a3e9c1]';
+    
+    const riskLabel = isHigh ? `Alto (Niv. ${insp.riskLevel})` : isMed ? `Medio (Niv. ${insp.riskLevel})` : `Bajo (Niv. ${insp.riskLevel})`;
+
+    // Category Label Text (Clean text tag without icon box)
+    let catBg = 'bg-[#39a900]/10 text-[#226d00] border border-[#39a900]/20';
+    let catName = insp.riskCategory || 'GTC 45';
+
+    const catLower = (insp.riskCategory || '').toLowerCase();
+    const titleLower = (insp.title || '').toLowerCase();
+    const descLower = (insp.description || '').toLowerCase();
+
+    if (catLower.includes('químico') || catLower.includes('quimico') || 
+        titleLower.includes('lubricante') || titleLower.includes('líquido') || titleLower.includes('liquido') || titleLower.includes('solvente') ||
+        descLower.includes('aceite') || descLower.includes('solvente') || descLower.includes('derrame')) {
+      catBg = 'bg-[#006398]/10 text-[#006398] border border-[#006398]/20';
+      if (!catName || catName === 'GTC 45' || catName === 'Locativo') catName = 'Peligro Químico / Líquidos';
+    } else if (catLower.includes('seguridad') || catLower.includes('mecánico') || catLower.includes('mecanico') || 
+               titleLower.includes('torno') || titleLower.includes('maquin') || titleLower.includes('guarda') ||
+               descLower.includes('torno') || descLower.includes('cabezal')) {
+      catBg = 'bg-[#701a75]/10 text-[#701a75] border border-[#701a75]/20';
+      if (!catName || catName === 'GTC 45' || catName === 'Condiciones de Seguridad') catName = 'Peligro Mecánico / Seguridad';
+    } else if (catLower.includes('físico') || catLower.includes('fisico') || titleLower.includes('ruido') || titleLower.includes('compresor')) {
+      catBg = 'bg-[#b78103]/10 text-[#7a5300] border border-[#b78103]/20';
+    } else if (catLower.includes('tecnológico') || catLower.includes('tecnologico') || titleLower.includes('extintor')) {
+      catBg = 'bg-[#ba1a1a]/10 text-[#ba1a1a] border border-[#ba1a1a]/20';
+    }
 
     return `
-      <div onclick="selectInspection('${insp.id}')" class="p-4 rounded-xl bg-[#f2f3ff] hover:bg-[#eaedff] transition-all flex flex-col gap-2 cursor-pointer border border-[#eaedff] shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[13px] text-[#131b2e] font-bold truncate">${insp.title}</span>
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${riskLabel}</span>
+      <div onclick="selectInspection('${insp.id}'); navigateTo('hallazgos-plan-de-accion')" class="group relative p-4 rounded-2xl bg-white hover:bg-[#fafbff] border border-[#eaedff] hover:border-[#39a900]/40 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-2.5 cursor-pointer">
+        <!-- Top Row: Category Pill + Code + Risk Badge -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 flex-wrap min-w-0">
+            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg ${catBg}">${catName}</span>
+            <span class="text-[10px] font-bold text-[#6f7b66]">${insp.code || 'INSP-2026'}</span>
+          </div>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${riskBadge}">
+            Riesgo ${riskLabel}
+          </span>
         </div>
-        <p class="text-[12px] text-[#3f4a38] line-clamp-2 italic">"${insp.description}"</p>
-        <div class="flex items-center justify-between pt-2 border-t border-[#eaedff]/70 text-[11px]">
-          <span class="text-[#226d00] font-bold">Inspector: ${insp.inspectorName}</span>
-          <span class="px-2 py-0.5 rounded bg-[#39a900]/10 text-[#226d00] font-bold text-[10px]">${insp.riskCategory || 'GTC 45'}</span>
+
+        <!-- Inspection Title -->
+        <h3 class="text-[14px] font-bold text-[#131b2e] leading-snug group-hover:text-[#226d00] transition-colors">${insp.title}</h3>
+
+        <!-- Description -->
+        <p class="text-[12px] text-[#3f4a38] line-clamp-2 italic bg-[#f8f9ff] p-2 rounded-xl border border-[#eaedff]/60">
+          "${insp.description}"
+        </p>
+
+        <!-- Location & Inspector Meta -->
+        <div class="flex items-center justify-between text-[11px] text-[#6f7b66] pt-0.5">
+          <span class="flex items-center gap-1 font-medium truncate text-[#131b2e]">
+            <span class="material-symbols-outlined text-[14px] text-[#226d00]">location_on</span>
+            <span class="truncate">${insp.sede}</span>
+          </span>
+          <span class="flex items-center gap-1 shrink-0 font-medium">
+            <span class="material-symbols-outlined text-[14px] text-[#6f7b66]">person</span>
+            <span>${insp.inspectorName}</span>
+          </span>
+        </div>
+
+        <!-- Action Buttons (Informe F-SST-012 & Descargar Excel SENA) -->
+        <div class="pt-2 border-t border-[#eaedff]/80 flex flex-col gap-2">
+          <button type="button" onclick="event.stopPropagation(); selectInspection('${insp.id}'); navigateTo('hallazgos-plan-de-accion')" class="w-full py-2 px-3 rounded-xl bg-[#226d00] hover:bg-[#1b5700] text-white text-[12px] font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">description</span>
+            <span>Informe F-SST-012</span>
+          </button>
+          <button type="button" onclick="event.stopPropagation(); selectInspection('${insp.id}'); exportSenaExcelReport()" class="w-full py-2 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-[12px] font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">table_chart</span>
+            <span>📊 Descargar Excel SENA</span>
+          </button>
         </div>
       </div>
     `;
@@ -547,7 +752,11 @@ function updateKpis() {
 
   if (totalEl) totalEl.textContent = total;
   if (badgeEl) {
-    if (activeCategoryFilter) {
+    const qTrim = (currentSearchQuery || '').trim();
+    if (qTrim) {
+      badgeEl.innerHTML = `Filtro Centro / Búsqueda: "${qTrim}" <button onclick="clearSearchInput()" class="ml-1 text-white font-bold font-mono hover:text-red-200">✕</button>`;
+      badgeEl.className = 'px-3 py-1 rounded-full bg-[#226d00] text-white text-[11px] font-bold flex items-center shadow-sm';
+    } else if (activeCategoryFilter) {
       badgeEl.innerHTML = `Filtro: ${activeCategoryFilter} <button onclick="filterInspectionsByCategory(null)" class="ml-1 text-white font-bold font-mono">✕</button>`;
       badgeEl.className = 'px-3 py-1 rounded-full bg-[#226d00] text-white text-[11px] font-bold flex items-center shadow-sm';
     } else {
@@ -557,6 +766,11 @@ function updateKpis() {
   }
   if (controlEl) controlEl.textContent = `${rate}%`;
   if (badgePending) badgePending.textContent = inProg > 0 ? `${inProg}` : '0';
+
+  const badgeSubsanacion = document.getElementById('badgeSubsanacionCount');
+  const badgeOpenToClose = document.getElementById('badgeOpenToCloseCount');
+  if (badgeSubsanacion) badgeSubsanacion.textContent = inProg > 0 ? `${inProg}` : '0';
+  if (badgeOpenToClose) badgeOpenToClose.textContent = `${inProg} Pendientes`;
 
   // Dynamic Taxonomy Category Breakdown (Consolidado Período 2026 - GTC 45)
   if (taxonomyBar && taxonomyCards) {
@@ -958,12 +1172,16 @@ function handleFileSelect(e) {
 
 let selectedFinding = null;
 let currentProposal = {
-  hazardTitle: 'Guarda de protección desajustada en torno mecánico',
-  riskCategory: 'Condiciones de Seguridad / Peligro Mecánico',
+  hazardTitle: 'Humedad en cielo raso y pared norte por filtración de agua',
+  riskCategory: 'Condiciones locativas',
+  tipoHallazgo: 'Correctivo',
   riskLevel: 'II',
-  confidence: '94%',
-  gtc45Description: 'Falta tornillo prisionero en guarda acrílica del cabezal giratorio del torno T-04 en área de mecanizado.',
-  recommendation: 'Instalar tornillo prisionero norma DIN 913 e implementar guarda transparente de policarbonato alto impacto.'
+  confidence: '95%',
+  gtc45Description: 'Durante la inspección se evidenció humedad en el cielo raso ocasionada por una posible filtración de agua. Se observan manchas de humedad y desprendimiento parcial de la pintura.',
+  fotoDescripcion: 'Fotografía No. 1 – Humedad en techo y pared norte del área inspeccionada.',
+  riesgoAsociado: 'Biológico, locativo y deterioro de infraestructura.',
+  recommendation: 'Realizar la inspección técnica para identificar el origen de la filtración y efectuar el mantenimiento correctivo correspondiente. Una vez solucionada la causa, realizar limpieza, desinfección y reposición de los acabados afectados.',
+  assignedTo: 'Coordinación Administrativa y Servicios Generales'
 };
 
 function selectInspection(id) {
@@ -978,18 +1196,25 @@ function selectInspection(id) {
 // Functions for Centro de Formación / Regional SENA
 function renderSedeOptions() {
   const select = document.getElementById('selectSede');
-  if (!select) return;
-  const currVal = select.value;
-  select.innerHTML = `<option value="">-- Seleccionar --</option>` + sedesList.map(s => `<option value="${s}">${s}</option>`).join('');
-  if (currVal && sedesList.includes(currVal)) {
-    select.value = currVal;
-  } else {
-    select.value = '';
+  const datalist = document.getElementById('sedesDatalist');
+
+  if (select) {
+    const currVal = select.value;
+    select.innerHTML = `<option value="">-- Seleccionar Sede --</option>` + sedesList.map(s => `<option value="${s}">${s}</option>`).join('');
+    if (currVal && sedesList.includes(currVal)) {
+      select.value = currVal;
+    } else {
+      select.value = '';
+    }
+
+    select.onchange = () => {
+      autoSelectHseForSede(select.value);
+    };
   }
 
-  select.onchange = () => {
-    autoSelectHseForSede(select.value);
-  };
+  if (datalist) {
+    datalist.innerHTML = sedesList.map(s => `<option value="${s}">`).join('');
+  }
 }
 
 function openAddSedeModal() {
@@ -1621,8 +1846,12 @@ function renderFindingReport() {
                   Nivel Riesgo ${f.riskLevel} • ${f.riskCategory || 'GTC 45'}
                 </span>
               </div>
-              <div class="w-full h-52 rounded-xl overflow-hidden bg-slate-900 border border-[#eaedff]">
-                <img src="${f.imageUrl}" alt="Evidencia #${idx + 1}" class="w-full h-full object-cover">
+              <div class="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#226d00]/30 shadow-xs">
+                <span class="text-[18px]">📷</span>
+                <div class="flex flex-col">
+                  <span class="text-[12px] font-bold text-[#131b2e]">Evidencia Fotográfica #${idx + 1} Registrada</span>
+                  <span class="text-[10px] text-[#226d00] font-semibold">✓ Imagen optimizada guardada en memoria (0 MB en DOM)</span>
+                </div>
               </div>
               <p class="text-[12px] text-[#3f4a38] leading-relaxed bg-white p-3 rounded-xl border border-[#eaedff]">
                 <strong>Descripción GTC 45:</strong> ${f.description}
@@ -1664,7 +1893,7 @@ function renderFindingReport() {
       </div>
 
       <!-- SECCIÓN FIRMAS DE ACEPTACIÓN Y CONFORMIDAD COPASST (F-SST-012) -->
-      <div class="p-5 rounded-2xl bg-white border-2 border-[#226d00]/30 shadow-md flex flex-col gap-4">
+      <div id="seccionFirmasCopasst" class="p-5 rounded-2xl bg-white border-2 border-[#226d00]/30 shadow-md flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-[#eaedff] pb-3 flex-wrap gap-2">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[#226d00] text-[22px]">verified</span>
@@ -1743,8 +1972,12 @@ function renderFindingReport() {
             <span class="material-symbols-outlined text-[18px] text-[#006398]">info</span>
             <span>Previsualiza el documento F-SST-012 con sus firmas antes de aprobar.</span>
           </span>
-          <div class="flex items-center gap-2.5">
-            <button onclick="exportReportPDF()" class="px-6 py-3 bg-[#006398] hover:bg-[#004a73] text-white text-[13px] font-bold rounded-xl shadow-md flex items-center gap-2">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="exportSenaExcelReport()" class="px-5 py-3 bg-[#006c49] hover:bg-[#005236] text-white text-[13px] font-bold rounded-xl shadow-md flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">table_chart</span>
+              <span>📊 Descargar Excel SENA</span>
+            </button>
+            <button onclick="exportReportPDF()" class="px-5 py-3 bg-[#006398] hover:bg-[#004a73] text-white text-[13px] font-bold rounded-xl shadow-md flex items-center gap-2">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>Previsualizar Informe F-SST-012</span>
             </button>
@@ -1762,6 +1995,10 @@ function renderFindingReport() {
             <button onclick="exportReportPDF()" class="px-4 py-2.5 bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] text-[13px] font-bold rounded-xl border border-[#eaedff] flex items-center gap-1.5">
               <span class="material-symbols-outlined text-[18px]">visibility</span>
               <span>Ver Previsualización</span>
+            </button>
+            <button onclick="exportSenaExcelReport()" class="px-5 py-2.5 bg-[#006c49] hover:bg-[#005236] text-white text-[13px] font-bold rounded-xl shadow flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">table_chart</span>
+              <span>Exportar Excel SENA (9 Col)</span>
             </button>
             <button onclick="confirmAndDownloadPdf()" class="px-5 py-2.5 bg-[#226d00] hover:bg-[#185200] text-white text-[13px] font-bold rounded-xl shadow flex items-center gap-2">
               <span class="material-symbols-outlined text-[18px]">download</span>
@@ -2241,11 +2478,30 @@ function handleSearchGoogleSstMobile(val) {
 }
 
 function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) {
-  const searchQueryStr = (query || '').trim().toLowerCase();
-  const raw = `${searchQueryStr} ${currentTitle || ''} ${currentGtcDescription || ''} ${manualFindingDescription || ''} ${currentProposal?.gtc45Description || ''}`.toLowerCase();
+  const userQuery = (query || '').trim();
+  const searchQueryStr = userQuery.toLowerCase();
+  
+  // Priorizar el texto exacto buscado por el usuario; si está vacío, usar el título y descripción del hallazgo
+  const textToEvaluate = userQuery.length > 0 
+    ? searchQueryStr 
+    : `${currentTitle || ''} ${currentGtcDescription || ''} ${manualFindingDescription || ''}`.toLowerCase();
 
-  // 1. Extintores / Equipos de emergencia / Protección contra incendios / Manómetro / Presión / Óxido / NFPA 10 / NTC 2885
-  if (/extintor|incendio|man[oó]metro|presi[oó]n|[oó]xido|gabinete|manguera|fuego|nfpa|ntc 2885|botiqu[ií]n|camilla|emergencia/i.test(raw)) {
+  // 1. Químico / Líquidos / Derrames / Sustancias / Contaminantes / Solventes / Gases / Soldadura
+  if (/qu[ií]mic|l[ií]quid|contamin|derrame|solvente|aceite|sustancia|combustible|reactivo|gasolina|gas|resina|pintura|t[oó]xic|desinfectante|acid|[áa]cido|base|humo|soldadura|veneno|fuga|lubricante/i.test(textToEvaluate)) {
+    return [
+      {
+        label: 'Sugerencia Google SST - Control de Riesgo Químico y Sustancias Peligrosas (Res. 2400 Art. 153 / SGA Decreto 1496)',
+        text: 'Control inmediato en la fuente del derrame o fuga mediante kit antiderrames (material absorbente/estopa/arena), etiquetado del contenedor según el Sistema Globalmente Armonizado (SGA), activación de ventilación forzada y uso obligatorio de EPP químico (respirador con cartuchos mixtos VO/P100, guantes de nitrilo/neopreno y gafas de seguridad).'
+      },
+      {
+        label: 'Sugerencia Google SST - Almacenamiento & Fichas de Datos de Seguridad (FDS / MSDS)',
+        text: 'Disposición de Fichas de Datos de Seguridad (FDS) en el punto de trabajo, almacenamiento en gabinetes ignífugos para reactivos/solventes y contención secundaria mediante balsa de retención.'
+      }
+    ];
+  }
+
+  // 2. Extintores / Equipos de emergencia / Protección contra incendios / Manómetro / Presión / Óxido / NFPA 10 / NTC 2885
+  if (/extintor|incendio|fuego|man[oó]metro|presi[oó]n|[oó]xido|gabinete|manguera|nfpa|ntc 2885|botiqu[ií]n|camilla|emergencia/i.test(textToEvaluate)) {
     return [
       {
         label: 'Sugerencia Google SST - Mantenimiento, Recarga & Inspección NFPA 10 / NTC 2885',
@@ -2258,64 +2514,22 @@ function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) 
     ];
   }
 
-  // 2. Herramientas de mano / Alicates / Taladros / Pulidoras / Sierras / Martillos (Res. 2400 Art. 355)
-  if (/herramienta|alicate|destornillador|martillo|taladro|pulidora|sierra|llave|empuñadura|manguera de aire/i.test(raw)) {
+  // 3. Locativo / Pisos / Superficies / Goteras / Muros / Fisuras / Grietas / Humedad / Estructura
+  if (/locativ|piso|resbalad|h[uú]med|filtraci|cielo raso|gotera|muro|pared|grieta|raja|fisura|desnivel|orden|aseo|obst[aá]culo|infraestructura/i.test(textToEvaluate)) {
     return [
       {
-        label: 'Sugerencia Google SST - Control de Herramientas en Mal Estado (Res. 2400 Art. 355-397)',
-        text: 'Retiro inmediato de uso de la herramienta defectuosa con grietas o deterioro en empuñadura, etiquetado con tarjeta "Fuera de Servicio" y reemplazo por herramienta ergonómica certificada con agarre antideslizante.'
+        label: 'Sugerencia Google SST - Control Locativo, Antideslizante e Mantenimiento (NTC 4114 / Res. 2400 Art. 17)',
+        text: 'Inspección técnica para detener el origen de la filtración o derrame, delimitación y demarcación preventiva de la zona con cinta de peligro/aviso "Piso Húmedo / Precaución", secado/desengrase de la superficie, y reparación correctiva del pañete, pintura o cinta antideslizante NTC 4114.'
       },
       {
-        label: 'Sugerencia Google SST - Inspección Preoperacional de Equipos',
-        text: 'Implementación de lista de chequeo preoperacional diaria antes del inicio de labores formativas y almacenamiento en panel ordenado por tipo de herramienta.'
+        label: 'Sugerencia Google SST - Evaluación Patológica Estructural NSR-10',
+        text: 'Reporte a Infraestructura SENA para dictamen patológico por Ingeniero Civil especialista y aplicación de apuntalamiento preventivo si se evidencian grietas estructurales.'
       }
     ];
   }
 
-  // 3. Maquinaria / Torno / Esmeril / Guarda Mecánica / Prensa / Polea / Engranaje
-  if (/torno|esmeril|guarda de protecci[oó]n|guarda mec[aá]nica|m[aá]quina sin guarda|prensa|polea|atrapamiento/i.test(raw)) {
-    return [
-      {
-        label: 'Sugerencia Google SST - Control en la Fuente (GTC 45 / Res. 0312)',
-        text: 'Instalación obligatoria de guarda de acrílico reglamentaria de 6mm con sensor microinterruptor de parada de emergencia y delimitación de zona de riesgo en piso (Res. 0312/2019 Estándar 4.2.5).'
-      },
-      {
-        label: 'Sugerencia Google SST - Bloqueo / Etiquetado LOTO',
-        text: 'Aplicación de procedimiento LOTO (Lockout/Tagout) en interruptor principal de la máquina mientras se completa el mantenimiento de la guarda de seguridad.'
-      }
-    ];
-  }
-
-  // 4. Locativo / Muros / Fisuras / Grietas / Estructura / Goteras (NSR-10 / Res. 2400 Art. 17)
-  if (/raja|grieta|muro|pared|fisura|estructural|pañete|ladrillo|asentamiento|fachada|bloque|gotera/i.test(raw)) {
-    return [
-      {
-        label: 'Sugerencia Google SST - Evaluación Patológica NSR-10 / Res. 2400 Art. 17',
-        text: 'Acordonamiento preventivo con cinta de peligro en la zona de influencia del muro fisurado, evacuación de puestos de formación cercanos y reporte a Infraestructura para dictamen patológico estructural por Ingeniero Civil especialista.'
-      },
-      {
-        label: 'Sugerencia Google SST - Control de Apuntalamiento e Mantenimiento',
-        text: 'Instalación de apuntalamiento temporal en la mampostería afectada y restricción del paso peatonal hasta la reparación definitiva del pañete.'
-      }
-    ];
-  }
-
-  // 5. Locativo / Piso / Resbaloso / Aceite / Desnivel / Silla / Mobiliario / Escritorio
-  if (/piso|resbalad|h[uú]med|charco|aceite|lodo|desnivel|silla|escritorio|mobiliario|inestable/i.test(raw)) {
-    return [
-      {
-        label: 'Sugerencia Google SST - Control Locativo y Antideslizante (NTC 4114)',
-        text: 'Limpieza y desengrase inmediato de la superficie afectada, colocación de aviso de "Piso Húmedo / Precaución", aplicación de pintura o cinta antideslizante NTC 4114 y sustitución de mobiliario deteriorado.'
-      },
-      {
-        label: 'Sugerencia Google SST - Mantenimiento Ergonómico de Mobiliario',
-        text: 'Retiro preventivo del mobiliario defectuoso del ambiente de aprendizaje y registro en el plan de mantenimiento de infraestructura.'
-      }
-    ];
-  }
-
-  // 6. Eléctrico / Cable Expuesto / Tablero / Alta/Baja Tensión / Chispa / RETIE / NTC 2050
-  if (/el[eé]ctric|cable|toma|empalme|chispa|tablero|alta tensi[oó]n|voltaje|enchufe/i.test(raw)) {
+  // 4. Eléctrico / Cable Expuesto / Tablero / Alta/Baja Tensión / Chispa / RETIE / NTC 2050
+  if (/el[eé]ctric|cable|toma|empalme|chispa|tablero|alta tensi[oó]n|voltaje|enchufe|retie|corto/i.test(textToEvaluate)) {
     return [
       {
         label: 'Sugerencia Google SST - Seguridad Eléctrica RETIE / NTC 2050',
@@ -2324,18 +2538,18 @@ function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) 
     ];
   }
 
-  // 7. Gases / Vapores / Soldadura / Humos / Ventilación / Res. 2400 Art. 153 / SGA
-  if (/soldadura|humo|chimenea|gases|qu[ií]mico|solvente|gasolina|gas/i.test(raw)) {
+  // 5. Herramientas / Maquinaria / Torno / Esmeril / Guardas / Equipos / Atrapamiento
+  if (/herramienta|alicate|destornillador|martillo|taladro|pulidora|sierra|llave|empuñadura|torno|esmeril|guarda|prensa|m[aá]quina|atrapamiento|polea/i.test(textToEvaluate)) {
     return [
       {
-        label: 'Sugerencia Google SST - Ventilación Forzada e Higiene Industrial (Res. 2400 Art. 153)',
-        text: 'Activación del sistema de ventilación forzada de rescate, instalación de campana extractora articulada en el punto de generación de humos/vapores y suministro de respirador con cartuchos mixtos P100/VO.'
+        label: 'Sugerencia Google SST - Control de Herramientas y Equipos Mecánicos (Res. 2400 Art. 355 / Res. 0312)',
+        text: 'Retiro inmediato de uso de la herramienta o máquina defectuosa, etiquetado con tarjeta "Fuera de Servicio", instalación/ajuste de guarda de acrílico de 6mm con sensor microinterruptor y reemplazo por equipo homologado.'
       }
     ];
   }
 
-  // 8. Ruido / Sonido / Compresor / Extractor / Decibeles / Sonometría / Res. 1792
-  if (/ruido|sonido|ac[uú]stic|decibel|aire acondicionado|extractor|compresor|vibraci/i.test(raw)) {
+  // 6. Ruido / Sonido / Decibeles / Vibración (Res. 1792)
+  if (/ruido|sonido|ac[uú]stic|decibel|sonometr|vibraci/i.test(textToEvaluate)) {
     return [
       {
         label: 'Sugerencia Google SST - Control de Ruido e Higiene Industrial (Res. 1792 / Res. 2400)',
@@ -2344,8 +2558,18 @@ function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) 
     ];
   }
 
-  // 9. Iluminación / Luminaria / Foco / Bombilla / Luz / RETILAP / Res. 2400 Art. 79
-  if (/foco|bombill|l[aá]mpara|ilumina|luz|fundid|oscur/i.test(raw)) {
+  // 7. Biológico / Virus / Hongos / Bacterias
+  if (/biol[oó]gic|virus|hongo|bacteri|microorganism|vector|plaga|excrement|sangre/i.test(textToEvaluate)) {
+    return [
+      {
+        label: 'Sugerencia Google SST - Control Biológico y Sanitización (Res. 2400 / Decreto 1072)',
+        text: 'Limpieza profunda y desinfección con agente biocida homologado, remoción de material contaminado, ventilación con renovación de aire y suministro de EPP de protección biológica.'
+      }
+    ];
+  }
+
+  // 8. Iluminación / RETILAP
+  if (/foco|bombill|l[aá]mpara|ilumina|luz|fundid|oscur|lux/i.test(textToEvaluate)) {
     return [
       {
         label: 'Sugerencia Google SST - Sustitución RETILAP / Res. 2400 Art. 79',
@@ -2354,12 +2578,12 @@ function getNormativeControlsMobile(query, currentTitle, currentGtcDescription) 
     ];
   }
 
-  // 10. Si el usuario ingresó un texto de búsqueda específico, generar respuesta dinámica con su consulta
-  if (searchQueryStr.length > 2) {
+  // 9. Si el usuario ingresó un texto de búsqueda específico, generar respuesta dinámica con su consulta
+  if (userQuery.length > 2) {
     return [
       {
-        label: `Sugerencia Google SST - Intervención Directa para: "${searchQueryStr.substring(0, 40)}"`,
-        text: `Acción correctiva obligatoria según normas SST colombianas (Res. 0312 / Decreto 1072) para: "${searchQueryStr}". Intervenir la fuente del riesgo, aislar el área afectada, aplicar mantenimiento correctivo inmediato y verificar por el Inspector COPASST en 24 horas.`
+        label: `Sugerencia Google SST - Intervención Directa para: "${userQuery.substring(0, 45)}"`,
+        text: `Acción correctiva obligatoria según normas SST colombianas (Res. 0312 / Decreto 1072) para: "${userQuery}". Intervenir la fuente del riesgo, aislar el área afectada, aplicar mantenimiento correctivo inmediato y verificar por el Inspector COPASST en 24 horas.`
       },
       {
         label: 'Sugerencia Google SST - Protocolo de Seguridad & Autocuidado',
@@ -2551,15 +2775,62 @@ function renderMakerCheckerProposal() {
           </select>
         </div>
 
-        <!-- Sección 3: Descripción del Hallazgo -->
+        <!-- Dropdown 3: Tipo de Hallazgo (Positivo / Preventivo / Correctivo / Mejora) -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">3. Tipo de Hallazgo (Normativo SENA):</label>
+          <select onchange="if(currentProposal) currentProposal.tipoHallazgo = this.value;" class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[13px] font-bold border border-[#eaedff] text-[#131b2e]">
+            <option value="Correctivo" ${(currentProposal?.tipoHallazgo || 'Correctivo') === 'Correctivo' ? 'selected' : ''}>Correctivo (Acción para eliminar la causa de una no conformidad)</option>
+            <option value="Preventivo" ${(currentProposal?.tipoHallazgo) === 'Preventivo' ? 'selected' : ''}>Preventivo (Acción para eliminar la causa de una no conformidad potencial)</option>
+            <option value="Positivo" ${(currentProposal?.tipoHallazgo) === 'Positivo' ? 'selected' : ''}>Positivo (Conformidad destacable o buena práctica)</option>
+            <option value="Mejora" ${(currentProposal?.tipoHallazgo) === 'Mejora' ? 'selected' : ''}>Mejora (Oportunidad de optimización continua)</option>
+          </select>
+        </div>
+
+        <!-- Sección 4: Descripción del Hallazgo -->
         <div class="flex flex-col gap-1 pt-2 border-t border-[#eaedff]">
-          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">3. Descripción del Hallazgo (Condición / Acto Inseguro):</label>
+          <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">4. Descripción del Hallazgo:</label>
           <textarea 
             oninput="handleManualDescriptionChange(this.value)" 
             rows="3" 
-            placeholder="Escribe la descripción detallada de la condición o acto inseguro observado en campo..." 
+            placeholder="Escribe la descripción detallada de la condición o acto observado en campo..." 
             class="w-full bg-[#f2f3ff] p-3 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e] placeholder:text-[#6f7b66] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30"
-          >${manualFindingDescription}</textarea>
+          >${manualFindingDescription || currentProposal?.gtc45Description || ''}</textarea>
+        </div>
+
+        <!-- Sección 5: Riesgo Asociado -->
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-[#eaedff]">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-bold text-[#226d00] uppercase tracking-wider">5. Riesgo Asociado (Consecuencias Potenciales):</label>
+            <span class="text-[10px] text-[#006398] font-bold">Catálogo 35+ Ítems SST</span>
+          </div>
+
+          <!-- Selector Rápido del Catálogo Normativo (9 Secciones) -->
+          <select 
+            onchange="if(this.value){ if(currentProposal) currentProposal.riesgoAsociado = this.value; const inp = document.getElementById('inputRiesgoAsociado'); if(inp) inp.value = this.value; }" 
+            class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[12px] font-semibold border border-[#eaedff] text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30"
+          >
+            <option value="">-- Seleccionar de la Matriz Oficial de Riesgos Asociados (9 Categorías) --</option>
+            ${RIESGOS_ASOCIADOS_CATALOG.map(cat => `
+              <optgroup label="${cat.category}">
+                ${cat.items.map(item => `<option value="${item}" ${currentProposal?.riesgoAsociado === item ? 'selected' : ''}>${item}</option>`).join('')}
+              </optgroup>
+            `).join('')}
+          </select>
+
+          <!-- Campo de Texto Edición / Autocompletado Datalist -->
+          <input 
+            type="text" 
+            id="inputRiesgoAsociado"
+            list="datalistRiesgosAsociados"
+            oninput="if(currentProposal) currentProposal.riesgoAsociado = this.value;" 
+            value="${currentProposal?.riesgoAsociado || ''}" 
+            placeholder="O escribe / busca cualquier riesgo asociado o consecuencia..." 
+            class="w-full bg-[#f2f3ff] p-2.5 rounded-xl text-[13px] border border-[#eaedff] text-[#131b2e] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30"
+          />
+
+          <datalist id="datalistRiesgosAsociados">
+            ${RIESGOS_ASOCIADOS_CATALOG.flatMap(c => c.items).map(item => `<option value="${item}">`).join('')}
+          </datalist>
         </div>
       </div>
 
@@ -3057,13 +3328,56 @@ function renderSessionFindingsBanner() {
   container.classList.remove('hidden');
   countEl.textContent = `${activeSessionFindings.length}`;
 
-  listEl.innerHTML = activeSessionFindings.map((f, idx) => `
-    <div class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-[#eaedff] group shadow-sm bg-slate-900">
-      <img src="${f.imageUrl}" class="w-full h-full object-cover" alt="Thumb ${idx + 1}">
-      <span class="absolute bottom-0 inset-x-0 bg-black/75 text-white text-[9px] font-bold text-center py-0.5 truncate">#${idx + 1}</span>
-      <button type="button" onclick="removeSessionFinding(${idx}, event)" title="Eliminar foto" class="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">×</button>
+  const currentSede = document.getElementById('selectSede')?.value || 'Centro SENA';
+  const copasstCount = selectedInspectors.length;
+
+  listEl.innerHTML = `
+    <div class="w-full flex flex-col gap-3 p-1">
+      <!-- 1. Badges de Fotos Registradas (Foto #1, Foto #2...) -->
+      <div class="flex flex-wrap gap-1.5 items-center">
+        ${activeSessionFindings.map((f, idx) => `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#226d00]/30 shadow-2xs text-[11px] font-bold text-[#131b2e] hover:border-[#226d00]/60 transition-all">
+            <span class="text-[#226d00]">📷</span>
+            <span>Foto #${idx + 1}</span>
+            <button type="button" onclick="removeSessionFinding(${idx}, event)" title="Eliminar Foto #${idx + 1}" class="ml-1 text-red-500 hover:text-red-700 font-black text-[13px] leading-none cursor-pointer">×</button>
+          </span>
+        `).join('')}
+      </div>
+
+      <!-- 2 & 3. Botones de Acción Estilizados (Finalizar Inspección & Descartar y Reiniciar) -->
+      <div class="flex items-center gap-2 pt-1 border-t border-[#eaedff]">
+        <button type="button" onclick="finishInspectionAndGoToSignatures()" class="flex-1 py-2.5 px-3 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-extrabold text-[12px] flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer">
+          <span class="material-symbols-outlined text-[17px]">draw</span>
+          <span>Finalizar Inspección</span>
+        </button>
+
+        <button type="button" onclick="closeActiveInspectionSession()" class="py-2.5 px-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200/60 font-bold text-[11px] flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer shrink-0" title="Descartar fotos y reiniciar sesión">
+          <span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+          <span>Descartar y Reiniciar</span>
+        </button>
+      </div>
     </div>
-  `).join('');
+  `;
+}
+
+function finishInspectionAndGoToSignatures() {
+  if (activeSessionFindings.length === 0 && !capturedImageData) {
+    showToast('Atención', 'Primero agrega al menos 1 evidencia fotográfica o hallazgo.', 'warning');
+    return;
+  }
+
+  // 1. Guardar hallazgos activos y pasar al informe consolidado F-SST-012
+  goToFindingReportView();
+
+  // 2. Desplazar suavemente hacia la sección de firmas de los responsables asignados
+  setTimeout(() => {
+    const firmasEl = document.getElementById('seccionFirmasCopasst');
+    if (firmasEl) {
+      firmasEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 450);
+
+  showToast('Firmas del Informe ✍️', 'Inspección finalizada. Proceda a firmar el reporte con los responsables asignados.', 'success');
 }
 
 function removeSessionFinding(idx, event) {
@@ -3073,35 +3387,76 @@ function removeSessionFinding(idx, event) {
   showToast('Foto Removida', 'Se eliminó la foto de la inspección activa.', 'info');
 }
 
+function closeActiveInspectionSession() {
+  if (activeSessionFindings.length === 0 && !capturedImageData) {
+    showToast('Inspección Vacía', 'No hay hallazgos registrados en la sesión activa.', 'info');
+    return;
+  }
+  const total = activeSessionFindings.length;
+  resetInspectionForm(false);
+  showToast('Inspección Finalizada 🔒', `Se cerró la inspección con ${total} hallazgo(s) guardado(s). Datos del centro e inspectores liberados.`, 'success');
+  navigateTo('dashboard-telemetria');
+}
+
 function addFindingAndTakeAnother() {
   if (!capturedImageData && (!currentProposal || !currentProposal.hazardTitle)) {
     showToast('Fotografía Requerida', 'Toma una foto antes de guardar el hallazgo.', 'info');
     return;
   }
 
+  const currentArea = document.getElementById('selectTaller')?.value || 'Área o Ambiente de Formación';
+  const finalDesc = (manualFindingDescription && manualFindingDescription.trim()) 
+    ? manualFindingDescription.trim() 
+    : (currentProposal?.gtc45Description || 'Hallazgo registrado mediante análisis de inspección.');
+
   const findingObj = {
     id: `f-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     code: `HAL-2026-00${activeSessionFindings.length + 1}`,
-    title: currentProposal.hazardTitle || 'Condición insegura detectada en campo',
-    riskCategory: currentProposal.riskCategory || 'Condiciones de Seguridad',
-    riskLevel: currentProposal.riskLevel || 'II',
-    description: currentProposal.gtc45Description || 'Hallazgo registrado mediante análisis de inspección.',
-    recommendation: currentProposal.recommendation || 'Aplicar medida de control correctiva.',
-    imageUrl: capturedImageData || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200'
+    title: currentProposal?.hazardTitle || 'Condición insegura detectada en campo',
+    riskCategory: currentProposal?.riskCategory || 'Condiciones de Seguridad',
+    riskLevel: currentProposal?.riskLevel || 'II',
+    description: finalDesc,
+    recommendation: currentProposal?.recommendation || 'Aplicar medida de control correctiva.',
+    imageUrl: capturedImageData || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
+    area: currentArea
   };
 
   activeSessionFindings.push(findingObj);
-  resetCameraInputs();
-  renderSessionFindingsBanner();
 
-  showToast('Hallazgo Guardado ✓', `Foto #${activeSessionFindings.length} guardada. Puedes tomar la siguiente foto.`, 'success');
+  // Limpiar la imagen y la caja de texto de descripción para el NUEVO hallazgo
+  resetCameraInputs();
+  manualFindingDescription = '';
+  if (currentProposal) {
+    currentProposal.gtc45Description = '';
+    currentProposal.hazardTitle = '';
+    currentProposal.riesgoAsociado = '';
+    currentProposal.recommendation = '';
+  }
+  selectedGtcCategory = '';
+  selectedGtcDetail = '';
+
+  renderSessionFindingsBanner();
+  renderMakerCheckerProposal();
+
+  showToast('Hallazgo Guardado ✓', `Foto #${activeSessionFindings.length} guardada. Se limpió la caja de descripción para el siguiente hallazgo.`, 'success');
   navigateTo('nueva-inspeccion-campo');
 }
 
 function addNewPhotoToCurrentInspection() {
   resetCameraInputs();
+  manualFindingDescription = '';
+  if (currentProposal) {
+    currentProposal.gtc45Description = '';
+    currentProposal.hazardTitle = '';
+    currentProposal.riesgoAsociado = '';
+    currentProposal.recommendation = '';
+  }
+  selectedGtcCategory = '';
+  selectedGtcDetail = '';
+
+  renderMakerCheckerProposal();
   navigateTo('nueva-inspeccion-campo');
-  showToast('Agregar Otra Foto', 'Captura la siguiente foto/peligro para esta inspección.', 'info');
+  showToast('Agregar Otra Foto', 'Captura la siguiente foto/peligro. Caja de descripción limpia para nuevos datos.', 'info');
 }
 
 // Navegar desde el Análisis Maker-Checker al Informe Oficial (F-SST-012) sin aprobar inmediatamente
@@ -3540,29 +3895,134 @@ function setRiskFilter(level) {
   renderInspectionsList(level);
 }
 
-// Database of SENA Sites GPS Coordinates (Regional Atlántico & Main Campus)
+// Database of SENA Sites GPS Coordinates with Keyword Aliases (Regional Atlántico & Main Campus)
 const SENA_SITES_GPS = [
-  { name: 'Centro Nacional Colombo Alemán (Sede Principal)', lat: 10.9412, lng: -74.7791 },
-  { name: 'Centro Industrial y de Aviación', lat: 10.9431, lng: -74.7765 },
-  { name: 'Centro de Comercio y Servicios (Sede Principal)', lat: 10.9814, lng: -74.7821 },
-  { name: 'Sede Metalmecánica (Malambo)', lat: 10.8591, lng: -74.7782 },
-  { name: 'Sede Refrigeración (Lipaya)', lat: 10.9620, lng: -74.8210 },
-  { name: 'Sede Madera (Vía a Galapa)', lat: 10.9010, lng: -74.8820 },
-  { name: 'Sede Confecciones (Baranoa)', lat: 10.7930, lng: -74.9150 },
-  { name: 'Sede Construcción (Caribe Verde)', lat: 10.9320, lng: -74.8410 },
-  { name: 'Sede Logística (Caribe Verde)', lat: 10.9325, lng: -74.8415 },
-  { name: 'Sede TIC (Hotel del Prado)', lat: 10.9950, lng: -74.8020 },
-  { name: 'Sede Energía (Barrio Montes)', lat: 10.9580, lng: -74.7780 },
-  { name: 'Sede Industrias Creativas (Barrio Abajo)', lat: 10.9910, lng: -74.7840 },
-  { name: 'Sede Salud (Detrás Hospital Barranquilla)', lat: 10.9780, lng: -74.7910 },
-  { name: 'Sede Hotelería (Barrio Abajo)', lat: 10.9915, lng: -74.7845 },
-  { name: 'Sede Servicios Financieros y Comercialización (Cayenas)', lat: 10.9250, lng: -74.8050 },
-  { name: 'Sede Servicios Administrativos (Bosque)', lat: 10.9480, lng: -74.8150 },
-  { name: 'Sede Gastronomía y Bilingüismo (Juan de Acosta)', lat: 10.8280, lng: -75.0350 },
-  { name: 'Sede Ecoturismo (Luruaco)', lat: 10.6120, lng: -75.1430 },
-  { name: 'Sede CVA (Sabanalarga)', lat: 10.6300, lng: -74.9200 },
-  { name: 'Sede Ope. Comerciales (Soledad - Normandía)', lat: 10.9150, lng: -74.7810 },
-  { name: 'Complejo Sur SENA (Bogotá)', lat: 4.58219, lng: -74.14821 }
+  {
+    name: 'Centro Industrial y de Aviación (SENA Calle 30)',
+    aliases: ['calle 30', 'industrial', 'aviacion', 'hipodromo', 'soledad', 'centro industrial'],
+    lat: 10.9431,
+    lng: -74.7765
+  },
+  {
+    name: 'Centro Nacional Colombo Alemán (Sede Principal - Calle 30)',
+    aliases: ['colombo', 'aleman', 'colombo aleman', 'calle 30', 'soledad'],
+    lat: 10.9412,
+    lng: -74.7791
+  },
+  {
+    name: 'Centro de Comercio y Servicios (Sede Principal)',
+    aliases: ['comercio', 'servicios', 'carrera 43', 'centro'],
+    lat: 10.9814,
+    lng: -74.7821
+  },
+  {
+    name: 'Sede Energía (Barrio Montes)',
+    aliases: ['barrio montes', 'montes', 'sede energia', 'calle 28'],
+    lat: 10.9575,
+    lng: -74.7768
+  },
+  {
+    name: 'Sede Metalmecánica (Malambo)',
+    aliases: ['metalmecanica', 'malambo', 'pimsa'],
+    lat: 10.8591,
+    lng: -74.7782
+  },
+  {
+    name: 'Sede Refrigeración (Lipaya)',
+    aliases: ['refrigeracion', 'lipaya', 'calle 73c'],
+    lat: 10.9620,
+    lng: -74.8210
+  },
+  {
+    name: 'Sede Madera (Vía a Galapa)',
+    aliases: ['madera', 'galapa'],
+    lat: 10.9010,
+    lng: -74.8820
+  },
+  {
+    name: 'Sede Confecciones (Baranoa)',
+    aliases: ['confecciones', 'baranoa'],
+    lat: 10.7930,
+    lng: -74.9150
+  },
+  {
+    name: 'Sede Construcción (Caribe Verde)',
+    aliases: ['construccion', 'caribe verde', 'circunvalar'],
+    lat: 10.9320,
+    lng: -74.8410
+  },
+  {
+    name: 'Sede Logística (Caribe Verde)',
+    aliases: ['logistica', 'caribe verde'],
+    lat: 10.9325,
+    lng: -74.8415
+  },
+  {
+    name: 'Sede TIC (Hotel del Prado)',
+    aliases: ['tic', 'hotel del prado', 'prado', 'carrera 54'],
+    lat: 10.9950,
+    lng: -74.8020
+  },
+  {
+    name: 'Sede Industrias Creativas (Barrio Abajo)',
+    aliases: ['creativas', 'barrio abajo', 'industrias creativas'],
+    lat: 10.9910,
+    lng: -74.7840
+  },
+  {
+    name: 'Sede Salud (Detrás Hospital Barranquilla)',
+    aliases: ['salud', 'hospital barranquilla', 'san roque'],
+    lat: 10.9780,
+    lng: -74.7910
+  },
+  {
+    name: 'Sede Hotelería (Barrio Abajo)',
+    aliases: ['hoteleria', 'barrio abajo', 'turismo'],
+    lat: 10.9915,
+    lng: -74.7845
+  },
+  {
+    name: 'Sede Servicios Financieros y Comercialización (Cayenas)',
+    aliases: ['financieros', 'cayenas', 'comercializacion'],
+    lat: 10.9250,
+    lng: -74.8050
+  },
+  {
+    name: 'Sede Servicios Administrativos (Bosque)',
+    aliases: ['administrativos', 'bosque', 'el bosque'],
+    lat: 10.9480,
+    lng: -74.8150
+  },
+  {
+    name: 'Sede Gastronomía y Bilingüismo (Juan de Acosta)',
+    aliases: ['gastronomia', 'juan de acosta', 'bilinguismo'],
+    lat: 10.8280,
+    lng: -75.0350
+  },
+  {
+    name: 'Sede Ecoturismo (Luruaco)',
+    aliases: ['ecoturismo', 'luruaco'],
+    lat: 10.6120,
+    lng: -75.1430
+  },
+  {
+    name: 'Sede CVA (Sabanalarga)',
+    aliases: ['cva', 'sabanalarga'],
+    lat: 10.6300,
+    lng: -74.9200
+  },
+  {
+    name: 'Sede Ope. Comerciales (Soledad - Normandía)',
+    aliases: ['normandia', 'operaciones comerciales'],
+    lat: 10.9150,
+    lng: -74.7810
+  },
+  {
+    name: 'Complejo Sur SENA (Bogotá)',
+    aliases: ['complejo sur', 'bogota', 'metalmecanica sur'],
+    lat: 4.58219,
+    lng: -74.14821
+  }
 ];
 
 // Calculate Haversine distance in km
@@ -3578,17 +4038,44 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-function findNearestSenaSite(lat, lng) {
-  let nearestSite = null;
+function findNearestSenaSite(lat, lng, addressStr = '', rawAddressObj = null) {
+  let nearestByDistance = null;
   let minDistance = Infinity;
+
+  // Build searchable text from reverse geocode address
+  const addressText = (addressStr + ' ' + JSON.stringify(rawAddressObj || {})).toLowerCase();
+
+  let matchedByKeyword = null;
+  let bestKeywordScore = 0;
+
   for (const site of SENA_SITES_GPS) {
     const dist = calculateHaversineDistance(lat, lng, site.lat, site.lng);
     if (dist < minDistance) {
       minDistance = dist;
-      nearestSite = site;
+      nearestByDistance = site;
+    }
+
+    if (site.aliases) {
+      let score = 0;
+      for (const alias of site.aliases) {
+        if (addressText.includes(alias.toLowerCase())) {
+          score += (alias === 'calle 30' || alias === 'barrio montes' || alias === 'malambo' || alias === 'galapa' ? 3 : 1);
+        }
+      }
+      if (score > bestKeywordScore) {
+        bestKeywordScore = score;
+        matchedByKeyword = site;
+      }
     }
   }
-  return { site: nearestSite, distanceKm: minDistance };
+
+  // Prioritize keyword match if OpenStreetMap address explicitly matched a site keyword (score >= 2)
+  if (matchedByKeyword && bestKeywordScore >= 2) {
+    const distToKeywordSite = calculateHaversineDistance(lat, lng, matchedByKeyword.lat, matchedByKeyword.lng);
+    return { site: matchedByKeyword, distanceKm: distToKeywordSite, method: 'dirección OSM' };
+  }
+
+  return { site: nearestByDistance, distanceKm: minDistance, method: 'proximidad GPS' };
 }
 
 let isGpsEnabled = false;
@@ -3649,33 +4136,42 @@ async function getGpsLocation() {
       const lng = Number(position.coords.longitude.toFixed(5));
       const accuracy = Math.round(position.coords.accuracy || 10);
 
-      // Detect nearest SENA Sede
-      const detection = findNearestSenaSite(lat, lng);
-      let detectedSedeName = detection.site ? detection.site.name : null;
-
       // Reverse geocoding via OpenStreetMap (100% Gratis sin API Key)
       let addressStr = 'Barranquilla, Atlántico, Colombia';
+      let rawAddressObj = null;
       try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
           headers: { 'Accept-Language': 'es' }
         });
         if (response.ok) {
           const data = await response.json();
-          if (data && data.display_name) {
-            addressStr = data.display_name.split(',').slice(0, 4).join(', ');
+          if (data) {
+            rawAddressObj = data.address || null;
+            if (data.display_name) {
+              addressStr = data.display_name.split(',').slice(0, 4).join(', ');
+            }
           }
         }
       } catch (e) {
         console.warn('OpenStreetMap Nominatim reverse geocode fallback:', e);
       }
 
+      // Detect nearest/matched SENA Sede using coordinates and OSM address keywords
+      const detection = findNearestSenaSite(lat, lng, addressStr, rawAddressObj);
+      let detectedSedeName = detection.site ? detection.site.name : null;
+      const distanceDisplay = detection.distanceKm < 1 
+        ? `${Math.round(detection.distanceKm * 1000)} m` 
+        : `${detection.distanceKm.toFixed(1)} km`;
+
       // Auto-select detected Sede in dropdown if match exists
       const selectSede = document.getElementById('selectSede');
       if (selectSede && detectedSedeName) {
         let optionFound = false;
         for (let i = 0; i < selectSede.options.length; i++) {
-          if (selectSede.options[i].value.toLowerCase().includes(detectedSedeName.toLowerCase()) ||
-              detectedSedeName.toLowerCase().includes(selectSede.options[i].value.toLowerCase())) {
+          const optVal = selectSede.options[i].value.toLowerCase();
+          const detVal = detectedSedeName.toLowerCase();
+          if (optVal.includes(detVal) || detVal.includes(optVal) || 
+             (detVal.includes('calle 30') && optVal.includes('calle 30'))) {
             selectSede.selectedIndex = i;
             optionFound = true;
             break;
@@ -3700,15 +4196,18 @@ async function getGpsLocation() {
               <span class="material-symbols-outlined text-[16px] text-[#226d00]">near_me</span>
               <span>📍 Coordenadas: ${lat}° N, ${lng}° W (Precisión ±${accuracy}m)</span>
             </div>
-            <div class="text-[#131b2e] font-bold bg-white/90 p-2 rounded-xl border border-[#6cf8bb]/60 shadow-sm flex items-center gap-2">
-              <span class="material-symbols-outlined text-[#226d00] text-[18px]">location_city</span>
-              <div>
-                <span class="text-[10px] text-[#006c49] font-extrabold uppercase tracking-wider block leading-none">Sede SENA Identificada</span>
-                <span class="text-[13px] text-[#131b2e]">${detectedSedeName || 'SENA Regional Atlántico'}</span>
+            <div class="text-[#131b2e] font-bold bg-white/90 p-2 rounded-xl border border-[#6cf8bb]/60 shadow-sm flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[#226d00] text-[18px]">location_city</span>
+                <div>
+                  <span class="text-[10px] text-[#006c49] font-extrabold uppercase tracking-wider block leading-none">Sede SENA Detectada</span>
+                  <span class="text-[13px] text-[#131b2e]">${detectedSedeName || 'SENA Regional Atlántico'}</span>
+                </div>
               </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#39a900]/15 text-[#226d00] whitespace-nowrap">${detection.method} (${distanceDisplay})</span>
             </div>
             <div class="text-[#3f4a38] text-[11px] bg-white/50 p-2 rounded-lg">
-              🏠 <span class="font-bold">Dirección Física (OpenStreetMap Gratis):</span> ${addressStr}
+              🏠 <span class="font-bold">Dirección Física (OpenStreetMap):</span> ${addressStr}
             </div>
           </div>
         `;
@@ -3719,10 +4218,10 @@ async function getGpsLocation() {
       showToast('Ubicación Detectada', `Sede SENA: ${detectedSedeName || 'Regional Atlántico'}`, 'success');
     },
     async (error) => {
-      console.warn('GPS Error, using default SENA Centro Nacional Colombo Alemán fallback:', error);
-      const lat = 10.9412;
-      const lng = -74.7791;
-      const detectedSedeName = 'Centro Nacional Colombo Alemán (Sede Principal)';
+      console.warn('GPS Error, using default SENA Centro Industrial y de Aviación (Calle 30) fallback:', error);
+      const lat = 10.9431;
+      const lng = -74.7765;
+      const detectedSedeName = 'Centro Industrial y de Aviación (SENA Calle 30)';
       const addressStr = 'Calle 30 No. 3E-164, Soledad / Barranquilla, Atlántico';
 
       const selectSede = document.getElementById('selectSede');
@@ -3737,7 +4236,7 @@ async function getGpsLocation() {
           <div class="flex flex-col gap-1.5 text-[12px] p-1">
             <div class="flex items-center gap-1.5 font-bold text-[#005236]">
               <span class="material-symbols-outlined text-[16px] text-[#226d00]">near_me</span>
-              <span>📍 Coordenadas: ${lat}° N, ${lng}° W (Ubicación Predeterminada SENA)</span>
+              <span>📍 Coordenadas: ${lat}° N, ${lng}° W (Ubicación SENA Calle 30)</span>
             </div>
             <div class="text-[#131b2e] font-bold bg-white/90 p-2 rounded-xl border border-[#6cf8bb]/60 shadow-sm flex items-center gap-2">
               <span class="material-symbols-outlined text-[#226d00] text-[18px]">location_city</span>
@@ -3747,7 +4246,7 @@ async function getGpsLocation() {
               </div>
             </div>
             <div class="text-[#3f4a38] text-[11px] bg-white/50 p-2 rounded-lg">
-              🏠 <span class="font-bold">Dirección Física (OpenStreetMap Gratis):</span> ${addressStr}
+              🏠 <span class="font-bold">Dirección Física:</span> ${addressStr}
             </div>
           </div>
         `;
@@ -3763,27 +4262,210 @@ async function getGpsLocation() {
 
 
 
-// Top Bar Header Search Function
-function handleSearch(query) {
-  const q = (query || '').trim().toLowerCase();
+// Convertir cualquier URL o imagen a Base64 PNG incrustado puro para Excel sin enlaces externos
+function getSampleBase64PngThumbnail(label) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 240;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d');
   
-  // Filter dashboard inspections list
-  renderInspectionsList('todos', q);
+  ctx.fillStyle = '#131b2e';
+  ctx.fillRect(0, 0, 240, 160);
+  
+  ctx.fillStyle = '#39a900';
+  ctx.fillRect(0, 0, 240, 30);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.fillText('SENA SST EVIDENCIA PNG', 10, 20);
+  
+  ctx.fillStyle = '#f2f3ff';
+  ctx.strokeStyle = '#39a900';
+  ctx.lineWidth = 2;
+  ctx.fillRect(10, 40, 220, 110);
+  ctx.strokeRect(10, 40, 220, 110);
+  
+  ctx.fillStyle = '#131b2e';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillText('FOTO EVIDENCIA CAMPO (PNG)', 20, 70);
+  ctx.fillStyle = '#226d00';
+  ctx.font = '10px sans-serif';
+  ctx.fillText(label ? label.slice(0, 28) : 'Inspección SENA ✓', 20, 95);
+  ctx.fillText('Inspector COPASST Acreditado', 20, 125);
 
-  // Filter Directorio HSE if input exists
-  if (document.getElementById('inputSearchHse')) {
-    const inputDir = document.getElementById('inputSearchHse');
-    inputDir.value = q;
-    filterHseDirectory();
-  }
+  return canvas.toDataURL('image/png');
+}
 
-  // If user is searching from top header, navigate to dashboard to show filtered findings
-  if (q.length > 1) {
-    const activeSection = document.querySelector('.view-section:not(.hidden)');
-    if (activeSection && activeSection.id !== 'view-dashboard-telemetria' && activeSection.id !== 'view-directorio-profesionales-hse') {
-      navigateTo('dashboard-telemetria');
+async function getBase64PngFromUrl(url, fallbackLabel) {
+  if (!url) return getSampleBase64PngThumbnail(fallbackLabel);
+  if (url.startsWith('data:image/')) return url;
+  
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 240;
+        canvas.height = 160;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#131b2e';
+        ctx.fillRect(0, 0, 240, 160);
+        ctx.drawImage(img, 0, 0, 240, 160);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (e) {
+        resolve(getSampleBase64PngThumbnail(fallbackLabel));
+      }
+    };
+    img.onerror = () => {
+      resolve(getSampleBase64PngThumbnail(fallbackLabel));
+    };
+    img.src = url;
+  });
+}
+
+// Exportar Informe de Inspecciones en Formato Oficial Excel SENA (Soporte Nativo .XLSX + Google Sheets =IMAGE)
+async function exportSenaExcelReport() {
+  try {
+    showToast('Descargando Excel SENA...', 'Generando archivo .xlsx nativo para Excel y Google Sheets...', 'info');
+    
+    // 1. Intentar descargar el archivo .xlsx binario nativo con imágenes incrustadas vía servidor local
+    const resp = await fetch('/download-sena-excel');
+    if (resp.ok) {
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Matriz_Informe_Inspecciones_SENA_COPASST_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Excel Descargado ✓', 'Archivo .xlsx nativo listo con fotos para Excel y Google Sheets.', 'success');
+      return;
     }
+  } catch (e) {
+    console.log("Servidor local no disponible, usando exportación HTML + Google Sheets =IMAGE formula fallback:", e);
   }
+
+  // 2. Fallback de exportación HTML con fórmula nativa =IMAGE() para Google Sheets / Excel Online
+  let currentItems = [];
+  if (selectedFinding) {
+    if (selectedFinding.findings && selectedFinding.findings.length > 0) {
+      currentItems = selectedFinding.findings.map((f, idx) => ({
+        id: idx + 1,
+        sede: selectedFinding.sede,
+        area: selectedFinding.area,
+        riskCategory: f.riskCategory || selectedFinding.riskCategory || 'Condiciones locativas',
+        tipoHallazgo: f.tipoHallazgo || selectedFinding.tipoHallazgo || 'Correctivo',
+        description: f.description || selectedFinding.description || 'Hallazgo registrado durante inspección.',
+        fotoDescripcion: f.fotoDescripcion || `Fotografía No. ${idx + 1} – ${f.title || selectedFinding.title}`,
+        imageUrl: f.imageUrl || selectedFinding.imageUrl,
+        riesgoAsociado: f.riesgoAsociado || selectedFinding.riesgoAsociado || 'Biológico, locativo y deterioro de infraestructura.',
+        recomendacionesCopasst: f.recommendation || selectedFinding.recomendacionesCopasst || selectedFinding.recommendation || 'Realizar inspección técnica y efectuar mantenimiento correctivo.',
+        assignedTo: selectedFinding.assignedTo || 'Coordinación Administrativa y Servicios Generales'
+      }));
+    } else {
+      currentItems = [selectedFinding];
+    }
+  } else if (inspections && inspections.length > 0) {
+    currentItems = inspections;
+  } else {
+    currentItems = DEFAULT_SENA_INSPECTIONS;
+  }
+
+  const processedItems = await Promise.all(currentItems.map(async (item, idx) => {
+    const rawSrc = item.imageUrl || item.imageUrlAfter || capturedImageData || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=400';
+    const base64Png = await getBase64PngFromUrl(rawSrc, item.title || `Foto #${idx + 1}`);
+    return {
+      ...item,
+      rawSrc,
+      base64Png
+    };
+  }));
+  
+  let tableHtml = `
+    <html xmlns:o="urn:schemas-microsoft-office:office" xmlns:x="urn:schemas-microsoft-office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .sena-header { text-align: center; margin-bottom: 20px; }
+        .sena-logo-text { color: #39a900; font-size: 22px; font-weight: bold; font-family: sans-serif; letter-spacing: 2px; }
+        .sena-title { font-size: 14px; font-weight: bold; color: #131b2e; margin-top: 5px; }
+        table { border-collapse: collapse; width: 100%; font-size: 11px; }
+        th { background-color: #ffffff; color: #000000; font-weight: bold; border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; }
+        td { border: 1px solid #000000; padding: 10px; vertical-align: top; color: #c00000; line-height: 1.4; }
+        .id-cell { text-align: center; font-weight: bold; color: #c00000; }
+        .sub-header { font-weight: normal; font-size: 9px; color: #555; }
+      </style>
+    </head>
+    <body>
+      <div class="sena-header">
+        <div class="sena-logo-text">SENA</div>
+        <div class="sena-title">REPORTE OFICIAL DE INSPECCIÓN EN CAMPO - COPASST</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40px;">ID</th>
+            <th style="width: 170px;">Ubicación</th>
+            <th style="width: 130px;">Peligro identificado</th>
+            <th style="width: 120px;">Tipo hallazgo<br><span class="sub-header">positivo / preventivo / correctivo / mejora</span></th>
+            <th style="width: 250px;">Hallazgo / Descripción</th>
+            <th style="width: 180px;">Evidencia Fotográfica</th>
+            <th style="width: 180px;">Fotos</th>
+            <th style="width: 140px;">Riesgo asociado</th>
+            <th style="width: 260px;">Recomendaciones Copasst</th>
+            <th style="width: 170px;">Responsable de ejecutar la acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${processedItems.map((item, index) => {
+            const itemNum = index + 1;
+            const ubicacion = (item.sede || item.area) ? `${item.sede} ${item.area ? '– ' + item.area : ''}` : 'Bloque Administrativo – Escuela Nacional de Instructores (ENI), segundo piso, oficina 204';
+            const peligro = item.riskCategory || 'Condiciones locativas';
+            const tipo = item.tipoHallazgo || 'Correctivo';
+            const descripcion = item.description || 'Durante la inspección se evidenció humedad en el cielo raso ocasionada por una posible filtración de agua...';
+            const fotoDesc = item.fotoDescripcion || `Fotografía No. ${itemNum} – Humedad en techo y pared norte del área inspeccionada.`;
+            const riesgoAsoc = item.riesgoAsociado || 'Biológico, locativo y deterioro de infraestructura.';
+            const recomendacion = item.recomendacionesCopasst || item.recommendation || 'Realizar la inspección técnica para identificar el origen de la filtración y efectuar el mantenimiento correctivo correspondiente...';
+            const responsable = item.assignedTo || 'Coordinación Administrativa y Servicios Generales.';
+            const googleImageFormula = `=IMAGE("${item.rawSrc}")`;
+            
+            return `
+              <tr>
+                <td class="id-cell">${itemNum}</td>
+                <td>${ubicacion}</td>
+                <td>${peligro}</td>
+                <td>${tipo}</td>
+                <td>${descripcion}</td>
+                <td>${fotoDesc}</td>
+                <td style="text-align: center; vertical-align: middle;" x:fmla='${googleImageFormula}'>
+                  ${googleImageFormula}
+                  <br>
+                  <img src="${item.base64Png}" width="160" height="100" style="border: 1px solid #39a900; border-radius: 4px;" alt="Foto Evidencia PNG">
+                </td>
+                <td>${riesgoAsoc}</td>
+                <td>${recomendacion}</td>
+                <td>${responsable}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+  
+  const blob = new Blob(['\uFEFF' + tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `SENA_Inspecciones_COPASST_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast('Excel Exportado ✓', 'Se generó el informe con fotos PNG incrustadas en Base64 sin enlaces externos.', 'success');
 }
 
 function exportReportPDF() {
@@ -4147,3 +4829,344 @@ async function loadHseDirectoryFromSupabase() {
     console.warn('Notice loading directorio_hse from Supabase:', e);
   }
 }
+
+// ====================================================================
+// MÓDULO: SUBSANACIÓN Y CIERRE DE HALLAZGOS (ANTES / DESPUÉS)
+// ====================================================================
+
+let subsanacionSelectedInspectionId = null;
+let capturedSubsanacionImageData = null;
+
+function renderSubsanacionView() {
+  const selectInspection = document.getElementById('selectSubsanacionInspection');
+  const selectVerifiedBy = document.getElementById('selectSubsanacionVerifiedBy');
+  const dateInput = document.getElementById('inputSubsanacionDate');
+
+  if (!selectInspection) return;
+
+  // Set today's date default
+  if (dateInput && !dateInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+
+  // Populate Open Inspections Dropdown
+  const openInspections = (inspections || []).filter(i => i.status !== 'cerrado');
+  
+  if (openInspections.length === 0) {
+    selectInspection.innerHTML = `<option value="">-- No hay hallazgos pendientes por subsanar ✓ --</option>`;
+  } else {
+    selectInspection.innerHTML = `
+      <option value="">-- Selecciona un hallazgo para subsanar (${openInspections.length} pendientes) --</option>
+      ${openInspections.map(i => `
+        <option value="${i.id}">${i.code || 'INSP'} - ${i.title} (${i.sede || 'SENA'})</option>
+      `).join('')}
+    `;
+  }
+
+  // Populate Verifiers Dropdown (COPASST members + HSE professionals)
+  if (selectVerifiedBy) {
+    const allVerifiers = [
+      ...copasstMembers.map(c => `${c.name} (${c.role})`),
+      ...repSstMembers.map(r => `${r.name} (${r.role})`)
+    ];
+    selectVerifiedBy.innerHTML = allVerifiers.map(v => `<option value="${v}">${v}</option>`).join('');
+  }
+
+  // Update counts
+  const countBadgeNav = document.getElementById('badgeSubsanacionCount');
+  const countBadgeHeader = document.getElementById('badgeOpenToCloseCount');
+  if (countBadgeNav) countBadgeNav.textContent = openInspections.length;
+  if (countBadgeHeader) countBadgeHeader.textContent = `${openInspections.length} Pendientes`;
+
+  // Render feed of already closed/subsanated inspections
+  renderSubsanatedFeed();
+}
+
+function onSubsanacionInspectionSelected() {
+  const selectInspection = document.getElementById('selectSubsanacionInspection');
+  const selectedId = selectInspection ? selectInspection.value : null;
+
+  subsanacionSelectedInspectionId = selectedId;
+  const detailsBox = document.getElementById('subsanacionSelectedDetails');
+
+  if (!selectedId) {
+    if (detailsBox) detailsBox.classList.add('hidden');
+    renderSubsanacionComparisonCard(null);
+    return;
+  }
+
+  const insp = inspections.find(i => i.id === selectedId);
+  if (!insp) return;
+
+  // Update Ficha Resumen
+  const codeEl = document.getElementById('subsanacionDetailCode');
+  const riskEl = document.getElementById('subsanacionDetailRisk');
+  const titleEl = document.getElementById('subsanacionDetailTitle');
+  const descEl = document.getElementById('subsanacionDetailDesc');
+  const sedeEl = document.getElementById('subsanacionDetailSede');
+  const areaEl = document.getElementById('subsanacionDetailArea');
+  const inspectorEl = document.getElementById('subsanacionDetailInspector');
+  const assignedEl = document.getElementById('subsanacionDetailAssigned');
+  const repairedByInput = document.getElementById('inputSubsanacionRepairedBy');
+
+  if (codeEl) codeEl.textContent = insp.code || 'INSP-2026';
+  if (riskEl) {
+    const isHigh = insp.riskLevel === 'I' || insp.riskLevel === 'II';
+    riskEl.textContent = `Riesgo ${isHigh ? 'Alto' : 'Medio'} (Nivel ${insp.riskLevel || 'II'})`;
+    riskEl.className = `text-[11px] font-bold px-2 py-0.5 rounded-full ${isHigh ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`;
+  }
+  if (titleEl) titleEl.textContent = insp.title;
+  if (descEl) descEl.textContent = insp.description || 'Sin descripción detallada';
+  if (sedeEl) sedeEl.textContent = insp.sede || 'SENA Regional Atlántico';
+  if (areaEl) areaEl.textContent = insp.area || 'Taller / Ambiente';
+  if (inspectorEl) inspectorEl.textContent = insp.inspectorName || 'Inspector COPASST';
+  if (assignedEl) assignedEl.textContent = insp.assignedTo || 'Encargado SST';
+
+  if (repairedByInput && !repairedByInput.value && insp.assignedTo) {
+    repairedByInput.value = insp.assignedTo;
+  }
+
+  if (detailsBox) detailsBox.classList.remove('hidden');
+
+  renderSubsanacionComparisonCard(insp);
+}
+
+function renderSubsanacionComparisonCard(insp) {
+  const container = document.getElementById('subsanacionComparisonContainer');
+  if (!container) return;
+
+  if (!insp) {
+    container.innerHTML = `
+      <div class="p-8 text-center text-[#6f7b66] bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[36px] text-slate-400">burst_mode</span>
+        <p class="text-[12px]">Selecciona un hallazgo a la izquierda para previsualizar el cambio de estado.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const originalImg = insp.imageUrl || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200';
+  const afterImg = capturedSubsanacionImageData;
+
+  container.innerHTML = `
+    <div class="flex flex-col gap-3">
+      <!-- Title & Code Header -->
+      <div class="p-3 bg-[#f2f3ff] rounded-xl border border-[#eaedff] flex items-center justify-between">
+        <span class="font-bold text-[13px] text-[#131b2e] truncate">${insp.title}</span>
+        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">ESTADO: PENDIENTE</span>
+      </div>
+
+      <!-- Before / After Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- ANTES -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-[11px] font-bold text-red-700 uppercase flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-red-600"></span>
+            1. ANTES (HALLAZGO INICIAL)
+          </span>
+          <div class="h-44 rounded-xl overflow-hidden border-2 border-red-400/60 bg-slate-900 relative shadow-sm">
+            <img src="${originalImg}" alt="Foto Hallazgo Inicial" class="w-full h-full object-cover">
+            <div class="absolute bottom-2 left-2 right-2 px-2 py-1 rounded bg-black/70 backdrop-blur-sm text-white text-[10px] font-medium">
+              Detectado por: ${insp.inspectorName || 'Inspector'}
+            </div>
+          </div>
+        </div>
+
+        <!-- DESPUÉS -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-[11px] font-bold text-emerald-700 uppercase flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+            2. DESPUÉS (SUBSANADO)
+          </span>
+          <div class="h-44 rounded-xl overflow-hidden border-2 border-emerald-500 ${afterImg ? 'bg-slate-900' : 'bg-emerald-50/50 border-dashed'} relative shadow-sm flex items-center justify-center">
+            ${afterImg ? `
+              <img src="${afterImg}" alt="Evidencia Reparada" class="w-full h-full object-cover">
+              <div class="absolute bottom-2 left-2 right-2 px-2 py-1 rounded bg-emerald-900/80 backdrop-blur-sm text-emerald-100 text-[10px] font-medium">
+                ✓ Evidencia Lista
+              </div>
+            ` : `
+              <div class="p-4 text-center text-emerald-700 flex flex-col items-center gap-1.5">
+                <span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+                <span class="text-[11px] font-semibold">Toma o sube la foto de la reparación</span>
+              </div>
+            `}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function triggerSubsanacionCamera() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.capture = 'environment';
+  input.onchange = (e) => handleSubsanacionPhotoUpload(e);
+  input.click();
+}
+
+function handleSubsanacionPhotoUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    capturedSubsanacionImageData = e.target.result;
+    
+    const previewCont = document.getElementById('subsanacionPhotoPreviewContainer');
+    const previewImg = document.getElementById('subsanacionPhotoPreview');
+    if (previewImg) previewImg.src = capturedSubsanacionImageData;
+    if (previewCont) previewCont.classList.remove('hidden');
+
+    const insp = inspections.find(i => i.id === subsanacionSelectedInspectionId);
+    renderSubsanacionComparisonCard(insp);
+
+    if (typeof showToast === 'function') {
+      showToast('Fotografía Adjuntada', 'Evidencia de reparación (DESPUÉS) lista para registro.', 'success');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeSubsanacionPhoto() {
+  capturedSubsanacionImageData = null;
+  const previewCont = document.getElementById('subsanacionPhotoPreviewContainer');
+  if (previewCont) previewCont.classList.add('hidden');
+
+  const insp = inspections.find(i => i.id === subsanacionSelectedInspectionId);
+  renderSubsanacionComparisonCard(insp);
+}
+
+async function submitSubsanacionClosure() {
+  if (!subsanacionSelectedInspectionId) {
+    if (typeof showToast === 'function') {
+      showToast('Selección Requerida', 'Por favor selecciona la inspección o hallazgo que deseas subsanar.', 'warning');
+    }
+    return;
+  }
+
+  const insp = inspections.find(i => i.id === subsanacionSelectedInspectionId);
+  if (!insp) return;
+
+  const repairedBy = document.getElementById('inputSubsanacionRepairedBy')?.value.trim() || 'Equipo de Mantenimiento e Infraestructura SENA';
+  const verifiedBy = document.getElementById('selectSubsanacionVerifiedBy')?.value || 'Inspector COPASST';
+  const subsanacionDate = document.getElementById('inputSubsanacionDate')?.value || new Date().toISOString().split('T')[0];
+  const notes = document.getElementById('inputSubsanacionNotes')?.value.trim() || 'Medida correctiva ejecutada y verificada de conformidad.';
+
+  // Update inspection object
+  insp.status = 'cerrado';
+  insp.isSubsanated = true;
+  insp.subsanatedAt = subsanacionDate;
+  insp.closurePhotoUrl = capturedSubsanacionImageData || insp.imageUrl;
+  insp.repairedBy = repairedBy;
+  insp.closedBy = verifiedBy;
+  insp.closureNotes = notes;
+
+  // Persist locally
+  saveInspectionsToLocalStorage();
+
+  // Persist to Supabase if connected
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    try {
+      await supabaseClient
+        .from('inspecciones')
+        .update({
+          estado: 'cerrado',
+          subsanado: true,
+          fecha_subsanacion: subsanacionDate,
+          foto_subsanacion: insp.closurePhotoUrl,
+          encargado_reparacion: repairedBy,
+          verificado_por: verifiedBy,
+          observaciones_cierre: notes
+        })
+        .eq('id', insp.id);
+    } catch (e) {
+      console.warn('Notice updating subsanacion in Supabase:', e);
+    }
+  }
+
+  // Reset form inputs & photo state
+  capturedSubsanacionImageData = null;
+  subsanacionSelectedInspectionId = null;
+  const previewCont = document.getElementById('subsanacionPhotoPreviewContainer');
+  if (previewCont) previewCont.classList.add('hidden');
+  const detailsBox = document.getElementById('subsanacionSelectedDetails');
+  if (detailsBox) detailsBox.classList.add('hidden');
+  const notesInput = document.getElementById('inputSubsanacionNotes');
+  if (notesInput) notesInput.value = '';
+
+  // Update app state & view
+  updateKpis();
+  renderInspectionsList();
+  renderFindingReport();
+  renderSubsanacionView();
+
+  if (typeof showToast === 'function') {
+    showToast('¡Hallazgo Subsanado y Cerrado!', `Se registró el cierre de ${insp.code || 'la inspección'} exitosamente.`, 'success');
+  }
+}
+
+function renderSubsanatedFeed() {
+  const container = document.getElementById('subsanatedFeedList');
+  const countBadge = document.getElementById('countSubsanatedFeed');
+  if (!container) return;
+
+  const closedInspections = (inspections || []).filter(i => i.status === 'cerrado');
+
+  if (countBadge) countBadge.textContent = `${closedInspections.length} Cerrados`;
+
+  if (closedInspections.length === 0) {
+    container.innerHTML = `
+      <div class="p-6 text-center text-[#6f7b66] bg-slate-50 rounded-xl border border-dashed border-slate-200 text-[12px]">
+        Aún no hay hallazgos subsanados en el sistema.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = closedInspections.map(insp => {
+    const beforePhoto = insp.imageUrl || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200';
+    const afterPhoto = insp.closurePhotoUrl || beforePhoto;
+
+    return `
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-3">
+        <!-- Top Badge -->
+        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+          <span class="font-mono font-bold text-[11px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded flex items-center gap-1 border border-emerald-300">
+            <span class="material-symbols-outlined text-[14px]">task_alt</span>
+            ${insp.code || 'INSP'} - CERRADO
+          </span>
+          <span class="text-[10px] text-[#6f7b66] font-medium">${insp.subsanatedAt || '2026'}</span>
+        </div>
+
+        <!-- Title & Sede -->
+        <div>
+          <h4 class="font-bold text-[13px] text-[#131b2e] leading-snug">${insp.title}</h4>
+          <span class="text-[11px] text-[#3f4a38]">${insp.sede || 'SENA'} • ${insp.area || 'Taller'}</span>
+        </div>
+
+        <!-- Before & After Thumbnail Images -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="relative h-24 rounded-lg overflow-hidden border border-red-300 bg-slate-900">
+            <img src="${beforePhoto}" alt="Antes" class="w-full h-full object-cover">
+            <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-red-700/90 text-white font-bold text-[8px]">ANTES</span>
+          </div>
+          <div class="relative h-24 rounded-lg overflow-hidden border border-emerald-400 bg-slate-900">
+            <img src="${afterPhoto}" alt="Después" class="w-full h-full object-cover">
+            <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-emerald-700/90 text-white font-bold text-[8px]">DESPUÉS</span>
+          </div>
+        </div>
+
+        <!-- Closure metadata -->
+        <div class="text-[11px] text-[#3f4a38] bg-white p-2.5 rounded-lg border border-slate-200/80 flex flex-col gap-1">
+          <div><strong>Reparado por:</strong> ${insp.repairedBy || 'Equipo Mantenimiento SENA'}</div>
+          <div><strong>Verificado por:</strong> ${insp.closedBy || insp.inspectorName}</div>
+          ${insp.closureNotes ? `<div class="italic text-[#6f7b66] text-[10px]">"${insp.closureNotes}"</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+

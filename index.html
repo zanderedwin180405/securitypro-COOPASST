@@ -96,6 +96,14 @@
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#39a900]/20 text-[#226d00]">12 HSE</span>
         </button>
 
+        <button onclick="navigateTo('subsanacion-hallazgos')" id="nav-subsanacion-hallazgos" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left text-[#3f4a38] hover:bg-[#eaedff]/70 hover:text-[#131b2e]">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-[#226d00]">published_with_changes</span>
+            <span class="text-[13px]">Subsanación & Cierre (Antes/Después)</span>
+          </div>
+          <span id="badgeSubsanacionCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">0</span>
+        </button>
+
       </nav>
     </div>
 
@@ -132,8 +140,11 @@
         </div>
 
         <div class="relative flex-1">
-          <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6f7b66] text-[20px]">search</span>
-          <input id="searchInput" oninput="handleSearch(this.value)" class="w-full pl-11 pr-4 py-2 bg-[#f2f3ff]/90 backdrop-blur-md rounded-xl text-[#131b2e] placeholder:text-[#6f7b66] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#226d00]/30 transition-all border border-transparent focus:border-[#226d00]/20" placeholder="Buscar inspecciones, factores de riesgo GTC-45..." type="text">
+          <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#226d00] text-[20px]">search</span>
+          <input id="searchInput" list="sedesDatalist" oninput="handleSearch(this.value)" class="w-full pl-11 pr-4 py-2 bg-[#f2f3ff]/90 backdrop-blur-md rounded-xl text-[#131b2e] placeholder:text-[#6f7b66] text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-[#226d00]/30 transition-all border border-[#eaedff] focus:border-[#226d00]/30 shadow-inner" placeholder="🔍 Filtrar por Centro de Formación / Sede SENA, hallazgo o riesgo GTC-45..." type="text">
+          <datalist id="sedesDatalist">
+            <!-- Autocompletado dinámico de Centros SENA renderizado por JS -->
+          </datalist>
         </div>
       </div>
 
@@ -208,9 +219,13 @@
               <span class="material-symbols-outlined text-[18px] text-[#6f7b66]">filter_list</span>
               <span>Filtrar</span>
             </button>
+            <button onclick="exportSenaExcelReport()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white font-bold text-[13px] shadow-md transition-all">
+              <span class="material-symbols-outlined text-[18px]">table_chart</span>
+              <span>Exportar Excel SENA</span>
+            </button>
             <button onclick="exportReportPDF()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#f2f3ff] hover:bg-[#eaedff] text-[#131b2e] text-[13px] border border-[#becbb3]/40">
               <span class="material-symbols-outlined text-[18px] text-[#6f7b66]">download</span>
-              <span>Exportar</span>
+              <span>Previsualizar</span>
             </button>
           </div>
         </div>
@@ -360,10 +375,28 @@
                   </div>
                 </div>
                 <select id="selectSede" onchange="autoSelectHseForSede(this.value)" class="w-full bg-[#f2f3ff] py-2.5 px-3.5 rounded-xl text-[13px] border border-[#eaedff]">
-                  <option value="">-- Seleccionar --</option>
-                  <option value="Complejo Sur - Centro de Metalmecánica">Complejo Sur - Centro de Metalmecánica</option>
-                  <option value="Centro de Tecnologías del Transporte (Cazucá)">Centro de Tecnologías del Transporte (Cazucá)</option>
-                  <option value="Centro de Electricidad, Electrónica y Telecomunicaciones (CEET)">CEET - Distrito Capital</option>
+                  <option value="">-- Seleccionar Sede --</option>
+                  <option value="Centro Industrial y de Aviación (SENA Calle 30)">Centro Industrial y de Aviación (SENA Calle 30)</option>
+                  <option value="Centro Nacional Colombo Alemán (Sede Principal - Calle 30)">Centro Nacional Colombo Alemán (Sede Principal - Calle 30)</option>
+                  <option value="Centro de Comercio y Servicios (Sede Principal)">Centro de Comercio y Servicios (Sede Principal)</option>
+                  <option value="Sede Energía (Barrio Montes)">Sede Energía (Barrio Montes)</option>
+                  <option value="Sede Metalmecánica (Malambo)">Sede Metalmecánica (Malambo)</option>
+                  <option value="Sede Refrigeración (Lipaya)">Sede Refrigeración (Lipaya)</option>
+                  <option value="Sede Madera (Vía a Galapa)">Sede Madera (Vía a Galapa)</option>
+                  <option value="Sede Confecciones (Baranoa)">Sede Confecciones (Baranoa)</option>
+                  <option value="Sede Construcción (Caribe Verde)">Sede Construcción (Caribe Verde)</option>
+                  <option value="Sede Logística (Caribe Verde)">Sede Logística (Caribe Verde)</option>
+                  <option value="Sede TIC (Hotel del Prado)">Sede TIC (Hotel del Prado)</option>
+                  <option value="Sede Industrias Creativas (Barrio Abajo)">Sede Industrias Creativas (Barrio Abajo)</option>
+                  <option value="Sede Salud (Detrás Hospital Barranquilla)">Sede Salud (Detrás Hospital Barranquilla)</option>
+                  <option value="Sede Hotelería (Barrio Abajo)">Sede Hotelería (Barrio Abajo)</option>
+                  <option value="Sede Servicios Financieros y Comercialización (Cayenas)">Sede Servicios Financieros y Comercialización (Cayenas)</option>
+                  <option value="Sede Servicios Administrativos (Bosque)">Sede Servicios Administrativos (Bosque)</option>
+                  <option value="Sede Gastronomía y Bilingüismo (Juan de Acosta)">Sede Gastronomía y Bilingüismo (Juan de Acosta)</option>
+                  <option value="Sede Ecoturismo (Luruaco)">Sede Ecoturismo (Luruaco)</option>
+                  <option value="Sede CVA (Sabanalarga)">Sede CVA (Sabanalarga)</option>
+                  <option value="Sede Ope. Comerciales (Soledad - Normandía)">Sede Ope. Comerciales (Soledad - Normandía)</option>
+                  <option value="Complejo Sur SENA (Bogotá)">Complejo Sur SENA (Bogotá)</option>
                 </select>
               </div>
 
@@ -520,8 +553,8 @@
                     <span class="material-symbols-outlined text-[18px] text-[#226d00]">collections</span>
                     <span>Hallazgos Registrados en esta Inspección (<strong id="txtFindingsCount" class="text-[#226d00]">0</strong>)</span>
                   </span>
-                  <button type="button" onclick="goToFindingReportView()" class="text-[11px] text-[#226d00] font-bold hover:underline">
-                    Ver Informe Consolidado →
+                  <button type="button" onclick="finishInspectionAndGoToSignatures()" class="text-[11px] text-[#226d00] font-bold hover:underline">
+                    Ver Informe / Ir a Firmas →
                   </button>
                 </div>
                 <div id="findingsThumbnailsList" class="flex gap-2 overflow-x-auto py-1">
@@ -565,9 +598,9 @@
               <span class="material-symbols-outlined text-[20px] text-[#226d00]">add_a_photo</span>
               <span>➕ Guardar Hallazgo y Tomar Otra Foto</span>
             </button>
-            <button onclick="goToFindingReportView()" class="flex-1 py-3.5 bg-[#39a900] hover:bg-[#226d00] text-white font-extrabold text-[13px] rounded-xl shadow-lg flex items-center justify-center gap-2">
-              <span class="material-symbols-outlined text-[20px]">description</span>
-              <span>📋 Ver Informe Consolidado F-SST-012</span>
+            <button onclick="finishInspectionAndGoToSignatures()" class="flex-1 py-3.5 bg-[#39a900] hover:bg-[#226d00] text-white font-extrabold text-[13px] rounded-xl shadow-lg flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">draw</span>
+              <span>✍️ Finalizar y Pasar a Firmas</span>
             </button>
           </div>
         </div>
@@ -617,6 +650,175 @@
         <!-- Cards Directory Container -->
         <div id="hseCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Rendered dynamically by JS -->
+        </div>
+      </section>
+
+      <!-- VIEW 6: SUBSANACIÓN Y CIERRE DE HALLAZGOS (ANTES / DESPUÉS) -->
+      <section id="view-subsanacion-hallazgos" class="view-section hidden flex flex-col gap-6">
+        <!-- Header Banner -->
+        <div class="p-6 rounded-3xl bg-gradient-to-r from-[#002113] via-[#054025] to-[#226d00] text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="relative z-10 flex flex-col gap-1.5 max-w-2xl">
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-[#6cf8bb]/20 text-[#6cf8bb] text-[11px] font-bold uppercase tracking-wider border border-[#6cf8bb]/30 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">published_with_changes</span>
+                Gestión de Medidas Correctivas
+              </span>
+              <span id="badgeOpenToCloseCount" class="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-bold border border-amber-400/30">
+                0 Pendientes
+              </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Subsanación & Cierre de Hallazgos</h1>
+            <p class="text-[13px] text-emerald-100/90 leading-relaxed">
+              Selecciona una inspección previa o condición insegura detectada, adjunta la evidencia fotográfica de reparación (<strong>DESPUÉS</strong>) y registra la verificación oficial COPASST / SST.
+            </p>
+          </div>
+          <div class="relative z-10 flex items-center gap-2">
+            <button onclick="navigateTo('dashboard-telemetria')" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-[13px] backdrop-blur-md transition-all flex items-center gap-1.5 border border-white/20">
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+              <span>Volver al Dashboard</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Layout Grid: Formulario de Cierre (Izq) / Vista Comparativa (Der) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Columna Izquierda (7 cols): Selección & Formulario de Cierre -->
+          <div class="lg:col-span-7 flex flex-col gap-5">
+            <div class="p-6 rounded-2xl bg-white border border-[#eaedff] shadow-sm flex flex-col gap-4">
+              <h2 class="text-base font-bold text-[#131b2e] flex items-center gap-2 border-b border-[#eaedff] pb-3">
+                <span class="material-symbols-outlined text-[#226d00]">find_in_page</span>
+                <span>1. Seleccionar Hallazgo o Inspección Pendiente</span>
+              </h2>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[12px] font-semibold text-[#131b2e]">Selecciona el evento registrado previamente:</label>
+                <select id="selectSubsanacionInspection" onchange="onSubsanacionInspectionSelected()" class="w-full p-3 rounded-xl bg-[#f2f3ff] text-[13px] font-medium border border-[#eaedff] focus:outline-none focus:border-[#226d00] focus:ring-2 focus:ring-[#226d00]/20">
+                  <option value="">-- Cargando inspecciones pendientes... --</option>
+                </select>
+              </div>
+
+              <!-- Ficha Resumen del Hallazgo Seleccionado (ANTES) -->
+              <div id="subsanacionSelectedDetails" class="hidden p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-3">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <span id="subsanacionDetailCode" class="font-mono font-bold text-[12px] text-[#226d00] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">INSP-2026-001</span>
+                  <span id="subsanacionDetailRisk" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800">Riesgo Alto (Nivel I)</span>
+                </div>
+                <div>
+                  <h3 id="subsanacionDetailTitle" class="font-bold text-[14px] text-[#131b2e]">Guarda de protección desajustada</h3>
+                  <p id="subsanacionDetailDesc" class="text-[12px] text-[#3f4a38] mt-1">Ausencia de guarda protectora en cabezal giratorio de torno T-04.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[11px] text-[#6f7b66] pt-1">
+                  <div><strong>Sede:</strong> <span id="subsanacionDetailSede" class="text-[#131b2e]">Centro Colombo Alemán</span></div>
+                  <div><strong>Área:</strong> <span id="subsanacionDetailArea" class="text-[#131b2e]">Taller de Maquinado</span></div>
+                  <div><strong>Inspector Inicial:</strong> <span id="subsanacionDetailInspector" class="text-[#131b2e]">Diana Marcela</span></div>
+                  <div><strong>Encargado SST:</strong> <span id="subsanacionDetailAssigned" class="text-[#131b2e]">Téc. Fernando Ruiz</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formulario de Registro de la Subsanación -->
+            <div class="p-6 rounded-2xl bg-white border border-[#eaedff] shadow-sm flex flex-col gap-4">
+              <h2 class="text-base font-bold text-[#131b2e] flex items-center gap-2 border-b border-[#eaedff] pb-3">
+                <span class="material-symbols-outlined text-[#226d00]">verified</span>
+                <span>2. Evidencia Fotográfica & Datos de Reparación</span>
+              </h2>
+
+              <!-- Botones de Carga de Foto DESPUÉS -->
+              <div class="flex flex-col gap-2">
+                <label class="text-[12px] font-semibold text-[#131b2e]">Fotografía de Evidencia (DESPUÉS / Estado Reparado):</label>
+                <div class="flex gap-2">
+                  <button type="button" onclick="triggerSubsanacionCamera()" class="flex-1 py-3 px-4 rounded-xl bg-[#eaedff] hover:bg-[#becbb3]/40 text-[#131b2e] text-[13px] font-semibold flex items-center justify-center gap-2 border border-[#eaedff] transition-all">
+                    <span class="material-symbols-outlined text-[#226d00]">photo_camera</span>
+                    <span>Tomar Foto con Cámara</span>
+                  </button>
+                  <label class="flex-1 py-3 px-4 rounded-xl bg-[#eaedff] hover:bg-[#becbb3]/40 text-[#131b2e] text-[13px] font-semibold flex items-center justify-center gap-2 border border-[#eaedff] cursor-pointer transition-all">
+                    <span class="material-symbols-outlined text-[#226d00]">upload_file</span>
+                    <span>Subir de Galería</span>
+                    <input type="file" id="inputSubsanacionPhoto" accept="image/*" onchange="handleSubsanacionPhotoUpload(event)" class="hidden">
+                  </label>
+                </div>
+              </div>
+
+              <!-- Previsualización de Foto Subsanada cargada -->
+              <div id="subsanacionPhotoPreviewContainer" class="hidden relative w-full h-48 rounded-xl overflow-hidden border-2 border-emerald-500/50 bg-slate-900 group">
+                <img id="subsanacionPhotoPreview" src="" alt="Evidencia Reparada DESPUÉS" class="w-full h-full object-cover">
+                <div class="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-emerald-600/90 text-white font-bold text-[10px] uppercase tracking-wide backdrop-blur-md flex items-center gap-1 shadow">
+                  <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                  <span>EVIDENCIA DESPUÉS (REPARADO)</span>
+                </div>
+                <button type="button" onclick="removeSubsanacionPhoto()" class="absolute top-2 right-2 p-1.5 rounded-full bg-red-600/80 hover:bg-red-700 text-white backdrop-blur-md transition-all">
+                  <span class="material-symbols-outlined text-[16px]">close</span>
+                </button>
+              </div>
+
+              <!-- Inputs: Quién Reparó, Quién Verifica y Fecha -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                <div class="flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-[#131b2e]">Encargado que Ejecutó la Reparación:</label>
+                  <input type="text" id="inputSubsanacionRepairedBy" placeholder="ej: Mantenimiento e Infraestructura - Téc. Fernando Ruiz" class="p-2.5 rounded-xl bg-[#f2f3ff] text-[13px] border border-[#eaedff]">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-[12px] font-semibold text-[#131b2e]">Inspector COPASST / SST Verificador:</label>
+                  <select id="selectSubsanacionVerifiedBy" class="p-2.5 rounded-xl bg-[#f2f3ff] text-[13px] border border-[#eaedff]">
+                    <!-- Rendered dynamically -->
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-[12px] font-semibold text-[#131b2e]">Fecha de Subsanación / Cierre:</label>
+                <input type="date" id="inputSubsanacionDate" class="p-2.5 rounded-xl bg-[#f2f3ff] text-[13px] border border-[#eaedff]">
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-[12px] font-semibold text-[#131b2e]">Observaciones de Cierre / Medida Correctiva Implementada:</label>
+                <textarea id="inputSubsanacionNotes" rows="3" placeholder="Describe brevemente la solución técnica aplicada (ej: Se instaló acrílico protector transparente NTC-4114 y se verificó nivel de ruido)..." class="p-3 rounded-xl bg-[#f2f3ff] text-[13px] border border-[#eaedff] focus:outline-none focus:border-[#226d00]"></textarea>
+              </div>
+
+              <button type="button" onclick="submitSubsanacionClosure()" class="mt-2 w-full py-3.5 px-6 rounded-xl bg-[#226d00] hover:bg-[#185200] text-white font-bold text-[14px] shadow-lg shadow-[#226d00]/25 transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[20px]">task_alt</span>
+                <span>Registrar Subsanación y Cerrar Evento</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Columna Derecha (5 cols): Tarjeta Comparativa ANTES vs DESPUÉS & Historial de Subsanaciones -->
+          <div class="lg:col-span-5 flex flex-col gap-5">
+            
+            <!-- Comparison Widget Live Card (Antes vs Después) -->
+            <div class="p-6 rounded-2xl bg-white border border-[#eaedff] shadow-sm flex flex-col gap-4">
+              <h2 class="text-base font-bold text-[#131b2e] flex items-center gap-2 border-b border-[#eaedff] pb-3">
+                <span class="material-symbols-outlined text-[#39a900]">compare</span>
+                <span>Vista Comparativa (Antes vs. Después)</span>
+              </h2>
+
+              <div id="subsanacionComparisonContainer" class="flex flex-col gap-4">
+                <div class="p-8 text-center text-[#6f7b66] bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[36px] text-slate-400">burst_mode</span>
+                  <p class="text-[12px]">Selecciona un hallazgo a la izquierda para previsualizar el cambio de estado.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Feed de Inspecciones Subsanadas Recientemente -->
+            <div class="p-6 rounded-2xl bg-white border border-[#eaedff] shadow-sm flex flex-col gap-4">
+              <div class="flex items-center justify-between border-b border-[#eaedff] pb-3">
+                <h2 class="text-base font-bold text-[#131b2e] flex items-center gap-2">
+                  <span class="material-symbols-outlined text-emerald-600">verified</span>
+                  <span>Historial de Hallazgos Subsanados</span>
+                </h2>
+                <span id="countSubsanatedFeed" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">0 Cerrados</span>
+              </div>
+
+              <div id="subsanatedFeedList" class="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1">
+                <!-- Dynamic cards rendered by JS -->
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </section>
 
