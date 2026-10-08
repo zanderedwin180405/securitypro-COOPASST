@@ -592,6 +592,109 @@ function filterInspectionsByCategory(catName) {
   updateKpis();
 }
 
+// Helper: Consolida hallazgos individuales de una misma sesión/fecha/inspector en 1 solo Nodo de Inspección
+function getConsolidatedInspections(rawInspections) {
+  if (!rawInspections || rawInspections.length === 0) return [];
+
+  const standaloneNodes = [];
+  const sessionGroups = new Map();
+
+  rawInspections.forEach(item => {
+    // Si la inspección ya viene con un array de hallazgos (multihallazgo consolidado), se conserva tal cual
+    if (item.findings && Array.isArray(item.findings) && item.findings.length > 0) {
+      standaloneNodes.push(item);
+      return;
+    }
+
+    // Clave para agrupar hallazgos sueltos de una misma jornada: fecha + sede + inspector
+    const dateStr = item.date || new Date().toLocaleDateString('es-CO');
+    const sedeStr = item.sede || 'Complejo Sur - Centro de Metalmecánica';
+    const inspectorStr = item.inspectorName || 'Laura Noguera';
+    const key = `${dateStr}_${sedeStr}_${inspectorStr}`;
+
+    if (!sessionGroups.has(key)) {
+      sessionGroups.set(key, []);
+    }
+    sessionGroups.get(key).push(item);
+  });
+
+  const consolidated = [...standaloneNodes];
+
+  sessionGroups.forEach((groupItems) => {
+    if (groupItems.length === 1) {
+      const single = groupItems[0];
+      const recText = single.recomendacionesCopasst || single.recommendation || single.medida_inmediata || 'Realizar la inspección técnica para identificar el origen y efectuar el mantenimiento correctivo correspondiente.';
+      consolidated.push({
+        ...single,
+        recommendation: recText,
+        recomendacionesCopasst: recText,
+        medida_inmediata: recText,
+        findings: [
+          {
+            id: single.id,
+            code: single.code,
+            title: single.title,
+            description: single.description,
+            riskCategory: single.riskCategory,
+            riskLevel: single.riskLevel,
+            imageUrl: single.imageUrl,
+            recommendation: recText,
+            recomendacionesCopasst: recText,
+            medida_inmediata: recText
+          }
+        ]
+      });
+    } else {
+      const first = groupItems[0];
+      const hasLevelI = groupItems.some(i => i.riskLevel === 'I');
+      const hasLevelII = groupItems.some(i => i.riskLevel === 'II');
+      const highestRisk = hasLevelI ? 'I' : (hasLevelII ? 'II' : (first.riskLevel || 'II'));
+
+      const combinedTitle = `Inspección Consolidada (${groupItems.length} Hallazgos y Evidencias Fotográficas)`;
+      const summaryList = groupItems.map((gi, idx) => `• Hallazgo #${idx + 1} (${gi.code || 'HAL'}): ${gi.title || gi.description}`).join('\n');
+      const firstRecText = first.recomendacionesCopasst || first.recommendation || first.medida_inmediata || 'Realizar la inspección técnica y efectuar mantenimiento correctivo.';
+
+      const nodeObj = {
+        id: `insp-session-${first.id}`,
+        code: `${first.code || 'INSP'}-GRP`,
+        title: combinedTitle,
+        sede: first.sede || 'Complejo Sur - Centro de Metalmecánica',
+        area: first.area || 'Taller de Formación',
+        date: first.date || new Date().toLocaleDateString('es-CO'),
+        inspectorName: first.inspectorName || 'Laura Noguera',
+        riskLevel: highestRisk,
+        riskCategory: first.riskCategory || 'Condiciones de Seguridad',
+        status: groupItems.every(gi => gi.status === 'cerrado') ? 'cerrado' : 'en_proceso',
+        description: summaryList,
+        recommendation: firstRecText,
+        recomendacionesCopasst: firstRecText,
+        medida_inmediata: firstRecText,
+        imageUrl: first.imageUrl,
+        assignedTo: first.assignedTo || 'Lic. Roberto Peña (Coordinador del Gasto - Presupuesto)',
+        isApproved: true,
+        findings: groupItems.map((gi, idx) => {
+          const giRec = gi.recomendacionesCopasst || gi.recommendation || gi.medida_inmediata || 'Realizar inspección técnica y efectuar mantenimiento correctivo.';
+          return {
+            id: gi.id,
+            code: gi.code || `HAL-2026-00${idx + 1}`,
+            title: gi.title || gi.description,
+            description: gi.description,
+            riskCategory: gi.riskCategory || 'Condiciones de Seguridad',
+            riskLevel: gi.riskLevel || 'II',
+            imageUrl: gi.imageUrl,
+            recommendation: giRec,
+            recomendacionesCopasst: giRec,
+            medida_inmediata: giRec
+          };
+        })
+      };
+      consolidated.push(nodeObj);
+    }
+  });
+
+  return consolidated;
+}
+
 // Render Recent Inspections List in Dashboard
 function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearchQuery) {
   const container = document.getElementById('inspectionsListContainer');
@@ -600,7 +703,10 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
   currentSearchQuery = searchQuery || '';
   const q = currentSearchQuery.trim().toLowerCase();
 
-  const filtered = inspections.filter(insp => {
+  // Consolidar lista primero para agrupar hallazgos de una misma inspección en 1 sola tarjeta
+  const consolidatedList = getConsolidatedInspections(inspections);
+
+  const filtered = consolidatedList.filter(insp => {
     if (q) {
       const matchSearch =
         (insp.title && insp.title.toLowerCase().includes(q)) ||
@@ -679,13 +785,21 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
       catBg = 'bg-[#ba1a1a]/10 text-[#ba1a1a] border border-[#ba1a1a]/20';
     }
 
+    const totalFindingsCount = (insp.findings && insp.findings.length) ? insp.findings.length : 1;
+
     return `
-      <div onclick="selectInspection('${insp.id}'); navigateTo('hallazgos-plan-de-accion')" class="group relative p-4 rounded-2xl bg-white hover:bg-[#fafbff] border border-[#eaedff] hover:border-[#39a900]/40 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-2.5 cursor-pointer">
-        <!-- Top Row: Category Pill + Code + Risk Badge -->
+      <div onclick="selectInspection('${insp.id}')" class="group relative p-4 rounded-2xl bg-white hover:bg-[#fafbff] border border-[#eaedff] hover:border-[#39a900]/40 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col gap-2.5 cursor-pointer">
+        <!-- Top Row: Category Pill + Code + Multi-photo Pill + Risk Badge -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 flex-wrap min-w-0">
             <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg ${catBg}">${catName}</span>
             <span class="text-[10px] font-bold text-[#6f7b66]">${insp.code || 'INSP-2026'}</span>
+            ${totalFindingsCount > 1 ? `
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#6cf8bb]/50 text-[#005236] border border-[#39a900]/30 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[12px]">collections</span>
+                <span>${totalFindingsCount} Hallazgos / Fotos</span>
+              </span>
+            ` : ''}
           </div>
           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${riskBadge}">
             Riesgo ${riskLabel}
@@ -696,7 +810,7 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
         <h3 class="text-[14px] font-bold text-[#131b2e] leading-snug group-hover:text-[#226d00] transition-colors">${insp.title}</h3>
 
         <!-- Description -->
-        <p class="text-[12px] text-[#3f4a38] line-clamp-2 italic bg-[#f8f9ff] p-2 rounded-xl border border-[#eaedff]/60">
+        <p class="text-[12px] text-[#3f4a38] line-clamp-3 italic bg-[#f8f9ff] p-2 rounded-xl border border-[#eaedff]/60 whitespace-pre-line">
           "${insp.description}"
         </p>
 
@@ -714,13 +828,13 @@ function renderInspectionsList(filterRisk = 'todos', searchQuery = currentSearch
 
         <!-- Action Buttons (Informe F-SST-012 & Descargar Excel SENA) -->
         <div class="pt-2 border-t border-[#eaedff]/80 flex flex-col gap-2">
-          <button type="button" onclick="event.stopPropagation(); selectInspection('${insp.id}'); navigateTo('hallazgos-plan-de-accion')" class="w-full py-2 px-3 rounded-xl bg-[#226d00] hover:bg-[#1b5700] text-white text-[12px] font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all cursor-pointer">
+          <button type="button" onclick="event.stopPropagation(); selectInspection('${insp.id}')" class="w-full py-2.5 px-3 rounded-xl bg-[#226d00] hover:bg-[#1b5700] text-white text-[12px] font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all cursor-pointer">
             <span class="material-symbols-outlined text-[16px]">description</span>
-            <span>Informe F-SST-012</span>
+            <span>Informe F-SST-012 (${totalFindingsCount} Fotos en 1 PDF)</span>
           </button>
-          <button type="button" onclick="event.stopPropagation(); selectInspection('${insp.id}'); exportSenaExcelReport()" class="w-full py-2 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-[12px] font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all cursor-pointer">
+          <button type="button" onclick="event.stopPropagation(); selectInspection('${insp.id}'); exportSenaExcelReport()" class="w-full py-2.5 px-3 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white text-[12px] font-bold flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all cursor-pointer">
             <span class="material-symbols-outlined text-[16px]">table_chart</span>
-            <span>📊 Descargar Excel SENA</span>
+            <span>📊 Descargar Excel SENA (${totalFindingsCount} Fotos en 1 Excel)</span>
           </button>
         </div>
       </div>
@@ -1185,7 +1299,8 @@ let currentProposal = {
 };
 
 function selectInspection(id) {
-  const found = inspections.find(i => i.id === id);
+  const consolidated = getConsolidatedInspections(inspections);
+  const found = consolidated.find(i => i.id === id) || inspections.find(i => i.id === id);
   if (found) {
     selectedFinding = found;
     renderFindingReport();
@@ -3435,9 +3550,33 @@ function closeActiveInspectionSession() {
     return;
   }
   const total = activeSessionFindings.length;
+
+  // 1. Consolidar el nodo de inspección con todos los hallazgos y fotos de la sesión
+  goToFindingReportView();
+  
+  if (selectedFinding) {
+    selectedFinding.status = 'cerrado';
+    selectedFinding.isApproved = true;
+    
+    // Guardar en la lista de inspecciones
+    const existingIdx = inspections.findIndex(i => i.id === selectedFinding.id);
+    if (existingIdx >= 0) {
+      inspections[existingIdx] = selectedFinding;
+    } else {
+      inspections.unshift(selectedFinding);
+    }
+    saveInspectionsToLocalStorage();
+    updateKpis();
+    renderInspectionsList();
+  }
+
   resetInspectionForm(false);
-  showToast('Inspección Finalizada 🔒', `Se cerró la inspección con ${total} hallazgo(s) guardado(s). Datos del centro e inspectores liberados.`, 'success');
-  navigateTo('dashboard-telemetria');
+  showToast('Inspección Finalizada & Cerrada 🔒', `Se ha generado 1 solo expediente consolidado con los ${total} hallazgo(s) y fotografías de este nodo.`, 'success');
+  
+  // 2. Abrir automáticamente la ventana de previsualización para descargar el archivo único PDF / Excel
+  setTimeout(() => {
+    exportReportPDF();
+  }, 300);
 }
 
 function addFindingAndTakeAnother() {
@@ -3852,10 +3991,15 @@ async function loadInspectionsFromSupabase(showToastAlert = false) {
         descripcion_detallada,
         peligro_gtc45,
         nivel_riesgo_homologado,
+        recomendaciones_copasst,
         estado,
         creado_en,
         evidencias_multimedia (
           public_url
+        ),
+        planes_accion (
+          medida_inmediata,
+          responsable_subsanacion
         )
       `)
       .order('creado_en', { ascending: false });
@@ -3869,6 +4013,10 @@ async function loadInspectionsFromSupabase(showToastAlert = false) {
     if (data && Array.isArray(data) && data.length > 0) {
       const dbInspections = data.map(item => {
         const evidence = Array.isArray(item.evidencias_multimedia) ? item.evidencias_multimedia[0] : item.evidencias_multimedia;
+        const plan = Array.isArray(item.planes_accion) ? item.planes_accion[0] : item.planes_accion;
+        const actionPlanText = item.recomendaciones_copasst || plan?.medida_inmediata || 'Realizar inspección técnica para identificar el origen y efectuar el mantenimiento correctivo correspondiente.';
+        const assignedResp = plan?.responsable_subsanacion || 'Lic. Roberto Peña (Coordinador del Gasto - Presupuesto)';
+
         return {
           id: item.id,
           code: item.codigo_hallazgo || 'HAL-2026-001',
@@ -3881,14 +4029,19 @@ async function loadInspectionsFromSupabase(showToastAlert = false) {
           riskCategory: item.peligro_gtc45 || 'Condiciones de seguridad',
           status: item.estado || 'en_proceso',
           description: item.descripcion_detallada || 'Sin descripción',
+          recommendation: actionPlanText,
+          recomendacionesCopasst: actionPlanText,
+          medida_inmediata: actionPlanText,
+          fotoDescripcion: `Fotografía Evidencia – ${item.titulo || 'Hallazgo'}`,
+          riesgoAsociado: 'Locativo, mecánico y de infraestructura',
           imageUrl: evidence?.public_url || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=1200',
-          assignedTo: 'Ing. Roberto Peña'
+          assignedTo: assignedResp
         };
       });
 
       inspections = dbInspections;
       selectedFinding = inspections[0];
-      if (showToastAlert) showToast('Histórico Cargado', `Se importaron ${dbInspections.length} hallazgos desde Supabase.`, 'info');
+      if (showToastAlert) showToast('Histórico Cargado', `Se importaron ${dbInspections.length} hallazgos con sus Planes de Acción desde Supabase.`, 'info');
     } else {
       inspections = [];
       selectedFinding = null;
@@ -4371,24 +4524,10 @@ async function exportSenaExcelReport() {
     showToast('Descargando Excel / Hojas de Cálculo...', 'Generando archivo .xlsx con fotos incrustadas para Hojas de cálculo de Google...', 'info');
     
     let currentItemsPayload = [];
+    let fileCodeName = 'SENA';
     if (selectedFinding) {
-      if (selectedFinding.findings && selectedFinding.findings.length > 0) {
-        currentItemsPayload = selectedFinding.findings.map((f, idx) => ({
-          id: idx + 1,
-          sede: selectedFinding.sede,
-          area: selectedFinding.area,
-          riskCategory: f.riskCategory || selectedFinding.riskCategory || 'Condiciones locativas',
-          tipoHallazgo: f.tipoHallazgo || selectedFinding.tipoHallazgo || 'Correctivo',
-          description: f.description || selectedFinding.description || 'Hallazgo registrado durante inspección.',
-          fotoDescripcion: f.fotoDescripcion || `Fotografía No. ${idx + 1} – ${f.title || selectedFinding.title}`,
-          imageUrl: f.imageUrl || f.photo || selectedFinding.imageUrl || capturedImageData,
-          riesgoAsociado: f.riesgoAsociado || selectedFinding.riesgoAsociado || 'Biológico, locativo y deterioro de infraestructura.',
-          recomendacionesCopasst: f.recommendation || selectedFinding.recomendacionesCopasst || selectedFinding.recommendation || 'Realizar inspección técnica y efectuar mantenimiento correctivo.',
-          assignedTo: selectedFinding.assignedTo || 'Coordinación Administrativa y Servicios Generales'
-        }));
-      } else {
-        currentItemsPayload = [selectedFinding];
-      }
+      currentItemsPayload = [selectedFinding];
+      fileCodeName = selectedFinding.code ? selectedFinding.code.replace(/[^a-zA-Z0-9_-]/g, '') : 'INSP';
     } else if (inspections && inspections.length > 0) {
       currentItemsPayload = inspections;
     } else {
@@ -4420,12 +4559,12 @@ async function exportSenaExcelReport() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Matriz_Informe_Inspecciones_SENA_COPASST_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.download = `Informe_Consolidado_${fileCodeName}_SENA_COPASST.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Excel con Fotos Descargado ✓', 'Archivo .xlsx generado con imágenes PNG incrustadas en celda para Excel y Google Sheets.', 'success');
+      showToast('Excel Consolidado Descargado ✓', `Archivo .xlsx generado para el nodo ${fileCodeName} con todas las fotos y hallazgos incrustados.`, 'success');
       return;
     }
   } catch (e) {
@@ -4568,7 +4707,7 @@ function exportReportPDF() {
         riskCategory: selectedFinding.riskCategory || 'Condiciones de Seguridad',
         riskLevel: selectedFinding.riskLevel || 'II',
         imageUrl: selectedFinding.imageUrl,
-        recommendation: currentProposal?.recommendation || 'Aplicar medida de control correctiva.'
+        recommendation: selectedFinding.recommendation || selectedFinding.recomendacionesCopasst || selectedFinding.medida_inmediata || currentProposal?.recommendation || 'Aplicar medida de control correctiva.'
       }];
 
   container.innerHTML = `
@@ -4635,7 +4774,7 @@ function exportReportPDF() {
             <strong>Descripción GTC 45:</strong> ${f.description || 'Intervención visual registrada.'}
           </p>
           <p class="text-[10px] sm:text-[11px] text-[#005236] leading-relaxed bg-[#6cf8bb]/20 p-2 sm:p-2.5 rounded-lg border border-[#6cf8bb]/40">
-            <strong>Medida Recomendada / Plan de Acción:</strong> ${f.recommendation || 'Aplicar control técnico de seguridad en el taller.'}
+            <strong>Medida Recomendada / Plan de Acción:</strong> ${f.recommendation || f.recomendacionesCopasst || f.medida_inmediata || 'Aplicar control técnico de seguridad en el taller.'}
           </p>
         </div>
       `).join('')}
@@ -4733,22 +4872,33 @@ function closePdfPreviewModal() {
 
 function confirmAndDownloadPdf() {
   exportReportPDF();
-  showToast('Generando PDF', 'Cargando fotos de evidencia e iniciando vista de impresión PDF...', 'info');
+  const fileCodeName = selectedFinding?.code ? selectedFinding.code.replace(/[^a-zA-Z0-9_-]/g, '') : 'INSP';
+  showToast('Generando PDF Consolidado 📄', `Compilando hallazgos y fotos en 1 solo documento para ${fileCodeName}...`, 'info');
+  
+  const originalTitle = document.title;
+  document.title = `Informe_Consolidado_${fileCodeName}_SENA_COPASST`;
+
   setTimeout(() => {
     const modalImgs = document.querySelectorAll('#pdfPreviewContent img');
     let loadedCount = 0;
     const totalImgs = modalImgs.length;
-    if (totalImgs === 0) {
-      window.print();
-      return;
-    }
+    
     let printed = false;
     const triggerPrint = () => {
       if (!printed) {
         printed = true;
         window.print();
+        setTimeout(() => {
+          document.title = originalTitle;
+        }, 1500);
       }
     };
+
+    if (totalImgs === 0) {
+      triggerPrint();
+      return;
+    }
+
     modalImgs.forEach(img => {
       if (img.complete) {
         loadedCount++;
