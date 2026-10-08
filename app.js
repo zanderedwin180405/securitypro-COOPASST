@@ -1485,11 +1485,9 @@ function toggleAssignedResponsible(name) {
   }
 
   selectedFinding.assignedTo = updatedList.join(', ');
-  if (updatedList.length > 0) {
-    activeResponsibleSigner = updatedList[0];
-  }
+  activeResponsibleSigner = name;
   renderFindingReport();
-  showToast('Responsables Actualizados', `Asignados (${updatedList.length}): ${selectedFinding.assignedTo}`, 'success');
+  showToast('Responsable Seleccionado', `Responsable activo para informe PDF: "${name}"`, 'success');
 }
 
 // Base de Datos de Firmas Digitales Acreditadas para COPASST / SST
@@ -1949,14 +1947,20 @@ function renderFindingReport() {
           ${assignedList.map((respName, idx) => {
             const profile = getSignatureProfile(respName);
             const safeNameEscaped = respName.replace(/'/g, "\\'");
+            const isActive = activeResponsibleSigner === respName || (!activeResponsibleSigner && idx === 0);
             return `
-              <div class="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col gap-3 shadow-xs">
+              <div onclick="autoLoadResponsibleSigner('${safeNameEscaped}')" class="p-4 rounded-xl border flex flex-col gap-3 shadow-xs cursor-pointer transition-all ${isActive ? 'bg-[#39a900]/10 border-2 border-[#226d00]' : 'bg-[#f2f3ff] border-[#eaedff] hover:bg-[#eaedff]'}">
                 <div class="flex flex-col gap-1">
                   <div class="flex items-center justify-between gap-1 flex-wrap">
-                    <label class="text-[11px] font-bold text-[#006c49] uppercase tracking-wider">Responsable #${idx + 1} Asignado:</label>
-                    <button onclick="openDrawSignatureModal('responsible', '${safeNameEscaped}')" type="button" class="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] text-[10px] font-bold flex items-center gap-1 shadow-xs">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-3 h-3 rounded-full ${isActive ? 'bg-[#226d00]' : 'bg-slate-300'} inline-block"></span>
+                      <label class="text-[11px] font-bold ${isActive ? 'text-[#226d00]' : 'text-[#006c49]'} uppercase tracking-wider">
+                        ${isActive ? '★ Responsable Seleccionado (PDF)' : `Responsable #${idx + 1}`}
+                      </label>
+                    </div>
+                    <button onclick="event.stopPropagation(); openDrawSignatureModal('responsible', '${safeNameEscaped}')" type="button" class="px-2 py-0.5 rounded-lg bg-[#006c49]/10 hover:bg-[#006c49]/20 text-[#006c49] text-[10px] font-bold flex items-center gap-1 shadow-xs">
                       <span class="material-symbols-outlined text-[13px]">draw</span>
-                      <span>✍️ Firmar / Dibujar</span>
+                      <span>✍️ Firmar</span>
                     </button>
                   </div>
                   <span class="text-[12px] font-bold text-[#131b2e] bg-white p-2 rounded-xl border border-[#eaedff] truncate title="${respName}">${respName}</span>
@@ -4414,7 +4418,7 @@ async function exportSenaExcelReport() {
     console.log("Servidor local no disponible, usando exportación HTML + Google Sheets =IMAGE formula fallback:", e);
   }
 
-  // 2. Fallback de exportación HTML con fórmula nativa =IMAGE() para Google Sheets / Excel Online
+  // 2. Exportación binaria .xlsx nativa (SheetJS / XLSX) para apertura impecable en Excel y Google Sheets
   let currentItems = [];
   if (selectedFinding) {
     if (selectedFinding.findings && selectedFinding.findings.length > 0) {
@@ -4440,99 +4444,60 @@ async function exportSenaExcelReport() {
     currentItems = DEFAULT_SENA_INSPECTIONS;
   }
 
-  const processedItems = await Promise.all(currentItems.map(async (item, idx) => {
-    const rawSrc = item.imageUrl || item.imageUrlAfter || capturedImageData || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=400';
-    const base64Png = await getBase64PngFromUrl(rawSrc, item.title || `Foto #${idx + 1}`);
-    return {
-      ...item,
-      rawSrc,
-      base64Png
-    };
-  }));
-  
-  let tableHtml = `
-    <html xmlns:o="urn:schemas-microsoft-office:office" xmlns:x="urn:schemas-microsoft-office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .sena-header { text-align: center; margin-bottom: 20px; }
-        .sena-logo-text { color: #39a900; font-size: 22px; font-weight: bold; font-family: sans-serif; letter-spacing: 2px; }
-        .sena-title { font-size: 14px; font-weight: bold; color: #131b2e; margin-top: 5px; }
-        table { border-collapse: collapse; width: 100%; font-size: 11px; }
-        th { background-color: #ffffff; color: #000000; font-weight: bold; border: 1px solid #000000; padding: 10px; text-align: center; vertical-align: middle; }
-        td { border: 1px solid #000000; padding: 10px; vertical-align: top; color: #c00000; line-height: 1.4; }
-        .id-cell { text-align: center; font-weight: bold; color: #c00000; }
-        .sub-header { font-weight: normal; font-size: 9px; color: #555; }
-      </style>
-    </head>
-    <body>
-      <div class="sena-header">
-        <div class="sena-logo-text">SENA</div>
-        <div class="sena-title">REPORTE OFICIAL DE INSPECCIÓN EN CAMPO - COPASST</div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 40px;">ID</th>
-            <th style="width: 170px;">Ubicación</th>
-            <th style="width: 130px;">Peligro identificado</th>
-            <th style="width: 120px;">Tipo hallazgo<br><span class="sub-header">positivo / preventivo / correctivo / mejora</span></th>
-            <th style="width: 250px;">Hallazgo / Descripción</th>
-            <th style="width: 180px;">Evidencia Fotográfica</th>
-            <th style="width: 180px;">Fotos</th>
-            <th style="width: 140px;">Riesgo asociado</th>
-            <th style="width: 260px;">Recomendaciones Copasst</th>
-            <th style="width: 170px;">Responsable de ejecutar la acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${processedItems.map((item, index) => {
-            const itemNum = index + 1;
-            const ubicacion = (item.sede || item.area) ? `${item.sede} ${item.area ? '– ' + item.area : ''}` : 'Bloque Administrativo – Escuela Nacional de Instructores (ENI), segundo piso, oficina 204';
-            const peligro = item.riskCategory || 'Condiciones locativas';
-            const tipo = item.tipoHallazgo || 'Correctivo';
-            const descripcion = item.description || 'Durante la inspección se evidenció humedad en el cielo raso ocasionada por una posible filtración de agua...';
-            const fotoDesc = item.fotoDescripcion || `Fotografía No. ${itemNum} – Humedad en techo y pared norte del área inspeccionada.`;
-            const riesgoAsoc = item.riesgoAsociado || 'Biológico, locativo y deterioro de infraestructura.';
-            const recomendacion = item.recomendacionesCopasst || item.recommendation || 'Realizar la inspección técnica para identificar el origen de la filtración y efectuar el mantenimiento correctivo correspondiente...';
-            const responsable = item.assignedTo || 'Coordinación Administrativa y Servicios Generales.';
-            const googleImageFormula = `=IMAGE("${item.rawSrc}")`;
-            
-            return `
-              <tr>
-                <td class="id-cell">${itemNum}</td>
-                <td>${ubicacion}</td>
-                <td>${peligro}</td>
-                <td>${tipo}</td>
-                <td>${descripcion}</td>
-                <td>${fotoDesc}</td>
-                <td style="text-align: center; vertical-align: middle;" x:fmla='${googleImageFormula}'>
-                  ${googleImageFormula}
-                  <br>
-                  <img src="${item.base64Png}" width="160" height="100" style="border: 1px solid #39a900; border-radius: 4px;" alt="Foto Evidencia PNG">
-                </td>
-                <td>${riesgoAsoc}</td>
-                <td>${recomendacion}</td>
-                <td>${responsable}</td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
-  
-  const blob = new Blob(['\uFEFF' + tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `SENA_Inspecciones_COPASST_${new Date().toISOString().slice(0, 10)}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showToast('Excel Exportado ✓', 'Se generó el informe con fotos PNG incrustadas en Base64 sin enlaces externos.', 'success');
+  if (typeof XLSX !== 'undefined') {
+    const dataRows = [
+      ['ID', 'Ubicación', 'Peligro identificado', 'Tipo hallazgo', 'Hallazgo / Descripción', 'Evidencia Fotográfica', 'Fotos (Enlace / Fórmula)', 'Riesgo asociado', 'Recomendaciones Copasst', 'Responsable de ejecutar la acción']
+    ];
+
+    currentItems.forEach((item, index) => {
+      const itemNum = index + 1;
+      const ubicacion = (item.sede || item.area) ? `${item.sede} ${item.area ? '– ' + item.area : ''}` : 'Bloque Administrativo – Escuela Nacional de Instructores (ENI)';
+      const peligro = item.riskCategory || 'Condiciones locativas';
+      const tipo = item.tipoHallazgo || 'Correctivo';
+      const descripcion = item.description || 'Durante la inspección se evidenció hallazgo técnico en área de trabajo.';
+      const fotoDesc = item.fotoDescripcion || `Fotografía No. ${itemNum} – Evidencia fotográfica registrada`;
+      const rawSrc = item.imageUrl || item.imageUrlAfter || capturedImageData || 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=400';
+      const riesgoAsoc = item.riesgoAsociado || 'Biológico, locativo y deterioro de infraestructura.';
+      const recomendacion = item.recomendacionesCopasst || item.recommendation || 'Realizar mantenimiento técnico correctivo.';
+      const responsable = item.assignedTo || 'Coordinación Administrativa y Servicios Generales.';
+
+      dataRows.push([
+        itemNum,
+        ubicacion,
+        peligro,
+        tipo,
+        descripcion,
+        fotoDesc,
+        rawSrc,
+        riesgoAsoc,
+        recomendacion,
+        responsable
+      ]);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(dataRows);
+    
+    // Auto ajustar anchos de columnas
+    ws['!cols'] = [
+      { wch: 6 },   // ID
+      { wch: 30 },  // Ubicación
+      { wch: 22 },  // Peligro
+      { wch: 16 },  // Tipo
+      { wch: 40 },  // Descripción
+      { wch: 30 },  // Evidencia texto
+      { wch: 40 },  // URL Foto / Enlace
+      { wch: 25 },  // Riesgo asociado
+      { wch: 40 },  // Recomendaciones
+      { wch: 30 }   // Responsable
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, "Matriz Inspecciones SENA");
+    XLSX.writeFile(wb, `Matriz_Informe_Inspecciones_SENA_COPASST_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    showToast('Excel Binario Nativo Descargado ✓', 'Archivo .xlsx válido generado para Excel y Google Sheets.', 'success');
+  } else {
+    showToast('Error al Exportar Excel', 'No se pudo cargar la librería XLSX para generar el archivo binario.', 'error');
+  }
 }
 
 function exportReportPDF() {
@@ -4559,10 +4524,15 @@ function exportReportPDF() {
 
   const isHigh = selectedFinding.riskLevel === 'I' || selectedFinding.riskLevel === 'II';
   const badgeColor = isHigh ? 'bg-red-100 text-red-700 border-red-300' : 'bg-emerald-100 text-emerald-800 border-emerald-300';
-  const assigned = selectedFinding.assignedTo || 'Ing. Roberto Peña';
+  
+  // Seleccionar únicamente el responsable activo/seleccionado para el reporte PDF
+  const selectedRespName = (activeResponsibleSigner && activeResponsibleSigner.trim())
+    ? activeResponsibleSigner.trim()
+    : (selectedFinding.assignedTo ? selectedFinding.assignedTo.split(',')[0].trim() : 'Ing. Roberto Peña');
 
   const reportSignerProfile = getSignatureProfile(activeReportSigner);
-  const respSignerProfile = getSignatureProfile(activeResponsibleSigner);
+  const respSignerProfile = getSignatureProfile(selectedRespName);
+  const assigned = respSignerProfile.name || selectedRespName;
 
   const pdfFindingsList = (selectedFinding.findings && selectedFinding.findings.length > 0)
     ? selectedFinding.findings
