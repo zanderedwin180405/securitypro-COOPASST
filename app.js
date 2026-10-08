@@ -4396,12 +4396,26 @@ async function exportSenaExcelReport() {
     }
 
     // 1. Intentar descargar el archivo .xlsx binario nativo con imágenes incrustadas vía servidor local
-    const resp = await fetch('/download-sena-excel', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(currentItemsPayload)
-    });
-    if (resp.ok) {
+    let resp = null;
+    try {
+      resp = await fetch('/download-sena-excel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentItemsPayload)
+      });
+    } catch (err1) {
+      try {
+        resp = await fetch('http://localhost:8085/download-sena-excel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(currentItemsPayload)
+        });
+      } catch (err2) {
+        console.warn("Servidor Node local no accesible en puerto 8085:", err2);
+      }
+    }
+
+    if (resp && resp.ok) {
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -4411,14 +4425,14 @@ async function exportSenaExcelReport() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('Excel / Hojas de Cálculo Descargado ✓', 'Archivo .xlsx nativo listo con fotos para Google Sheets y Excel.', 'success');
+      showToast('Excel con Fotos Descargado ✓', 'Archivo .xlsx generado con imágenes PNG incrustadas en celda para Excel y Google Sheets.', 'success');
       return;
     }
   } catch (e) {
-    console.log("Servidor local no disponible, usando exportación HTML + Google Sheets =IMAGE formula fallback:", e);
+    console.log("Error al consultar backend de Excel, procediendo con respaldo SheetJS:", e);
   }
 
-  // 2. Exportación binaria .xlsx nativa (SheetJS / XLSX) para apertura impecable en Excel y Google Sheets
+  // 2. Exportación binaria .xlsx nativa (SheetJS / XLSX) de respaldo
   let currentItems = [];
   if (selectedFinding) {
     if (selectedFinding.findings && selectedFinding.findings.length > 0) {
@@ -4446,7 +4460,7 @@ async function exportSenaExcelReport() {
 
   if (typeof XLSX !== 'undefined') {
     const dataRows = [
-      ['ID', 'Ubicación', 'Peligro identificado', 'Tipo hallazgo', 'Hallazgo / Descripción', 'Evidencia Fotográfica', 'Fotos (Enlace / Fórmula)', 'Riesgo asociado', 'Recomendaciones Copasst', 'Responsable de ejecutar la acción']
+      ['ID', 'Ubicación', 'Peligro identificado', 'Tipo hallazgo', 'Hallazgo / Descripción', 'Evidencia Fotográfica', 'Fotos (Enlace / Evidencia)', 'Riesgo asociado', 'Recomendaciones Copasst', 'Responsable de ejecutar la acción']
     ];
 
     currentItems.forEach((item, index) => {
@@ -4461,6 +4475,18 @@ async function exportSenaExcelReport() {
       const recomendacion = item.recomendacionesCopasst || item.recommendation || 'Realizar mantenimiento técnico correctivo.';
       const responsable = item.assignedTo || 'Coordinación Administrativa y Servicios Generales.';
 
+      // Limpiar datos Base64 para evitar imprimir bloques de código texto en la celda
+      let fotoCeldaVal = 'Sin foto registrada';
+      if (rawSrc) {
+        if (rawSrc.startsWith('http://') || rawSrc.startsWith('https://')) {
+          fotoCeldaVal = rawSrc;
+        } else if (rawSrc.startsWith('data:image')) {
+          fotoCeldaVal = `[Foto de Evidencia Capturada en Campo #${itemNum}]`;
+        } else {
+          fotoCeldaVal = rawSrc;
+        }
+      }
+
       dataRows.push([
         itemNum,
         ubicacion,
@@ -4468,7 +4494,7 @@ async function exportSenaExcelReport() {
         tipo,
         descripcion,
         fotoDesc,
-        rawSrc,
+        fotoCeldaVal,
         riesgoAsoc,
         recomendacion,
         responsable
